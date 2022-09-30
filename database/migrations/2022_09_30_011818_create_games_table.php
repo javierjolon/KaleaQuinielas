@@ -15,10 +15,12 @@ class CreateGamesTable extends Migration
     {
         Schema::create('games', function (Blueprint $table) {
             $table->id();
-            $table->integer("team1");
-            $table->integer("score1");
-            $table->integer("team2");
-            $table->integer("score2");
+            $table->unsignedBigInteger("team1");
+            $table->foreign('team1')->references('id')->on('teams');
+            $table->integer("score1")->nullable();
+            $table->unsignedBigInteger("team2");
+            $table->foreign('team2')->references('id')->on('teams');
+            $table->integer("score2")->nullable();
             $table->date("dateGame");
             $table->time("timeGame");
             $table->timestamps();

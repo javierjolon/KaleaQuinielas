@@ -23,3 +23,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/teams', 'TeamsController@index')->name('teams');
 Route::post('/setTeam','TeamsController@setTeam')->name('setTeam');
+
+Route::get('/games', 'GamesController@index')->name('games');
+Route::post('/setGame', 'GamesController@setGame')->name('setGame');
