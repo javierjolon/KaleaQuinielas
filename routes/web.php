@@ -26,3 +26,5 @@ Route::post('/setTeam','TeamsController@setTeam')->name('setTeam');
 
 Route::get('/games', 'GamesController@index')->name('games');
 Route::post('/setGame', 'GamesController@setGame')->name('setGame');
+
+Route::get('/quiniela', 'QuinielaController@index')->name('quiniela');
