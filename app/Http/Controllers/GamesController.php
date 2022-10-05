@@ -9,8 +9,11 @@ use Illuminate\Support\Facades\DB;
 class GamesController extends Controller
 {
     public function index(){
-        $teams = DB::table('teams')->get();
-        $games = DB::table('games')
+        $teams = DB::table('team')->get();
+        $games = DB::table('game')
+            ->join('team as t1', 't1.id', '=', 'game.team1')
+            ->join('team as t2', 't2.id', '=', 'game.team2')
+            ->select('t1.name as team1', 't2.name as team2', 'game.dateGame', 'game.timeGame')
             ->orderBy('dateGame','asc')
             ->orderBy('timeGame', 'asc')
             ->get();
@@ -25,7 +28,7 @@ class GamesController extends Controller
         $date = request()->get('date');
         $time = request()->get('time');
 
-        DB::table('games')->insert(
+        DB::table('game')->insert(
             [
                 'team1' => $team1,
                 'score1' => null,

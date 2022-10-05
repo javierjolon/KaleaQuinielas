@@ -28,3 +28,4 @@ Route::get('/games', 'GamesController@index')->name('games');
 Route::post('/setGame', 'GamesController@setGame')->name('setGame');
 
 Route::get('/quiniela', 'QuinielaController@index')->name('quiniela');
+Route::post('/setQuiniela', 'QuinielaController@setQuiniela')->name('setQuiniela');

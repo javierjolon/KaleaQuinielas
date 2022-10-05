@@ -34,8 +34,8 @@
                         <table class="table table-striped table-hover">
                             <thead>
                             <tr>
-                                <th scope="col">Nombre</th>
-                                <th scope="col">Grupo</th>
+                                <th scope="col">Equipo 1</th>
+                                <th scope="col">Equipo 2</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Hora</th>
                             </tr>

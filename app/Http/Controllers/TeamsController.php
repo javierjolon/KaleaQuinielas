@@ -11,7 +11,7 @@ class TeamsController extends Controller
 {
     public function index()
     {
-        $teams = DB::table('teams')->orderBy('group', 'asc') ->get();
+        $teams = DB::table('team')->orderBy('group', 'asc') ->get();
         return view('teams/index', compact('teams'));
     }
 
@@ -19,7 +19,7 @@ class TeamsController extends Controller
     {
         $team = request()->get('team');
         $group = request()->get('group');
-        DB::table('teams')->insert([
+        DB::table('team')->insert([
             [
                 'name' => $team,
                 'group' => $group,
