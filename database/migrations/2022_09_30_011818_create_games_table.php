@@ -13,14 +13,13 @@ class CreateGamesTable extends Migration
      */
     public function up()
     {
-        Schema::create('games', function (Blueprint $table) {
+        Schema::create('game', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger("team1");
-            $table->foreign('team1')->references('id')->on('teams');
             $table->integer("score1")->nullable();
             $table->unsignedBigInteger("team2");
-            $table->foreign('team2')->references('id')->on('teams');
             $table->integer("score2")->nullable();
+            $table->integer('typeGame');
             $table->date("dateGame");
             $table->time("timeGame");
             $table->timestamps();
@@ -34,6 +33,6 @@ class CreateGamesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('games');
+        Schema::dropIfExists('game');
     }
 }

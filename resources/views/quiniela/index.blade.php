@@ -19,6 +19,7 @@
                             </thead>
                             <tbody>
                             @foreach($games as $game)
+{{--                                {{dd($games)}}--}}
                                 <form method="post" action="{{ route('setQuiniela') }}">
                                     @csrf
                                     <input type="text" name="gameId" value="{{$game->id}}" hidden>
@@ -31,10 +32,12 @@
                                             @foreach($results as $result)
                                                 @if($result->gameId == $game->id)
                                                     <?php $adentro = true; ?>
-                                                    @if($result->scoreTeam1 != null)
-                                                        <input type="number" name="score1" class="w-50 text-center" value="{{$result->scoreTeam1}}">
+                                                    @if($game->dateGame >= date('Y-m-d')  )
+                                                        @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->timeGame))))
+                                                            <input type="number" name="score1" class="w-50 text-center" value="{{$result->scoreTeam1}}">
+                                                        @endif
                                                     @else
-                                                        <input type="number" name="score1" class="w-50">
+                                                            <p style="font-weight: bold">{{$result->scoreTeam1}}</p>
                                                     @endif
                                                 @endif
                                             @endforeach
@@ -49,10 +52,12 @@
                                             @foreach($results as $result)
                                                 @if($result->gameId == $game->id)
                                                     <?php $adentro = true; ?>
-                                                    @if($result->scoreTeam2 >= null)
-                                                            <input type="number" name="score2" class="w-50 text-center" value="{{$result->scoreTeam2}}">
+                                                    @if($game->dateGame >= date('Y-m-d')  )
+                                                        @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->timeGame))))
+                                                            <input type="number" name="score1" class="w-50 text-center" value="{{$result->scoreTeam2}}">
+                                                        @endif
                                                     @else
-                                                        <input type="number" name="score2" class="w-50">
+                                                        <p style="font-weight: bold">{{$result->scoreTeam2}}</p>
                                                     @endif
                                                 @endif
                                             @endforeach

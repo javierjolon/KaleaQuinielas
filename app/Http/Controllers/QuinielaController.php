@@ -27,8 +27,7 @@ class QuinielaController extends Controller
             ->get();
 
 
-        $results = DB::table('quiniela as q')
-            ->select('q.scoreTeam1', 'q.scoreTeam2', 'q.gameId')
+        $results = DB::table('quiniela')
             ->where('userId', '=', Auth::user()->id)
             ->get();
 
@@ -61,8 +60,30 @@ class QuinielaController extends Controller
         }else{
             return back()->with('error', 'Hora no válida');
         }
+    }
+
+    public function pointsXgame(){
+        $games = DB::table('game')
+            ->join('team as t1', 't1.id', '=', 'game.team1')
+            ->join('team as t2', 't2.id', '=', 'game.team2')
+            ->select(
+                't1.name as team1',
+                't2.name as team2',
+                'game.score1',
+                'game.score2',
+                'game.dateGame',
+                'game.timeGame',
+                'game.id'
+            )
+            ->orderBy('dateGame','asc')
+            ->orderBy('timeGame', 'asc')
+            ->get();
 
 
+        $results = DB::table('quiniela')
+            ->where('userId', '=', Auth::user()->id)
+            ->get();
 
+        return view('quiniela/pointsXgame', compact('games', 'results'));
     }
 }

@@ -17,21 +17,33 @@
 
                             <div class="text-center"><h2>Tabla de posiciones</h2></div>
                         <table class="table table-striped table-hover">
-                            <thead>
+                            <thead class="text-center">
                             <tr>
+                                <th scope="col"> </th>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Puntos</th>
                             </tr>
                             </thead>
-                            <tbody>
-{{--                            @foreach($games as $game)--}}
-{{--                                <tr>--}}
-{{--                                    <td>{{$game->team1}}</td>--}}
-{{--                                    <td>{{$game->team2}}</td>--}}
-{{--                                    <td>{{$game->dateGame}}</td>--}}
-{{--                                    <td>{{$game->timeGame}}</td>--}}
-{{--                                </tr>--}}
-{{--                            @endforeach--}}
+                            <tbody class="text-center">
+                            @foreach($positions as $position)
+                                <tr>
+                                    <td>
+                                        @switch($position->posicion)
+                                            @case('s')
+                                                <i class="bi bi-arrow-up" style="color: green"></i>
+                                            @break
+                                            @case('b')
+                                                <i class="bi bi-arrow-down" style="color: red"></i>
+                                            @break
+                                            @case('i')
+                                            @break
+                                        @endswitch
+
+                                    </td>
+                                    <td>{{$position->name}}</td>
+                                    <td>{{$position->points}}</td>
+                                </tr>
+                            @endforeach
                             </tbody>
                         </table>
                     </div>

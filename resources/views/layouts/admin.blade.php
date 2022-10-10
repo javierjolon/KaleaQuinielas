@@ -47,27 +47,25 @@
 {{--                                </li>--}}
 {{--                            @endif--}}
                         @else
+
                             <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('home') }}">
-                                        Tabla de posiciones
-                                    </a>
+                                    <a class="dropdown-item" href="{{ route('teams') }}">Equipos</a>
 
-                                    <a class="dropdown-item" href="{{ route('quiniela') }}">
-                                        Mi quiniela
-                                    </a>
+                                    <a class="dropdown-item" href="{{ route('games') }}">Juegos</a>
 
-                                    <a class="dropdown-item" href="{{ route('pointsXgame') }}">
-                                        Puntos por partido
-                                    </a>
+                                    <a class="dropdown-item" href="{{ route('addResult') }}">Agregar marcador</a>
+
+                                    <a class="dropdown-item" href="{{ route('registrar') }}">Registrar participante</a>
+
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                        document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
 

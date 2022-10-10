@@ -13,7 +13,7 @@ class CreateTeamsTable extends Migration
      */
     public function up()
     {
-        Schema::create('teams', function (Blueprint $table) {
+        Schema::create('team', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('group');
@@ -28,6 +28,6 @@ class CreateTeamsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teams');
+        Schema::dropIfExists('team');
     }
 }
