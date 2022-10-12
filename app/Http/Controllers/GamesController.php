@@ -10,12 +10,14 @@ use Illuminate\Support\Facades\DB;
 class GamesController extends Controller
 {
     public function index(){
-        $teams = DB::table('team')->get();
+        $teams = DB::table('team')
+            ->orderBy('name', 'asc')
+            ->get();
         $types = DB::table('type_game')->get();
         $games = DB::table('game')
             ->join('team as t1', 't1.id', '=', 'game.team1')
             ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->join('type_game as tg', 'tg.id', '=', 'game.id')
+            ->join('type_game as tg', 'tg.id', '=', 'game.typeGame')
             ->select('t1.name as team1', 't2.name as team2', 'game.dateGame', 'game.timeGame', 'tg.name as type')
             ->orderBy('dateGame','asc')
             ->orderBy('timeGame', 'asc')
@@ -104,11 +106,47 @@ class GamesController extends Controller
                 ->where('id', '=', $quiniela->id)
                 ->update([ 'pointsXGame' => $pointsXGame ]);
 
+            $accumulatedPoints = DB::table('users')
+                ->select('points')
+                ->where('id', '=', $quiniela->userId)->first();
+
+            DB::table('users')
+                ->where('id', '=', $quiniela->userId)
+                ->update([
+                    'points' => intval($pointsXGame + $accumulatedPoints->points)
+                ]);
+
             $pointsXGame = 0;
         }
 
+        $this->updatePostition();
         return back()->with('success', 'Actualizado correctamente');
     }
+
+    private function updatePostition(){
+
+        $users = DB::table('users')
+            ->where('id', '<>', '1')
+            ->orderBy('points', 'desc')
+            ->get();
+
+        foreach ($users as $clave => $user) {
+            if ($user->actualPosition > $clave+1){
+                DB::table('users')
+                    ->where('id', '=', $user->id)
+                    ->update(['actualPosition' => intval($clave +1), 'posicion' => 's']);
+            }elseif ($user->actualPosition == $clave+1){
+                DB::table('users')
+                    ->where('id', '=', $user->id)
+                    ->update(['actualPosition' => intval($clave +1), 'posicion' => 'i']);
+            }elseif($user->actualPosition < $clave+1){
+                DB::table('users')
+                    ->where('id', '=', $user->id)
+                    ->update(['actualPosition' => intval($clave +1), 'posicion' => 'b']);
+            }
+        }
+    }
+
 
     private function analizeGame($score1, $score2){
         if ($score1 > $score2){

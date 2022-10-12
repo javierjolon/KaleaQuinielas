@@ -6,7 +6,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
-                        <p>Agregar resultado de partido, resultado de 90 minutos</p>
+                        <p>Agregar el resultado del juego de los 90 minutos</p>
                         <table class="table table-striped table-hover table-responsive text-center">
                             <thead>
                             <tr>

@@ -62,7 +62,7 @@
                                     </a>
 
                                     <a class="dropdown-item" href="{{ route('pointsXgame') }}">
-                                        Puntos por partido
+                                        Mis puntos por partido
                                     </a>
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"

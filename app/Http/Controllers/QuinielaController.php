@@ -36,30 +36,39 @@ class QuinielaController extends Controller
     }
 
     public function setQuiniela(){
-        echo "edentro";
         $userId = Auth::user()->id;
         $gameId = request()->get('gameId');
         $score1 = request()->get('score1');
         $score2 = request()->get('score2');
         $timeGame = request()->get('timeGame');
+        $dateGame = request()->get('dateGame');
 
-        if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($timeGame)))){
-            DB::table('quiniela')
-                ->updateOrInsert(
-                    ['userId'=> $userId, 'gameId' => $gameId],
-                    [
-                        'userId' => $userId,
-                        'gameId' => $gameId,
-                        'scoreTeam1' => $score1,
-                        'scoreTeam2' => $score2,
-                        'pointsXGame' => 0,
-                        'created_at' => date('Y-m-d H:i:s')
-                    ]
-                );
+        if($dateGame > date('Y-m-d')){
+            $this->updateQuiniela($userId, $gameId, $score1, $score2);
             return back()->with('success', 'Actualizado correctamente');
-        }else{
-            return back()->with('error', 'Hora no válida');
+        }elseif ($dateGame = date('Y-m-d')){
+            if (date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($timeGame)))){
+                $this->updateQuiniela($userId, $gameId, $score1, $score2);
+                return back()->with('success', 'Actualizado correctamente');
+            }else{
+                return back()->with('error', 'Hora no válida');
+            }
         }
+    }
+
+    public function updateQuiniela($userId, $gameId, $score1, $score2){
+        DB::table('quiniela')
+            ->updateOrInsert(
+                ['userId'=> $userId, 'gameId' => $gameId],
+                [
+                    'userId' => $userId,
+                    'gameId' => $gameId,
+                    'scoreTeam1' => $score1,
+                    'scoreTeam2' => $score2,
+                    'pointsXGame' => 0,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]
+            );
     }
 
     public function pointsXgame(){
@@ -79,11 +88,15 @@ class QuinielaController extends Controller
             ->orderBy('timeGame', 'asc')
             ->get();
 
-
         $results = DB::table('quiniela')
             ->where('userId', '=', Auth::user()->id)
             ->get();
 
-        return view('quiniela/pointsXgame', compact('games', 'results'));
+        $points = DB::table('users')
+            ->select('points')
+            ->where('id', '=', Auth::user()->id)
+            ->first();
+
+        return view('quiniela/pointsXgame', compact('games', 'results', 'points'));
     }
 }

@@ -41,9 +41,7 @@
                         <table class="table table-striped table-hover">
                             <thead>
                             <tr class="text-center">
-                                <th scope="col">Equipo 1</th>
-                                <th scope="col"> </th>
-                                <th scope="col">Equipo 2</th>
+                                <th scope="col">Juego</th>
                                 <th scope="col">Tipo</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Hora</th>
@@ -52,9 +50,7 @@
                             <tbody class="text-center">
                             @foreach($games as $game)
                                 <tr>
-                                    <td>{{$game->team1}}</td>
-                                    <td>vs</td>
-                                    <td>{{$game->team2}}</td>
+                                    <td>{{$game->team1}} vrs {{$game->team2}}</td>
                                     <td>{{$game->type}}</td>
                                     <td>{{$game->dateGame}}</td>
                                     <td>{{$game->timeGame}}</td>

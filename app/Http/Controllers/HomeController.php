@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -47,15 +48,15 @@ class HomeController extends Controller
     }
 
     public function registrarParticipante(Request $data){
-        $respuesta = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password'])
-        ]);
+        try {
+            $respuesta = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password'])
+            ]);
 
-        if ($respuesta->exists){
             return back()->with('success', 'Creado correctamente');
-        }else{
+        }catch (Exception $e){
             return back()->with('error', 'Error al crear usuario');
         }
     }

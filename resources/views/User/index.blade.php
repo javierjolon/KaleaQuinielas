@@ -36,6 +36,7 @@
                                                 <i class="bi bi-arrow-down" style="color: red"></i>
                                             @break
                                             @case('i')
+                                                <i class="bi bi-dash-circle"></i>
                                             @break
                                         @endswitch
 
