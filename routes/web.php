@@ -23,6 +23,8 @@ Route::get('/registrar', 'HomeController@registrar')->name('registrar');
 Route::post('/registrarParticipante', 'HomeController@registrarParticipante')->name('registrarParticipante');
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/nadaQueVer', 'HomeController@nadaQueVer')->name('nadaQueVer');
+Route::get('/porPoquito', 'HomeController@porPoquito')->name('porPoquito');
 
 Route::get('/teams', 'TeamsController@index')->name('teams');
 Route::post('/setTeam','TeamsController@setTeam')->name('setTeam');

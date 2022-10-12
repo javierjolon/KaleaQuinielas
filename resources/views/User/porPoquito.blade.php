@@ -8,10 +8,10 @@
 
                     <ul class="nav justify-content-center mt-4">
                         <li class="nav-item">
-                            <a class="btn btn-outline-secondary active" href="{{route('home')}}">Tabla de posiciones</a>
+                            <a class="btn btn-outline-secondary" href="{{route('home')}}">Tabla de posiciones</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-secondary" href="{{route('porPoquito')}}">Tabla por poquito</a>
+                            <a class="btn btn-outline-secondary active" href="{{route('porPoquito')}}">Tabla por poquito</a>
                         </li>
                         <li class="nav-item">
                             <a class="btn btn-outline-secondary" href="{{route('nadaQueVer')}}">Tabla nada que ver</a>
@@ -25,35 +25,31 @@
                             </div>
                         @endif
 
-                        <div class="text-center"><h2>Tabla de posiciones</h2></div>
+                        <div class="text-center"><h4>Personas que por poquito le pegan a los resultados de hoy</h4></div>
+                        <div class="text-center"><h4>{{date('d-m-Y')}}</h4></div>
 
                         <table class="table table-striped table-hover">
                             <thead class="text-center">
                             <tr>
-                                <th scope="col"> </th>
                                 <th scope="col">Nombre</th>
-                                <th scope="col">Puntos</th>
+                                <th scope="col">Equipo 1</th>
+                                <th scope="col">Equipo 2</th>
                             </tr>
                             </thead>
                             <tbody class="text-center">
-                            @foreach($positions as $position)
+                            @foreach($games as $game)
                                 <tr>
+                                    <td>{{$game->name}}</td>
                                     <td>
-                                        @switch($position->posicion)
-                                            @case('s')
-                                                <i class="bi bi-arrow-up" style="color: green"></i>
-                                            @break
-                                            @case('b')
-                                                <i class="bi bi-arrow-down" style="color: red"></i>
-                                            @break
-                                            @case('i')
-                                                <i class="bi bi-dash-circle"></i>
-                                            @break
-                                        @endswitch
-
+                                        {{$game->team1}}({{$game->original1}})
+                                        <br>
+                                        {{$game->score1}}
                                     </td>
-                                    <td>{{$position->name}}</td>
-                                    <td>{{$position->points}}</td>
+                                    <td>
+                                        {{$game->team2}}({{$game->original2}})
+                                        <br>
+                                        {{$game->score2}}
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>

@@ -61,4 +61,34 @@ class HomeController extends Controller
         }
     }
 
+    public function porPoquito(){
+        $fecha = date('Y-m-d');
+        $games = DB::table('game as g')
+            ->select('t1.name as team1', 't2.name as team2', 'u.name', 'q.scoreTeam1 as score1', 'q.scoreTeam2 as score2', 'g.score1 as original1', 'g.score2 as original2')
+            ->leftJoin('quiniela as q', 'q.gameId', '=', 'g.id')
+            ->leftJoin('users as u', 'u.id', '=', 'q.userId')
+            ->leftJoin('team as t1', 't1.id', '=', 'g.team1')
+            ->leftJoin('team as t2', 't2.id', '=', 'g.team2')
+            ->where('g.dateGame', '=', $fecha)
+            ->where('q.pointsXGame', '=', 2)
+            ->get();
+
+        return view('User/porPoquito', compact('games'));
+    }
+
+    public function nadaQueVer(){
+        $fecha = date('Y-m-d');
+        $games = DB::table('game as g')
+            ->select('t1.name as team1', 't2.name as team2', 'u.name', 'q.scoreTeam1 as score1', 'q.scoreTeam2 as score2', 'g.score1 as original1', 'g.score2 as original2')
+            ->leftJoin('quiniela as q', 'q.gameId', '=', 'g.id')
+            ->leftJoin('users as u', 'u.id', '=', 'q.userId')
+            ->leftJoin('team as t1', 't1.id', '=', 'g.team1')
+            ->leftJoin('team as t2', 't2.id', '=', 'g.team2')
+            ->where('g.dateGame', '=', $fecha)
+            ->where('q.pointsXGame', '=', 0)
+            ->get();
+
+        return view('User/nadaQueVer', compact('games'));
+    }
+
 }
