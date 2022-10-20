@@ -27,9 +27,17 @@
                             </thead>
                             <tbody>
                             @foreach($teams as $team)
-                                <tr>
-                                    <td>{{$team->name}}</td>
-                                    <td>{{$team->group}}</td>
+                                <tr class="col-12">
+                                    <td class="row">
+                                        <div class="col-4">
+                                            <img class="avatar" src="{{$team->image}}">
+                                        </div>
+                                        <div class="col">
+                                            {{$team->name}}
+                                        </div>
+                                    </td>
+{{--                                    <td>{{$team->name}}</td>--}}
+                                    <td class="col-6">{{$team->group}}</td>
                                 </tr>
                             @endforeach
                             </tbody>

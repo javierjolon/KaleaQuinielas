@@ -55,10 +55,10 @@
                                                 @if($result->gameId == $game->id)
                                                     <?php $adentro = true; ?>
                                                     @if($game->dateGame > date('Y-m-d')  )
-                                                        <input type="number" name="score1" class="w-50 text-center" min="0" value="{{$result->scoreTeam2}}" required>
+                                                        <input type="number" name="score2" class="w-50 text-center" min="0" value="{{$result->scoreTeam2}}" required>
                                                     @elseif($game->dateGame == date('Y-m-d'))
                                                         @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->timeGame))))
-                                                            <input type="number" name="score1" class="w-50 text-center" min="0" value="{{$result->scoreTeam2}}" required>
+                                                            <input type="number" name="score2" class="w-50 text-center" min="0" value="{{$result->scoreTeam2}}" required>
                                                         @endif
                                                     @else
                                                         <p style="font-weight: bold">{{$result->scoreTeam2}}</p>

@@ -17,3 +17,10 @@ $yellow: #ffed4a;
 $green: #38c172;
 $teal: #4dc0b5;
 $cyan: #6cb2eb;
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 40px; /* половина ширины и высоты */
+    //margin: 10px;
+}

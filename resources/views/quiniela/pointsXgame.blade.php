@@ -15,7 +15,7 @@
                             </div>
                         </div>
 
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover text-center">
                             <thead>
                             <tr>
                                 <th scope="col">Equipo 1</th>
@@ -27,25 +27,35 @@
                             </thead>
                             <tbody>
                             @foreach($games as $game)
-                            <tr>
-                                <td>
-                                    {{$game->team1}} ({{$game->score1}})
-                                    <br>
-                                    @foreach($results as $result)
-                                        @if($result->gameId == $game->id)
-                                            <p style="font-weight: bold">{{$result->scoreTeam1}}</p>
-                                        @endif
-                                    @endforeach
+                            <tr class="col-12">
+                                <td class="row">
+                                    <div class="col-4">
+                                        <img class="avatar" src="{{$game->image1}}">
+                                    </div>
+                                    <div class="col-8">
+                                        {{$game->team1}} ({{$game->score1}})
+                                        <br>
+                                        @foreach($results as $result)
+                                            @if($result->gameId == $game->id)
+                                                <p style="font-weight: bold">{{$result->scoreTeam1}}</p>
+                                            @endif
+                                        @endforeach
+                                    </div>
                                 </td>
                                 <td>vrs</td>
-                                <td>
-                                    {{$game->team2}} ({{$game->score2}})
-                                    <br>
-                                    @foreach($results as $result)
-                                        @if($result->gameId == $game->id)
-                                            <p style="font-weight: bold">{{$result->scoreTeam2}}</p>
-                                        @endif
-                                    @endforeach
+                                <td class="row">
+                                    <div class="col-8">
+                                        {{$game->team2}} ({{$game->score2}})
+                                        <br>
+                                        @foreach($results as $result)
+                                            @if($result->gameId == $game->id)
+                                                <p style="font-weight: bold">{{$result->scoreTeam2}}</p>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    <div class="col-4">
+                                        <img class="avatar" src="{{$game->image2}}">
+                                    </div>
                                 </td>
 {{--                                <td>{{$game->dateGame}} <br> {{$game->timeGame}} </td>--}}
                                 <td>

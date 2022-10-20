@@ -12,6 +12,7 @@
                             <tr>
                                 <th scope="col">Equipo 1</th>
                                 <th scope="col">Equipo 2</th>
+                                <th scope="col">Marcador final</th>
                                 <th scope="col">Accion</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Hora Inicio</th>
@@ -19,7 +20,6 @@
                             </thead>
                             <tbody>
                             @foreach($games as $game)
-{{--                                {{dd($games)}}--}}
                                 <form method="post" action="{{ route('setResultGame') }}">
                                     @csrf
                                     <input type="text" name="gameId" value="{{$game->id}}" hidden>
@@ -27,12 +27,6 @@
                                         <td>
                                             {{$game->team1}}
                                             <br>
-{{--                                            @if($game->dateGame >= date('Y-m-d')  )--}}
-{{--                                                <input type="number" name="score1" class="w-50 text-center" value="{{$game->score1}}">--}}
-{{--                                            @else--}}
-{{--                                                <p style="font-weight: bold">{{$game->score1}}</p>--}}
-{{--                                            @endif--}}
-
                                             @if(is_numeric($game->score1))
                                                 <p style="font-weight: bold">{{$game->score1}}</p>
                                             @else
@@ -42,17 +36,16 @@
                                         <td>
                                             {{$game->team2}}
                                             <br>
-{{--                                            @if($game->dateGame >= date('Y-m-d')  )--}}
-{{--                                                <input type="number" name="score1" class="w-50 text-center" value="{{$game->score2}}">--}}
-{{--                                            @else--}}
-{{--                                                <p style="font-weight: bold">{{$game->score2}}</p>--}}
-{{--                                            @endif--}}
-
                                             @if(is_numeric($game->score2))
                                                 <p style="font-weight: bold">{{$game->score2}}</p>
                                             @else
                                                 <input type="number" name="score2" class="w-50">
                                             @endif
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="marcadorFinal" value="1">
+                                            </div>
                                         </td>
                                         <td>
                                             @if(is_numeric($game->score1) && is_numeric($game->score2))

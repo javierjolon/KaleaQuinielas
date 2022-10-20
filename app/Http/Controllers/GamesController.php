@@ -18,7 +18,7 @@ class GamesController extends Controller
             ->join('team as t1', 't1.id', '=', 'game.team1')
             ->join('team as t2', 't2.id', '=', 'game.team2')
             ->join('type_game as tg', 'tg.id', '=', 'game.typeGame')
-            ->select('t1.name as team1', 't2.name as team2', 'game.dateGame', 'game.timeGame', 'tg.name as type')
+            ->select('t1.name as team1', 't2.name as team2', 'game.dateGame', 'game.timeGame', 'tg.name as type', 't1.image as image1', 't2.image as image2')
             ->orderBy('dateGame','asc')
             ->orderBy('timeGame', 'asc')
             ->get();
@@ -75,6 +75,7 @@ class GamesController extends Controller
         $gameId = request()->get('gameId');
         $score1 = request()->get('score1');
         $score2 = request()->get('score2');
+        $marcadorFinal = request()->get('marcadorFinal');
 
         DB::table('game')
             ->updateOrInsert(
@@ -118,7 +119,6 @@ class GamesController extends Controller
 
             $pointsXGame = 0;
         }
-
         $this->updatePostition();
         return back()->with('success', 'Actualizado correctamente');
     }

@@ -82,7 +82,9 @@ class QuinielaController extends Controller
                 'game.score2',
                 'game.dateGame',
                 'game.timeGame',
-                'game.id'
+                'game.id',
+                't1.image as image1',
+                't2.image as image2'
             )
             ->orderBy('dateGame','asc')
             ->orderBy('timeGame', 'asc')

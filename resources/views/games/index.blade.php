@@ -49,11 +49,21 @@
                             </thead>
                             <tbody class="text-center">
                             @foreach($games as $game)
-                                <tr>
-                                    <td>{{$game->team1}} vrs {{$game->team2}}</td>
-                                    <td>{{$game->type}}</td>
-                                    <td>{{$game->dateGame}}</td>
-                                    <td>{{$game->timeGame}}</td>
+                                <tr class="col-12">
+                                    <td class="row">
+                                        <div class="col-3">
+                                            <img class="avatar" src="{{$game->image1}}">
+                                        </div>
+                                        <div class="col-6">
+                                            {{$game->team1}} vrs {{$game->team2}}
+                                        </div>
+                                        <div class="col-3">
+                                            <img class="avatar" src="{{$game->image2}}">
+                                        </div>
+                                    </td>
+                                    <td class="col-2">{{$game->type}}</td>
+                                    <td class="col-2">{{$game->dateGame}}</td>
+                                    <td class="col-2">{{$game->timeGame}}</td>
                                 </tr>
                             @endforeach
                             </tbody>
