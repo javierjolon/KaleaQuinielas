@@ -25,7 +25,16 @@
                             </div>
                         @endif
 
-                        <div class="text-center"><h2>Tabla de posiciones</h2></div>
+                        <div class="text-center">
+                            <h2>Tabla de posiciones</h2>
+
+                            @if($cantidad == 1)
+                                <span>En juego</span>
+                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: green">
+                                    <span class="visually-hidden"></span>
+                                </div>
+                            @endif
+                        </div>
 
                         <table class="table table-striped table-hover">
                             <thead class="text-center">
@@ -39,7 +48,7 @@
                             @foreach($positions as $position)
                                 <tr>
                                     <td>
-                                        @switch($position->posicion)
+                                        @switch($position->upDownTemp)
                                             @case('s')
                                                 <i class="bi bi-arrow-up" style="color: green"></i>
                                             @break
@@ -50,10 +59,9 @@
                                                 <i class="bi bi-dash-circle"></i>
                                             @break
                                         @endswitch
-
                                     </td>
                                     <td>{{$position->name}}</td>
-                                    <td>{{$position->points}}</td>
+                                    <td>{{$position->accumulatedPointsTemp}}</td>
                                 </tr>
                             @endforeach
                             </tbody>

@@ -33,6 +33,9 @@ Route::get('/games',                    'GamesController@index')->name('games');
 Route::post('/setGame',                 'GamesController@setGame')->name('setGame');
 Route::get('/addResult',                'GamesController@addResult')->name('addResult');
 Route::post('/setResultGame',           'GamesController@setResultGame')->name('setResultGame');
+Route::get('/initGame',                 'GamesController@initGame')->name('initGame');
+Route::post('/endGame',                 'GamesController@endGame')->name('endGame');
+Route::post('/starGame',                'GamesController@starGame')->name('starGame');
 
 
 Route::get('/quiniela',                 'QuinielaController@index')->name('quiniela');

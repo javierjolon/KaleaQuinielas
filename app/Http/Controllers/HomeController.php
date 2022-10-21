@@ -31,11 +31,23 @@ class HomeController extends Controller
         if (Auth::user()->email == 'admin@admin.com'){
             return view('Admin/index');
         }else{
-            $positions = DB::table('users')
-                ->where('id', '<>', '1')
-                ->orderBy('actualPosition', 'asc')
-                ->get();
-            return view('User/index', compact('positions'));
+            $cantidad = DB::table('game')
+                ->where('status', '=', 2)
+                ->count('status');
+
+            if ($cantidad > 0){
+                $positions = DB::table('users')
+                    ->where('id', '<>', '1')
+                    ->orderBy('actualPositionTemp', 'asc')
+                    ->get();
+            }else{
+                $positions = DB::table('users')
+                    ->where('id', '<>', '1')
+                    ->orderBy('actualPosition', 'asc')
+                    ->get();
+            }
+
+            return view('User/index', compact('positions', 'cantidad'));
         }
     }
 
