@@ -13,7 +13,9 @@ class GamesController extends Controller
         $teams = DB::table('team')
             ->orderBy('name', 'asc')
             ->get();
+
         $types = DB::table('type_game')->get();
+
         $games = DB::table('game')
             ->join('team as t1', 't1.id', '=', 'game.team1')
             ->join('team as t2', 't2.id', '=', 'game.team2')

@@ -30,7 +30,7 @@
 
                             @if($cantidad == 1)
                                 <span>En juego</span>
-                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: green">
+                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: red">
                                     <span class="visually-hidden"></span>
                                 </div>
                             @endif

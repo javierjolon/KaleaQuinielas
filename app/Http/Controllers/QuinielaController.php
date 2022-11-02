@@ -20,6 +20,7 @@ class QuinielaController extends Controller
                 'game.score2',
                 'game.dateGame',
                 'game.timeGame',
+                'game.status',
                 'game.id'
             )
             ->orderBy('dateGame','asc')
@@ -30,7 +31,6 @@ class QuinielaController extends Controller
         $results = DB::table('quiniela')
             ->where('userId', '=', Auth::user()->id)
             ->get();
-
 
         return view('quiniela/index', compact('games', 'results'));
     }
@@ -108,7 +108,7 @@ class QuinielaController extends Controller
                 ->where('id', '=', Auth::user()->id)
                 ->first();
         }
-
+//        dd($results);
         return view('quiniela/pointsXgame', compact('games', 'results', 'points'));
     }
 }

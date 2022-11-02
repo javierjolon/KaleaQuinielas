@@ -50,17 +50,17 @@
                                 </div>
                                 <div class="text-center">
                                     @if(is_numeric($games->score1))
-                                        <input type="number" name="score1" value="{{$games->score1}}" class="w-50">
+                                        <input type="number" name="score1" value="{{$games->score1}}" class="w-50" min="0">
                                     @else
-                                        <input type="number" name="score1" class="w-50">
+                                        <input type="number" name="score1" class="w-50" min="0">
                                     @endif
                                 </div>
                                 <div> - </div>
                                 <div class="text-center">
                                     @if(is_numeric($games->score2))
-                                        <input type="number" name="score2" value="{{$games->score2}}" class="w-50">
+                                        <input type="number" name="score2" value="{{$games->score2}}" class="w-50" min="0">
                                     @else
-                                        <input type="number" name="score2" class="w-50">
+                                        <input type="number" name="score2" class="w-50" min="0">
                                     @endif
                                 </div>
                                 <div class="text-center">
