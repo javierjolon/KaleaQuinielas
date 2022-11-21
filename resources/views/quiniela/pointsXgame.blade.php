@@ -11,7 +11,7 @@
                                 <h4>Puntos por partido</h4>
                             </div>
                             <div>
-                                <p>Total puntos: {{$points->points}}</p>
+                                <p>Total puntos: {{$points}}</p>
                             </div>
                         </div>
 
@@ -32,6 +32,8 @@
                                             <p>{{$game->team1}}</p>
                                         </div>
                                         <div class="col-3">
+                                            <p>Juego</p>
+
                                             ( {{$game->score1}} )
                                         </div>
                                         <div class="col-4">
@@ -40,7 +42,9 @@
                                                     @if($result->gameId == $game->id && $result->userId == Auth::user()->id )
                                                         <?php $adentro = false; ?>
                                                         @if( $result->scoreTeam1 >= 0 && $result->scoreTeam2 >= 0)
-                                                            <span style="font-weight: bold">{{$result->scoreTeam1}}</span>
+                                                                <p>Mi quiniela</p>
+
+                                                                <span style="font-weight: bold">{{$result->scoreTeam1}}</span>
                                                         @endif
                                                     @endif
                                                 @endforeach

@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->integer('actualPositionTemp')->default(0);
             $table->integer('accumulatedPointsTemp')->default(0);
             $table->string('upDownTemp')->default('i');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

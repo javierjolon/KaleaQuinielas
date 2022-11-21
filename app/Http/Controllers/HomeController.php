@@ -11,6 +11,22 @@ use Illuminate\Support\Facades\Hash;
 
 class HomeController extends Controller
 {
+    public function var(){
+        $respuesta = DB::table('game')
+            ->select('users.name', 'quiniela.scoreTeam1', 'quiniela.scoreTeam2', 'quiniela.created_at as fecha', 't1.name as e1', 't2.name as e2', 'game.id')
+            ->leftJoin('quiniela', 'game.id', '=', 'quiniela.gameId')
+            ->leftJoin('team as t1', 'game.team1', '=', 't1.id')
+            ->leftJoin('team as t2', 'game.team2', '=', 't2.id')
+            ->leftJoin('users', 'quiniela.userId', '=', 'users.id')
+            ->where('game.status', '!=', '1')
+            ->orderBy('game.id', 'desc')
+            ->get();
+
+//        dd($respuesta);
+        return view('User/var', compact('respuesta'));
+    }
+
+
     /**
      * Create a new controller instance.
      *
@@ -35,17 +51,18 @@ class HomeController extends Controller
                 ->where('status', '=', 2)
                 ->count('status');
 
-            if ($cantidad > 0){
+//            if ($cantidad > 0){
+//                $positions = DB::table('users')
+//                    ->where('id', '<>', '1')
+//                    ->orderBy('actualPositionTemp', 'asc')
+//                    ->get();
+//            }else{
                 $positions = DB::table('users')
                     ->where('id', '<>', '1')
                     ->orderBy('actualPositionTemp', 'asc')
                     ->get();
-            }else{
-                $positions = DB::table('users')
-                    ->where('id', '<>', '1')
-                    ->orderBy('actualPosition', 'asc')
-                    ->get();
-            }
+//            }
+//            dd($positions);
 
             return view('User/index', compact('positions', 'cantidad'));
         }
@@ -64,8 +81,19 @@ class HomeController extends Controller
             $respuesta = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'password' => Hash::make($data['password'])
+                'password' => Hash::make($data['password']),
             ]);
+
+            if ($data->file('image') != null){
+                $file= $data->file('image');
+                $filename= date('YmdHi').$file->getClientOriginalName();
+                $file-> move(public_path('public/img/participantes'), $filename);
+                $ruta = "public/public/img/participantes/".$filename;
+
+                DB::table('users')
+                    ->where('id', '=', $respuesta->id)
+                    ->update(['image' => $ruta]);
+            }
 
             return back()->with('success', 'Creado correctamente');
         }catch (Exception $e){
@@ -101,6 +129,27 @@ class HomeController extends Controller
             ->get();
 
         return view('User/nadaQueVer', compact('games'));
+    }
+
+    public function tablaPosiciones(){
+
+            $cantidad = DB::table('game')
+                ->where('status', '=', 2)
+                ->count('status');
+
+            if ($cantidad > 0){
+                $positions = DB::table('users')
+                    ->where('id', '<>', '1')
+                    ->orderBy('actualPositionTemp', 'asc')
+                    ->get();
+            }else{
+                $positions = DB::table('users')
+                    ->where('id', '<>', '1')
+                    ->orderBy('actualPositionTemp', 'asc')
+                    ->get();
+            }
+            return view('Admin/tablaPosiciones', compact('positions', 'cantidad'));
+
     }
 
 }
