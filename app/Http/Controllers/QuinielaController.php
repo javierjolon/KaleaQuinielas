@@ -97,17 +97,26 @@ class QuinielaController extends Controller
             ->where('userId', '=', Auth::user()->id)
             ->get();
 
-        if (DB::table('game')->where('status', '=', 2)->count('status') > 0){
-            $points = DB::table('users')
-                ->select('accumulatedPointsTemp as points')
-                ->where('id', '=', Auth::user()->id)
-                ->first();
-        }else{
-            $points = DB::table('users')
-                ->select('accumulatedPoints as points')
-                ->where('id', '=', Auth::user()->id)
-                ->first();
-        }
+//        $respuesta = DB::table('game')
+//                ->where('status', '=', 2)
+//                ->count('status') > 0;
+
+        $points = DB::table('quiniela')
+            ->where('userId', '=', Auth::user()->id)
+            ->sum('pointsXGame');
+
+//        if ($respuesta){
+//
+//            $points = DB::table('users')
+//                ->select('accumulatedPointsTemp as points')
+//                ->where('id', '=', Auth::user()->id)
+//                ->first();
+//        }else{
+//            $points = DB::table('users')
+//                ->select('accumulatedPoints as points')
+//                ->where('id', '=', Auth::user()->id)
+//                ->first();
+//        }
 //        dd($results);
         return view('quiniela/pointsXgame', compact('games', 'results', 'points'));
     }

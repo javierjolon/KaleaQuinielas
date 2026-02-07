@@ -1,26 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-
-                    <ul class="nav justify-content-center mt-4">
-                        <li class="nav-item">
-                            <a class="btn btn-outline-secondary active" href="{{route('home')}}">Tabla de posiciones</a>
-                        </li>
-                        <li class="nav-item ml-1">
-                            <a class="btn btn-outline-secondary" href="{{route('var')}}">VAR</a>
-                        </li>
-{{--                        <li class="nav-item">--}}
-{{--                            <a class="btn btn-outline-secondary" href="{{route('porPoquito')}}">Tabla por poquito</a>--}}
-{{--                        </li>--}}
-{{--                        <li class="nav-item">--}}
-{{--                            <a class="btn btn-outline-secondary" href="{{route('nadaQueVer')}}">Tabla nada que ver</a>--}}
-{{--                        </li>--}}
-                    </ul>
-
                     <div class="card-body">
                         @if (session('status'))
                             <div class="alert alert-success" role="alert">
@@ -48,22 +32,9 @@
                             </tr>
                             </thead>
                             <tbody class="text-center">
-                            <?php $contador = 0; ?>
-                            @foreach($positions as $key => $position)
+                            @foreach($positions as $position)
                                 <tr>
                                     <td>
-                                        @if($contador == 0)
-                                            <span class="mr-2 " style="font-weight: bold"># 1</span>
-                                            <?php $contador++; ?>
-                                        @else
-                                            <?php $contadorTemp = $key--; ?>
-                                            @if($positions[$key]->accumulatedPointsTemp == $positions[$contadorTemp]->accumulatedPointsTemp)
-                                                <span class="mr-2 " style="font-weight: bold"># {{$contador}}</span>
-                                            @else
-                                                <?php $contador++; ?>
-                                                <span class="mr-2 " style="font-weight: bold"># {{$contador}}</span>
-                                            @endif
-                                        @endif
 
                                         @switch($position->upDownTemp)
                                             @case('s')
@@ -76,7 +47,6 @@
                                             <i class="bi bi-dash-circle"></i>
                                             @break
                                         @endswitch
-
                                     </td>
                                     <td class="d-flex flex-row justify-content-end">
 

@@ -36,7 +36,7 @@
                                                     <input type="submit" value="{{$game->statusname}}" class="btn btn-outline-primary">
                                                 @break
                                             @endswitch
-
+                                            <br>
                                             @if(is_numeric($game->score1) && is_numeric($game->score2))
                                                 {{ $game->score1 }} - {{ $game->score2 }}
                                             @endif

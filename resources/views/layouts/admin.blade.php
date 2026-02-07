@@ -55,6 +55,8 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('tablaPosiciones') }}">Tabla de posiciones</a>
+
                                     <a class="dropdown-item" href="{{ route('teams') }}">Equipos</a>
 
                                     <a class="dropdown-item" href="{{ route('games') }}">Juegos</a>

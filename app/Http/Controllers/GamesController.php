@@ -111,14 +111,13 @@ class GamesController extends Controller
                 ->where('id', '=', $quiniela->id)
                 ->update([ 'pointsXGame' => $pointsXGame ]);
 
-            $userPoint = DB::table('users')
-                ->select('accumulatedPoints')
-                ->where('id', '=', $quiniela->userId)
-                ->first();
+            $userPoint = DB::table('quiniela')
+                ->where('userId', '=', $quiniela->userId)
+                ->sum('pointsXGame');
 
             DB::table('users')
                 ->where('id', '=', $quiniela->userId)
-                ->update(['accumulatedPointsTemp' => intval($pointsXGame + $userPoint->accumulatedPoints)]);
+                ->update(['accumulatedPointsTemp' => $userPoint]);
 
             $pointsXGame = 0;
         }
@@ -225,54 +224,52 @@ class GamesController extends Controller
             ->where('id', '=', $gameId)
             ->update([ 'status' => 3 ]);
 
-        $quinielas = DB::table('game')
-            ->leftJoin('quiniela as q', 'game.id', '=' , 'q.gameId')
-            ->select(
-                'q.id as quinielaId',
-                'game.score1 as final1',
-                'game.score2 as final2',
-                'q.scoreTeam1 as quiniela1',
-                'q.scoreTeam2 as quiniela2',
-                'q.userId'
-            )
-            ->where('game.id', '=', $gameId)
-            ->get();
+//        $quinielas = DB::table('game')
+//            ->leftJoin('quiniela as q', 'game.id', '=' , 'q.gameId')
+//            ->select(
+//                'q.id as quinielaId',
+//                'game.score1 as final1',
+//                'game.score2 as final2',
+//                'q.scoreTeam1 as quiniela1',
+//                'q.scoreTeam2 as quiniela2',
+//                'q.userId'
+//            )
+//            ->where('game.id', '=', $gameId)
+//            ->get();
+//
+//        $pointsXGame = 0;
+//
+//        foreach($quinielas as $quiniela){
+//            if ($quiniela->final1 == $quiniela->quiniela1){
+//                $pointsXGame++;
+//            }
+//            if ($quiniela->final2 == $quiniela->quiniela2){
+//                $pointsXGame++;
+//            }
+//
+//            $winMatch = $this->analizeGame($quiniela->final1, $quiniela->final2);
+//            $winQuiniela = $this->analizeGame($quiniela->quiniela1, $quiniela->quiniela2);
+//
+//            if ($winMatch == $winQuiniela){
+//                $pointsXGame++;
+//            }
+//
+//            DB::table('quiniela')
+//                ->where('id', '=', $quiniela->quinielaId)
+//                ->update([ 'pointsXGame' => $pointsXGame ]);
+//
+//            $accumulatedPoints = DB::table('users')
+//                ->select('accumulatedPoints')
+//                ->where('id', '=', $quiniela->userId)->first();
+//
+//            DB::table('users')
+//                ->where('id', '=', $quiniela->userId)
+//                ->update(['accumulatedPoints' => intval($pointsXGame + $accumulatedPoints->accumulatedPoints)]);
+//
+//            $pointsXGame = 0;
+//        }
+//        $this->updateActualPostition();
 
-
-        $pointsXGame = 0;
-
-        foreach($quinielas as $quiniela){
-            if ($quiniela->final1 == $quiniela->quiniela1){
-                $pointsXGame++;
-            }
-            if ($quiniela->final2 == $quiniela->quiniela2){
-                $pointsXGame++;
-            }
-
-            $winMatch = $this->analizeGame($quiniela->final1, $quiniela->final2);
-            $winQuiniela = $this->analizeGame($quiniela->quiniela1, $quiniela->quiniela2);
-
-            if ($winMatch == $winQuiniela){
-                $pointsXGame++;
-            }
-
-
-
-            DB::table('quiniela')
-                ->where('id', '=', $quiniela->quinielaId)
-                ->update([ 'pointsXGame' => $pointsXGame ]);
-
-            $accumulatedPoints = DB::table('users')
-                ->select('accumulatedPoints')
-                ->where('id', '=', $quiniela->userId)->first();
-
-            DB::table('users')
-                ->where('id', '=', $quiniela->userId)
-                ->update(['accumulatedPoints' => intval($pointsXGame + $accumulatedPoints->accumulatedPoints)]);
-
-            $pointsXGame = 0;
-        }
-        $this->updateActualPostition();
         return back()->with('success', 'Actualizado correctamente');
     }
 
