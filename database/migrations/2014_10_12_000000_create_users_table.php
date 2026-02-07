@@ -19,9 +19,11 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->integer('actualPosition')->default(0);
-            $table->integer('newPosition')->default(0);
-            $table->integer('points')->default(0);
-            $table->string('posicion')->default('i');
+            $table->integer('accumulatedPoints')->default(0);
+            $table->string('upDown')->default('i');
+            $table->integer('actualPositionTemp')->default(0);
+            $table->integer('accumulatedPointsTemp')->default(0);
+            $table->string('upDownTemp')->default('i');
             $table->timestamps();
         });
     }

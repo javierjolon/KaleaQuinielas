@@ -7,6 +7,11 @@
   /* половина ширины и высоты */
 }
 
+.pointsXgame {
+  background-position: center;
+  background-size: contain;
+}
+
 /*!
  * Bootstrap v4.6.2 (https://getbootstrap.com/)
  * Copyright 2011-2022 The Bootstrap Authors
