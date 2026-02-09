@@ -10,12 +10,15 @@
                         <li class="nav-item">
                             <a class="btn btn-outline-secondary active" href="{{route('home')}}">Tabla de posiciones</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-secondary" href="{{route('porPoquito')}}">Tabla por poquito</a>
+                        <li class="nav-item ml-1">
+                            <a class="btn btn-outline-secondary" href="{{route('var')}}">VAR</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-secondary" href="{{route('nadaQueVer')}}">Tabla nada que ver</a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="btn btn-outline-secondary" href="{{route('porPoquito')}}">Tabla por poquito</a>--}}
+{{--                        </li>--}}
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="btn btn-outline-secondary" href="{{route('nadaQueVer')}}">Tabla nada que ver</a>--}}
+{{--                        </li>--}}
                     </ul>
 
                     <div class="card-body">
@@ -25,7 +28,16 @@
                             </div>
                         @endif
 
-                        <div class="text-center"><h2>Tabla de posiciones</h2></div>
+                        <div class="text-center">
+                            <h2>Tabla de posiciones</h2>
+
+                            @if($cantidad == 1)
+                                <span>En juego</span>
+                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: red">
+                                    <span class="visually-hidden"></span>
+                                </div>
+                            @endif
+                        </div>
 
                         <table class="table table-striped table-hover">
                             <thead class="text-center">
@@ -36,24 +48,51 @@
                             </tr>
                             </thead>
                             <tbody class="text-center">
-                            @foreach($positions as $position)
+                            <?php $contador = 0; ?>
+                            @foreach($positions as $key => $position)
                                 <tr>
                                     <td>
-                                        @switch($position->posicion)
+                                        @if($contador == 0)
+                                            <span class="mr-2 " style="font-weight: bold"># 1</span>
+                                            <?php $contador++; ?>
+                                        @else
+                                            <?php $contadorTemp = $key--; ?>
+                                            @if($positions[$key]->accumulatedPointsTemp == $positions[$contadorTemp]->accumulatedPointsTemp)
+                                                <span class="mr-2 " style="font-weight: bold"># {{$contador}}</span>
+                                            @else
+                                                <?php $contador++; ?>
+                                                <span class="mr-2 " style="font-weight: bold"># {{$contador}}</span>
+                                            @endif
+                                        @endif
+
+                                        @switch($position->upDownTemp)
                                             @case('s')
-                                                <i class="bi bi-arrow-up" style="color: green"></i>
+                                            <i class="bi bi-arrow-up" style="color: green"></i>
                                             @break
                                             @case('b')
-                                                <i class="bi bi-arrow-down" style="color: red"></i>
+                                            <i class="bi bi-arrow-down" style="color: red"></i>
                                             @break
                                             @case('i')
-                                                <i class="bi bi-dash-circle"></i>
+                                            <i class="bi bi-dash-circle"></i>
                                             @break
                                         @endswitch
 
                                     </td>
-                                    <td>{{$position->name}}</td>
-                                    <td>{{$position->points}}</td>
+                                    <td class="d-flex flex-row justify-content-end">
+
+                                        <div class="col-3">
+                                            @if($position->image == null)
+                                                <img style="width: 45px; margin-right: 10px;" src="public/public/img/participantes/nofoto.jpg">
+                                            @else
+                                                <img style="width: 45px; margin-right: 10px;" class="" src="{{$position->image}}">
+                                            @endif
+                                        </div>
+
+                                        <div class="col-7">
+                                            {{$position->name}}
+                                        </div>
+                                    </td>
+                                    <td>{{$position->accumulatedPointsTemp}}</td>
                                 </tr>
                             @endforeach
                             </tbody>

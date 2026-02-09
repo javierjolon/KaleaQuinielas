@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,27 +17,22 @@ use Illuminate\Support\Facades\Auth;
 */
 
 Route::get('/', function () {
-    return view('auth/login');
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
 });
 
-Auth::routes();
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/registrar',                'HomeController@registrar')->name('registrar');
-Route::post('/registrarParticipante',   'HomeController@registrarParticipante')->name('registrarParticipante');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-Route::get('/home',                     'HomeController@index')->name('home');
-Route::get('/nadaQueVer',               'HomeController@nadaQueVer')->name('nadaQueVer');
-Route::get('/porPoquito',               'HomeController@porPoquito')->name('porPoquito');
-
-Route::get('/teams',                    'TeamsController@index')->name('teams');
-Route::post('/setTeam',                 'TeamsController@setTeam')->name('setTeam');
-
-Route::get('/games',                    'GamesController@index')->name('games');
-Route::post('/setGame',                 'GamesController@setGame')->name('setGame');
-Route::get('/addResult',                'GamesController@addResult')->name('addResult');
-Route::post('/setResultGame',           'GamesController@setResultGame')->name('setResultGame');
-
-
-Route::get('/quiniela',                 'QuinielaController@index')->name('quiniela');
-Route::get('/pointsXgame',              'QuinielaController@pointsXgame')->name('pointsXgame');
-Route::post('/setQuiniela',             'QuinielaController@setQuiniela')->name('setQuiniela');
+require __DIR__.'/auth.php';

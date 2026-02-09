@@ -20,6 +20,7 @@ class CreateGamesTable extends Migration
             $table->unsignedBigInteger("team2");
             $table->integer("score2")->nullable();
             $table->integer('typeGame');
+            $table->string("status");
             $table->date("dateGame");
             $table->time("timeGame");
             $table->timestamps();
