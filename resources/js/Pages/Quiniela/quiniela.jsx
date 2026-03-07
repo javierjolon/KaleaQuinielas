@@ -24,7 +24,7 @@ export default function Quiniela(props) {
             <Head title="Mi quiniela" />
 
 
-            <div className="py-12">
+            <div className="pb-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
                 <Slider />
