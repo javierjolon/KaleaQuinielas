@@ -14,7 +14,7 @@ export default function Authenticated({ auth, header, children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
-                            <div className="shrink-0 flex items-center">
+                            <div className="shrink-0 flex items-start">
                                 <Link href="/">
                                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
@@ -23,6 +23,12 @@ export default function Authenticated({ auth, header, children }) {
                             <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
+                                </NavLink>
+                                <NavLink href={route('quiniela')} active={route().current('quiniela')}>
+                                    Mi quiniela
+                                </NavLink>
+                                <NavLink href={route('juegos.index')} active={route().current('juegos.index')}>
+                                    Juegos
                                 </NavLink>
                             </div>
                         </div>
@@ -95,6 +101,12 @@ export default function Authenticated({ auth, header, children }) {
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('quiniela')} active={route().current('quiniela')}>
+                            Mi quiniela
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('juegos.index')} active={route().current('juegos.index')}>
+                            Juegos
+                        </ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
@@ -121,7 +133,7 @@ export default function Authenticated({ auth, header, children }) {
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className='bg-[#e5e7eb]'>{children}</main>
         </div>
     );
 }

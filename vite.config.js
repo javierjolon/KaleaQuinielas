@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     server: {
-        host: 'kaleaquinielas.test', // 🔴 CLAVE
+        host: 'kaleaquinielas.test',
         port: 5173,
         strictPort: true,
         cors: true,

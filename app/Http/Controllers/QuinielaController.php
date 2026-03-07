@@ -5,35 +5,54 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\apiFotballService;
+use Inertia\Inertia;
 
 class QuinielaController extends Controller
 {
-    public function index(){
-
-        $games = DB::table('game')
-            ->join('team as t1', 't1.id', '=', 'game.team1')
-            ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->select(
-                't1.name as team1',
-                't2.name as team2',
-                'game.score1',
-                'game.score2',
-                'game.dateGame',
-                'game.timeGame',
-                'game.status',
-                'game.id'
-            )
-            ->orderBy('dateGame','asc')
-            ->orderBy('timeGame', 'asc')
-            ->get();
-
-
-        $results = DB::table('quiniela')
-            ->where('userId', '=', Auth::user()->id)
-            ->get();
-
-        return view('quiniela/index', compact('games', 'results'));
+    public function index(apiFotballService $football){
+        $juegos = DB::table('game')
+            ->orderBy('dateGame')
+            ->orderBy('timeGame')
+            ->get()
+            ->map(function ($game) {
+                $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
+                $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
+                $game->status = traducir_status($game->status ?? " ");
+                $game->typeGame = traducir_rondas($game->typeGame ?? " ");
+                return $game;
+            });
+        // dd($juegos);
+        return Inertia::render('Quiniela/quiniela', ['juegos' => $juegos]);
     }
+
+
+    // public function index(){
+
+    //     $games = DB::table('game')
+    //         ->join('team as t1', 't1.id', '=', 'game.team1')
+    //         ->join('team as t2', 't2.id', '=', 'game.team2')
+    //         ->select(
+    //             't1.name as team1',
+    //             't2.name as team2',
+    //             'game.score1',
+    //             'game.score2',
+    //             'game.dateGame',
+    //             'game.timeGame',
+    //             'game.status',
+    //             'game.id'
+    //         )
+    //         ->orderBy('dateGame','asc')
+    //         ->orderBy('timeGame', 'asc')
+    //         ->get();
+
+
+    //     $results = DB::table('quiniela')
+    //         ->where('userId', '=', Auth::user()->id)
+    //         ->get();
+
+    //     return view('quiniela/index', compact('games', 'results'));
+    // }
 
     public function setQuiniela(){
         $userId = Auth::user()->id;

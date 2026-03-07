@@ -6,26 +6,25 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Inertia\Inertia;
 
 class GamesController extends Controller
 {
     public function index(){
-        $teams = DB::table('team')
-            ->orderBy('name', 'asc')
-            ->get();
+        // $teams = DB::table('team')
+        //     ->orderBy('name', 'asc')
+        //     ->get();
 
-        $types = DB::table('type_game')->get();
-
+        // $types = DB::table('type_game')->get();
         $games = DB::table('game')
-            ->join('team as t1', 't1.id', '=', 'game.team1')
-            ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->join('type_game as tg', 'tg.id', '=', 'game.typeGame')
-            ->select('t1.name as team1', 't2.name as team2', 'game.dateGame', 'game.timeGame', 'tg.name as type', 't1.image as image1', 't2.image as image2')
-            ->orderBy('dateGame','asc')
-            ->orderBy('timeGame', 'asc')
+            ->orderBy('dateGame', 'asc')
+            ->orderBy('timeGame', 'des')
             ->get();
-
-        return view('games/index', compact('teams', 'games', 'types'));
+        dd($games);
+        
+        // $ga
+        return Inertia::render('Games/index', ['games' => $games]);
+        // return view('games/index', compact('games'));
     }
 
     public function setGame()
