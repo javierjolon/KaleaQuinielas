@@ -11,20 +11,19 @@ use Inertia\Inertia;
 class GamesController extends Controller
 {
     public function index(){
-        // $teams = DB::table('team')
-        //     ->orderBy('name', 'asc')
-        //     ->get();
-
-        // $types = DB::table('type_game')->get();
-        $games = DB::table('game')
-            ->orderBy('dateGame', 'asc')
-            ->orderBy('timeGame', 'des')
-            ->get();
-        dd($games);
-        
-        // $ga
-        return Inertia::render('Games/index', ['games' => $games]);
-        // return view('games/index', compact('games'));
+        $juegos = DB::table('game')
+        ->orderBy('dateGame')
+        ->orderBy('timeGame')
+        ->get()
+        ->map(function ($game) {
+            $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
+            $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
+            $game->status = traducir_status($game->status ?? " ");
+            $game->typeGame = traducir_rondas($game->typeGame ?? " ");
+            return $game;
+        });
+        // dd($juegos);
+        return Inertia::render('Games/index', ['juegos' => $juegos]);
     }
 
     public function setGame()
