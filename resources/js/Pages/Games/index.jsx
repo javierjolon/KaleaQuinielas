@@ -16,9 +16,9 @@ export default function Quiniela(props) {
 
     const statusColors = {
         'Programado' : "bg-[#BFC9D1] text-black",
-        'En juego' : "bg-[#237227] text-white",
+        'En juego' : "bg-dos text-white",
         'Medio tiempo' : "bg-white text-black",
-        'Finalizdo' : "bg-[#C00707] text-white",
+        'Finalizdo' : "bg-tres text-white",
         'Suspendido' : "bg-white text-black",
         'Pospuesto' : "bg-white text-black",
         'Cancelado' : "bg-white text-black",
@@ -81,7 +81,7 @@ export default function Quiniela(props) {
 
                                 <div className='flex flex-col items-center w-2/5'> 
                                     <div>
-                                        <img 
+                                    <img 
                                             src={juego.imagenTeam2 == null ? 'img/static/balon.jpeg' : juego.imagenTeam2} 
                                             alt="imagen" 
                                             className='w-10 h-10'

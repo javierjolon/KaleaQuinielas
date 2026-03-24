@@ -6,88 +6,140 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\apiFotballService;
+use Carbon\Carbon;
 use Inertia\Inertia;
 
 class QuinielaController extends Controller
 {
-    public function index(apiFotballService $football){
-        $juegos = DB::table('game')
-            ->orderBy('dateGame')
-            ->orderBy('timeGame')
-            ->get()
-            ->map(function ($game) {
-                $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
-                $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
-                $game->status = traducir_status($game->status ?? " ");
-                $game->typeGame = traducir_rondas($game->typeGame ?? " ");
-                return $game;
-            });
-        // dd($juegos);
-        return Inertia::render('Quiniela/quiniela', ['juegos' => $juegos]);
+    public function index(){
+        $userId = Auth::user()->id;
+        $juegosPendientes = DB::table('game as g')
+        ->whereNotExists(function ($query) use ($userId) {
+            $query->select(DB::raw(1))
+                ->from('quiniela as q')
+                ->whereColumn('q.gameId', 'g.id')
+                ->where('q.userId', $userId);
+        })
+        ->orderBy('g.dateGame')
+        ->orderBy('g.timeGame')
+        ->get()
+        ->map(function ($game) {
+            $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
+            $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
+            $game->status = traducir_status($game->status ?? " ");
+            $game->typeGame = traducir_rondas($game->typeGame ?? " ");
+            return $game;
+        });
+
+        $juegosIngresados = DB::table('quiniela')
+        ->select("quiniela.scoreTeam1", "quiniela.scoreTeam2", 
+            "game.id", "game.dateGame", "game.timeGame", "game.team1", "game.imagenTeam1", "game.team2", "game.imagenTeam2", "game.typeGame", "game.status")
+        ->leftJoin('game', 'quiniela.gameId', "=", "game.id")
+        ->orderBy('game.dateGame')
+        ->orderBy('game.timeGame')
+        ->where("userId", "=", $userId)
+        ->get()
+        ->map(function ($game) {
+            $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
+            $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
+            $game->status = traducir_status($game->status ?? " ");
+            $game->typeGame = traducir_rondas($game->typeGame ?? " ");
+            return $game;
+        });
+
+        $juegosFinalizados = DB::table('quiniela')
+        ->select("quiniela.scoreTeam1", "quiniela.scoreTeam2", "quiniela.pointsXGame", 
+            "game.id", "game.dateGame", "game.team1", "game.imagenTeam1", "game.team2", "game.imagenTeam2", "game.typeGame", "game.score1", "game.score2")
+        ->leftJoin('game', 'quiniela.gameId', "=", "game.id")
+        ->where("userId", "=", $userId)
+        ->where("game.status", "=", "FINISHED")
+        ->orderBy('game.dateGame')
+        ->orderBy('game.timeGame')
+        ->get()
+        ->map(function ($game) {
+            $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
+            $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
+            $game->typeGame = traducir_rondas($game->typeGame ?? " ");
+            return $game;
+        });
+
+        // dd($juegosFinalizados);
+        // dd($juegosIngresados);
+        return Inertia::render('Quiniela/quiniela', ['juegosPendientes' => $juegosPendientes, 'juegosIngresados' => $juegosIngresados, 'juegosFinalizados' => $juegosFinalizados]);
     }
 
+    public function store(){
+        $juegoId = request()->get('juego_id');
+        $team1 = request()->get('team1');
+        $team2 = request()->get('team2');
 
-    // public function index(){
+        $datosJuego = DB::table("game")
+        ->select("dateGame", "timeGame")    
+        ->where("id", "=", $juegoId)
+        ->first();
 
-    //     $games = DB::table('game')
-    //         ->join('team as t1', 't1.id', '=', 'game.team1')
-    //         ->join('team as t2', 't2.id', '=', 'game.team2')
-    //         ->select(
-    //             't1.name as team1',
-    //             't2.name as team2',
-    //             'game.score1',
-    //             'game.score2',
-    //             'game.dateGame',
-    //             'game.timeGame',
-    //             'game.status',
-    //             'game.id'
-    //         )
-    //         ->orderBy('dateGame','asc')
-    //         ->orderBy('timeGame', 'asc')
-    //         ->get();
+        $horaJuego = Carbon::parse($datosJuego->timeGame)->subMinutes(5);
 
-
-    //     $results = DB::table('quiniela')
-    //         ->where('userId', '=', Auth::user()->id)
-    //         ->get();
-
-    //     return view('quiniela/index', compact('games', 'results'));
-    // }
-
-    public function setQuiniela(){
-        $userId = Auth::user()->id;
-        $gameId = request()->get('gameId');
-        $score1 = request()->get('score1');
-        $score2 = request()->get('score2');
-        $timeGame = request()->get('timeGame');
-        $dateGame = request()->get('dateGame');
-
-        if($dateGame > date('Y-m-d')){
-            $this->updateQuiniela($userId, $gameId, $score1, $score2);
-            return back()->with('success', 'Actualizado correctamente');
-        }elseif ($dateGame = date('Y-m-d')){
-            if (date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($timeGame)))){
-                $this->updateQuiniela($userId, $gameId, $score1, $score2);
-                return back()->with('success', 'Actualizado correctamente');
+        if(Carbon::today()->lt($datosJuego->dateGame)){
+            DB::table('quiniela')
+                ->Insert(
+                [
+                    'userId' => Auth::user()->id,
+                    'gameId' => $juegoId,
+                    'scoreTeam1' => $team1,
+                    'scoreTeam2' => $team2,
+                    'pointsXGame' => 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            return back();
+        }elseif (Carbon::now()->eq($datosJuego->dateGame)){
+            if (Carbon::now()->lt($horaJuego)){
+                DB::table('quiniela')
+                ->Insert(
+                [
+                    'userId' => Auth::user()->id,
+                    'gameId' => $juegoId,
+                    'scoreTeam1' => $team1,
+                    'scoreTeam2' => $team2,
+                    'pointsXGame' => 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                return back();
             }else{
-                return back()->with('error', 'Hora no válida');
+                return back()->withErrors('error', 'Hora no válida');
             }
+        }else{
+            return back()->withErrors('error', 'Error al actualizar');
         }
     }
 
-    public function updateQuiniela($userId, $gameId, $score1, $score2){
+    public function patch($juegoId){
+        $scoreTeam1 = request()->get("scoreTeam1");
+        $scoreTeam2 = request()->get("scoreTeam2");
+        $data = [
+            'updated_at' => now()
+        ];
+    
+        if (!is_null($scoreTeam1)) {
+            $data['scoreTeam1'] = $scoreTeam1;
+        }
+    
+        if (!is_null($scoreTeam2)) {
+            $data['scoreTeam2'] = $scoreTeam2;
+        }
+
+        if (!is_null($scoreTeam2)) {
+            $data['scoreTeam2'] = $scoreTeam2;
+        }
+        
         DB::table('quiniela')
             ->updateOrInsert(
-                ['userId'=> $userId, 'gameId' => $gameId],
-                [
-                    'userId' => $userId,
-                    'gameId' => $gameId,
-                    'scoreTeam1' => $score1,
-                    'scoreTeam2' => $score2,
-                    'pointsXGame' => 0,
-                    'created_at' => date('Y-m-d H:i:s')
-                ]
+                ['userId'=> Auth::user()->id, 'gameId' => $juegoId],
+                $data
             );
+        return back();
     }
 
     public function pointsXgame(){

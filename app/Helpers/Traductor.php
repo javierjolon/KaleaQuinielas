@@ -60,6 +60,7 @@
             "POSTPONED" => "Pospuesto",
             "CANCELLED" => "Cancelado",
             "AWARDED" => "Gano por default",
+            "LOCKED" => "Bloqueado"
         ];
 
         return $translations[$status] ?? $status;
