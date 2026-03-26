@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\GamesController;
 use App\Models\Partidos;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -31,11 +32,15 @@ class apiFotballService
                         'score2' => 0,
                         'typeGame' => $partido['stage'],
                         'status' => $partido['status'],
-                        'dateGame' => Carbon::parse($partido['utcDate'])->format('Y-m-d H:i:s'),
+                        'dateGame' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
                         'timeGame' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
                     ]
                 );
             }
+
+            
+
+            Log::alert('API Success', 'Actualizado correctamente');
 
             return [
                 'success' => true,
@@ -56,5 +61,11 @@ class apiFotballService
                 'data' => null
             ]);
         }
+    }
+
+    public function iniciarPartido(GamesController $juegos){
+        $respuesta = $juegos->iniciarPartido();
+
+        Log::alert($respuesta);
     }
 }

@@ -95,7 +95,7 @@ export default function Quiniela(props) {
                         {tabs.map(tab => {
                             return <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-6 py-2 font-medium rounded-xl border-b-2 ${
                                 activeTab === tab.id 
-                                ? "bg-uno text-white"
+                                ? "bg-azul text-white"
                                 : "bg-white text-black"
                             }`}>
                                 {tab.label}
@@ -110,7 +110,7 @@ export default function Quiniela(props) {
                                 <div key={fecha} className="mt-6">
 
                                 {/* FECHA */}
-                                <div className="bg-uno text-white p-2 text-center font-bold flex flex-row justify-between">
+                                <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
                                     <div>
                                         {juegos[0].typeGame}
                                     </div>
@@ -121,8 +121,8 @@ export default function Quiniela(props) {
                                 
                                 {/* PARTIDOS DE ESA FECHA */}
                                 {juegos.map((juego) => (
-                                    <div> 
-                                        <div key={juego.id} className='flex flex-row mt-2 justify-center rounded-xl bg-white mx-3'>
+                                    <div key={juego.id}> 
+                                        <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3'>
                                 
                                             <div className='flex flex-col items-center w-2/5'> 
                                                 <div>
@@ -137,40 +137,56 @@ export default function Quiniela(props) {
                                 
                                             <div className='flex items-center'>
                                                 <div className='flex flex-row items-center'>
-                                                    <div>
-                                                    <input 
-                                                        type='number'
-                                                        min={0}
-                                                        required
-                                                        className='w-20 h-[2rem]'
-                                                        value={resultados[juego.id]?.team1 || ''}
-                                                        onChange={(e) => setResultados({
-                                                            ...resultados,
-                                                            [juego.id]: {
-                                                                ...resultados[juego.id],
-                                                                team1: e.target.value
-                                                            }
-                                                        })}
-                                                    />
+                                                <div>
+                                                        {juego.status.nombre === "En juego" 
+                                                            ? (
+                                                            <span>
+                                                                {resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                            </span>
+                                                            ) 
+                                                            : (
+                                                                <input 
+                                                                type='number'
+                                                                min={0}
+                                                                required
+                                                                className='w-20 h-[2rem]'
+                                                                value={resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                                onChange={(e) => setResultados({
+                                                                    ...resultados,
+                                                                    [juego.id]: {
+                                                                        ...resultados[juego.id],
+                                                                        team1: e.target.value
+                                                                    }
+                                                                })}
+                                                            />
+                                                        )}
                                                     </div>
 
                                                     <div className='mx-2'>:</div>
                                                     
                                                     <div>
-                                                        <input 
-                                                            type='number'
-                                                            min={0}
-                                                            required
-                                                            className='w-20 h-[2rem]'
-                                                            value={resultados[juego.id]?.team2 || ''}
-                                                            onChange={(e) => setResultados({
-                                                                ...resultados,
-                                                                [juego.id]: {
-                                                                    ...resultados[juego.id],
-                                                                    team2: e.target.value
-                                                                }
-                                                            })}
-                                                        />
+                                                        {juego.status.nombre === "En juego" 
+                                                            ? (
+                                                            <span>
+                                                                {resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                            </span>
+                                                            ) 
+                                                            : (
+                                                                <input 
+                                                                type='number'
+                                                                min={0}
+                                                                required
+                                                                className='w-20 h-[2rem]'
+                                                                value={resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                                onChange={(e) => setResultados({
+                                                                    ...resultados,
+                                                                    [juego.id]: {
+                                                                        ...resultados[juego.id],
+                                                                        team2: e.target.value
+                                                                    }
+                                                                })}
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -188,10 +204,23 @@ export default function Quiniela(props) {
                                 
                                         </div>
                                         <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                            <div 
-                                                className='bg-dos text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm cursor-pointer' 
-                                                onClick={() => enviarResultado(juego.id)}> Ingresar resultado 
-                                            </div> 
+                                        <div className='mt-[-1rem] flex flex-row justify-center'> 
+                                        {juego.status.nombre != "Programado" 
+                                            ? (
+                                                <div style={{ backgroundColor: juego.status.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
+                                                    {/* spinner */}
+                                                    {/* <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>                                                     */}
+                                                    {juego.status.nombre}
+                                                </div>
+                                            ) 
+                                            : (
+                                                <div 
+                                                    className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 mt-6 text-sm cursor-pointer' 
+                                                    onClick={() => actualizarResultado(juego.id)}>
+                                                    Actualizar resultado
+                                                </div>
+                                            )}
+                                        </div>
                                         </div>
                                     </div>
                                     
@@ -208,7 +237,7 @@ export default function Quiniela(props) {
                             <div key={fecha} className="mt-6">
 
                                 {/* FECHA */}
-                                <div className="bg-uno text-white p-2 text-center font-bold flex flex-row justify-between">
+                                <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
                                     <div>
                                         {juegos[0].typeGame}
                                     </div>
@@ -219,8 +248,8 @@ export default function Quiniela(props) {
                                 
                                 {/* PARTIDOS DE ESA FECHA */}
                                 {juegos.map((juego) => (
-                                    <div> 
-                                        <div key={juego.id} className='flex flex-row mt-2 justify-center rounded-xl bg-white mx-3'>
+                                    <div key={juego.id}> 
+                                        <div className='flex flex-row mt-2 justify-center rounded-xl bg-white mx-3'>
                                 
                                             <div className='flex flex-col items-center w-2/5'> 
                                                 <div>
@@ -236,56 +265,55 @@ export default function Quiniela(props) {
                                             <div className='flex items-center'>
                                                 <div className='flex flex-row items-center'>
                                                     <div>
-                                                    {juego.status === "En juego" 
-                                                        ? (
-                                                           <span>
-                                                            {resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
-                                                           </span>
-                                                        ) 
-                                                        : (
-                                                            <input 
-                                                            type='number'
-                                                            min={0}
-                                                            required
-                                                            className='w-20 h-[2rem]'
-                                                            value={resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
-                                                            onChange={(e) => setResultados({
-                                                                ...resultados,
-                                                                [juego.id]: {
-                                                                    ...resultados[juego.id],
-                                                                    team2: e.target.value
-                                                                }
-                                                            })}
-                                                        />
-                                                    )}
+                                                        {juego.status.nombre === "En juego" 
+                                                            ? (
+                                                            <span>
+                                                                {resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                            </span>
+                                                            ) 
+                                                            : (
+                                                                <input 
+                                                                type='number'
+                                                                min={0}
+                                                                required
+                                                                className='w-20 h-[2rem]'
+                                                                value={resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                                onChange={(e) => setResultados({
+                                                                    ...resultados,
+                                                                    [juego.id]: {
+                                                                        ...resultados[juego.id],
+                                                                        team1: e.target.value
+                                                                    }
+                                                                })}
+                                                            />
+                                                        )}
                                                     </div>
 
                                                     <div className='mx-2'>:</div>
                                                     
                                                     <div>
-                                                    {juego.status === "En juego" 
-                                                        ? (
-                                                           <span>
-                                                            {resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
-                                                           </span>
-                                                        ) 
-                                                        : (
-                                                            <input 
-                                                            type='number'
-                                                            min={0}
-                                                            required
-                                                            className='w-20 h-[2rem]'
-                                                            value={resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
-                                                            onChange={(e) => setResultados({
-                                                                ...resultados,
-                                                                [juego.id]: {
-                                                                    ...resultados[juego.id],
-                                                                    team2: e.target.value
-                                                                }
-                                                            })}
-                                                        />
-                                                    )}
-                                                        
+                                                        {juego.status.nombre === "En juego" 
+                                                            ? (
+                                                            <span>
+                                                                {resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                            </span>
+                                                            ) 
+                                                            : (
+                                                                <input 
+                                                                type='number'
+                                                                min={0}
+                                                                required
+                                                                className='w-20 h-[2rem]'
+                                                                value={resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                                onChange={(e) => setResultados({
+                                                                    ...resultados,
+                                                                    [juego.id]: {
+                                                                        ...resultados[juego.id],
+                                                                        team2: e.target.value
+                                                                    }
+                                                                })}
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -303,15 +331,17 @@ export default function Quiniela(props) {
                                 
                                         </div>
                                         <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                        {juego.status === "En juego" 
+                                        {juego.status.nombre != "Programado" 
                                             ? (
-                                                <div className="bg-dos text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
-                                                    En juego
+                                                <div style={{ backgroundColor: juego.status.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
+                                                    {/* spinner */}
+                                                    {/* <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>                                                     */}
+                                                    {juego.status.nombre}
                                                 </div>
                                             ) 
                                             : (
                                                 <div 
-                                                    className='bg-dos text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm cursor-pointer' 
+                                                    className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 mt-2 text-sm cursor-pointer' 
                                                     onClick={() => actualizarResultado(juego.id)}>
                                                     Actualizar resultado
                                                 </div>
@@ -331,7 +361,7 @@ export default function Quiniela(props) {
                             <div key={fecha} className="mt-6">
 
                                 {/* FECHA */}
-                                <div className="bg-uno text-white p-2 text-center font-bold flex flex-row justify-between">
+                                <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
                                     <div>
                                         {juegos[0].typeGame}
                                     </div>
@@ -342,8 +372,8 @@ export default function Quiniela(props) {
                                 
                                 {/* PARTIDOS DE ESA FECHA */}
                                 {juegos.map((juego) => (
-                                    <div> 
-                                        <div key={juego.id} className='flex flex-row mt-2 justify-center rounded-xl bg-white mx-3'>
+                                    <div key={juego.id} > 
+                                        <div className='flex flex-row mt-2 justify-center rounded-xl bg-white mx-3'>
                                 
                                             <div className='flex flex-col items-center w-[40%] '> 
                                                 <div>
@@ -386,7 +416,7 @@ export default function Quiniela(props) {
                                 
                                         </div>
                                         <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                            <div className='bg-dos text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm' > 
+                                            <div className='bg-verde text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm' > 
                                                 Puntos: 
                                             </div> 
                                         </div>

@@ -60,7 +60,26 @@
             "POSTPONED" => "Pospuesto",
             "CANCELLED" => "Cancelado",
             "AWARDED" => "Gano por default",
-            "LOCKED" => "Bloqueado"
+            "LOCKED" => "Bloqueado",
+            "INVALID" => "No válido"
+        ];
+
+        return $translations[$status] ?? $status;
+    }
+
+    function color_status(string $status){
+        $translations = [
+            "TIMED" => "#474A4A",
+            "IN_PLAY" => "#0b461c",
+            "LIVE" => "#0b461c",
+            "PAUSED" => "#0b461c",
+            "FINISHED" => "#474A4A",
+            "SUSPENDED" => "#474A4A",
+            "POSTPONED" => "#474A4A",
+            "CANCELLED" => "#474A4A",
+            "AWARDED" => "#474A4A",
+            "LOCKED" => "#474A4A",
+            "INVALID" => "#C00707"
         ];
 
         return $translations[$status] ?? $status;

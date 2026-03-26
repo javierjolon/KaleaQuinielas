@@ -10,6 +10,36 @@ use Inertia\Inertia;
 
 class GamesController extends Controller
 {
+    public function iniciarPartido($partidoId, $status){
+        DB::table('game')
+            ->where('id', '=', $partidoId)
+            ->update([
+                'status' => $status
+            ]);
+    }
+
+    public function actualizarQuiniela(){
+        $partidos = DB::table('game')
+            ->where('game.dateGame', '=', Carbon::today())
+            ->where('game.status', '=', 'IN_PLAY')
+            ->orWhere('game.status', '=', 'LIVE')
+            ->orWhere('game.status', '=', 'PAUSED')
+            ->get();
+
+        if (count($partidos) > 0) {
+            foreach ($partidos as $key => $partido) {
+                DB::table('quiniela')
+                ->where('gameId', $partido->id)
+                ->where('status', '!=', 'INVALID')
+                ->update([
+                    'status' => 'IN_PLAY'
+                ]);
+            };
+        }
+        return; 
+    }
+
+
     public function index(){
         $juegos = DB::table('game')
         ->orderBy('dateGame')
@@ -26,53 +56,53 @@ class GamesController extends Controller
         return Inertia::render('Games/index', ['juegos' => $juegos]);
     }
 
-    public function setGame()
-    {
-        $team1 = request()->get('team1');
-        $team2 = request()->get('team2');
-        $date = request()->get('date');
-        $time = request()->get('time');
-        $type = request()->get('type');
+    // public function setGame()
+    // {
+    //     $team1 = request()->get('team1');
+    //     $team2 = request()->get('team2');
+    //     $date = request()->get('date');
+    //     $time = request()->get('time');
+    //     $type = request()->get('type');
 
-        DB::table('game')->insert(
-            [
-                'team1' => $team1,
-                'score1' => null,
-                'team2' => $team2,
-                'score2' => null,
-                'typeGame' => $type,
-                'dateGame' => $date,
-                'timeGame' => $time,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]
-        );
+    //     DB::table('game')->insert(
+    //         [
+    //             'team1' => $team1,
+    //             'score1' => null,
+    //             'team2' => $team2,
+    //             'score2' => null,
+    //             'typeGame' => $type,
+    //             'dateGame' => $date,
+    //             'timeGame' => $time,
+    //             'created_at' => date('Y-m-d H:i:s'),
+    //             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+    //         ]
+    //     );
 
-        return back();
-    }
+    //     return back();
+    // }
 
-    public function addResult(){
-        $games = DB::table('game')
-            ->join('team as t1', 't1.id', '=', 'game.team1')
-            ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->join('statusgame as sg', 'game.status', '=', 'sg.id')
-            ->select(
-                't1.name as team1',
-                't2.name as team2',
-                'game.dateGame',
-                'game.timeGame',
-                'game.id',
-                'game.status',
-                'game.score1',
-                'game.score2',
-                'sg.name as statusname'
-            )
-            ->orderBy('dateGame','asc')
-            ->orderBy('timeGame', 'asc')
-            ->get();
+    // public function addResult(){
+    //     $games = DB::table('game')
+    //         ->join('team as t1', 't1.id', '=', 'game.team1')
+    //         ->join('team as t2', 't2.id', '=', 'game.team2')
+    //         ->join('statusgame as sg', 'game.status', '=', 'sg.id')
+    //         ->select(
+    //             't1.name as team1',
+    //             't2.name as team2',
+    //             'game.dateGame',
+    //             'game.timeGame',
+    //             'game.id',
+    //             'game.status',
+    //             'game.score1',
+    //             'game.score2',
+    //             'sg.name as statusname'
+    //         )
+    //         ->orderBy('dateGame','asc')
+    //         ->orderBy('timeGame', 'asc')
+    //         ->get();
 
-        return view('games/addResult', compact('games'));
-    }
+    //     return view('games/addResult', compact('games'));
+    // }
 
     public function setResultGame(){
 
