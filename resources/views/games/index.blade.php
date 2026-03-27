@@ -10,13 +10,13 @@
                             @csrf
                             <div class="input-group mb-3">
                                 <label class="input-group-text col-md-2" for="inputGroupSelect01">Equipos</label>
-                                <select class="form-select col-md-5" name="team1" required>
+                                <select class="form-select col-md-5" name="equipo1" required>
                                     <option value="null" selected>Equipo 1</option>
                                     @foreach($teams as $team)
                                         <option value="{{$team->id}}">{{$team->name}}</option>
                                     @endforeach
                                 </select>
-                                <select class="form-select col-md-5" name="team2" required>
+                                <select class="form-select col-md-5" name="equipo2" required>
                                     <option value="null" selected>Equipo 2</option>
                                     @foreach($teams as $team)
                                         <option value="{{$team->id}}">{{$team->name}}</option>
@@ -55,15 +55,15 @@
                                             <img class="avatar" src="{{$game->image1}}">
                                         </div>
                                         <div class="col-6">
-                                            {{$game->team1}} vrs {{$game->team2}}
+                                            {{$game->equipo1}} vrs {{$game->equipo2}}
                                         </div>
                                         <div class="col-3">
                                             <img class="avatar" src="{{$game->image2}}">
                                         </div>
                                     </td>
                                     <td class="col-2">{{$game->type}}</td>
-                                    <td class="col-2">{{$game->dateGame}}</td>
-                                    <td class="col-2">{{$game->timeGame}}</td>
+                                    <td class="col-2">{{$game->fechaJuego}}</td>
+                                    <td class="col-2">{{$game->horaJuego}}</td>
                                 </tr>
                             @endforeach
                             </tbody>

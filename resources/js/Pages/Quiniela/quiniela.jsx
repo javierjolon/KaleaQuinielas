@@ -15,42 +15,51 @@ export default function Quiniela(props) {
     const [activeTab, setActiveTab] = useState(tabs[0].id);
     const [resultados, setResultados] = useState({});
 
-    const juegosPorFecha = props.juegosPendientes.reduce((acc, juegosPendientes) => {
-        if (!acc[juegosPendientes.dateGame]) {
-            acc[juegosPendientes.dateGame] = [];
-        }
-        acc[juegosPendientes.dateGame].push(juegosPendientes);
-        return acc;
-    }, {});
+    if (props.juegosPendientes.length > 0) {
+        const juegosPorFecha = props.juegosPendientes.reduce((acc, juegosPendientes) => {
+            if (!acc[juegosPendientes.fechaJuego]) {
+                acc[juegosPendientes.fechaJuego] = [];
+            }
+            acc[juegosPendientes.fechaJuego].push(juegosPendientes);
+            return acc;
+        }, {});
+    }
+    
+    if (props.juegosIngresados.length > 0) {
+        const juegosPorFecha2 = props.juegosIngresados.reduce((acc2, juegosIngresados) => {
+            if (!acc2[juegosIngresados.fechaJuego]) {
+                acc2[juegosIngresados.fechaJuego] = [];
+            }
+            acc2[juegosIngresados.fechaJuego].push(juegosIngresados);
+            return acc2;
+        }, {});
+    }
 
-    const juegosPorFecha2 = props.juegosIngresados.reduce((acc2, juegosIngresados) => {
-        if (!acc2[juegosIngresados.dateGame]) {
-            acc2[juegosIngresados.dateGame] = [];
-        }
-        acc2[juegosIngresados.dateGame].push(juegosIngresados);
-        return acc2;
-    }, {});
+    
 
-    const juegosPorFecha3 = props.juegosFinalizados.reduce((acc2, juegosFinalizados) => {
-        if (!acc2[juegosFinalizados.dateGame]) {
-            acc2[juegosFinalizados.dateGame] = [];
-        }
-        acc2[juegosFinalizados.dateGame].push(juegosFinalizados);
-        return acc2;
-    }, {});
+    if (props.juegosFinalizados.length > 0) {
+        const juegosPorFecha3 = props.juegosFinalizados.reduce((acc2, juegosFinalizados) => {
+            if (!acc2[juegosFinalizados.fechaJuego]) {
+                acc2[juegosFinalizados.fechaJuego] = [];
+            }
+            acc2[juegosFinalizados.fechaJuego].push(juegosFinalizados);
+            return acc2;
+        }, {});
+    }
+    
 
     const enviarResultado = (juegoId) => {
         const data = resultados[juegoId];
 
-        if (data?.team1 === undefined || data?.team2 === undefined) {
+        if (data?.equipo1 === undefined || data?.equipo2 === undefined) {
             alertify.error("Debes ingresar ambos resultados");
             return;
         }
     
         router.post('/quiniela', {
             juego_id: juegoId,
-            team1: data?.team1,
-            team2: data?.team2,
+            equipo1: data?.equipo1,
+            equipo2: data?.equipo2,
         }, {
             onSuccess: () => {
                 alertify.success("Ingresado correctamente");
@@ -63,17 +72,17 @@ export default function Quiniela(props) {
 
     const actualizarResultado = (juegoId) => {
         const data = resultados[juegoId];
-        const scoreTeam1 = Number(data.team1);
-        const scoreTeam2 = Number(data.team2);
+        const quinielaEquipo1 = Number(data.equipo1);
+        const quinielaEquipo2 = Number(data.equipo2);
 
-        if (scoreTeam1 === undefined || scoreTeam2 === undefined) {
+        if (quinielaEquipo1 === undefined || quinielaEquipo2 === undefined) {
             alertify.error("Debes ingresar ambos resultados");
             return;
         }
     
         router.patch(`/quiniela/${juegoId}`, {
-            scoreTeam1,
-            scoreTeam2,
+            quinielaEquipo1,
+            quinielaEquipo2,
         }, {
             onSuccess: () => {
                 alertify.success("Actualizado correctamente");
@@ -104,7 +113,7 @@ export default function Quiniela(props) {
                     </div>
 
                     {/* Tab 1 */}
-                    {activeTab === "pendientes" && 
+                    {activeTab === "pendientes" && props.juegosPendientes > 0 && 
                         <div className='mx-3'>
                             {Object.entries(juegosPorFecha).map(([fecha, juegos]) => (
                                 <div key={fecha} className="mt-6">
@@ -112,7 +121,7 @@ export default function Quiniela(props) {
                                 {/* FECHA */}
                                 <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
                                     <div>
-                                        {juegos[0].typeGame}
+                                        {juegos[0].tipoJuego}
                                     </div>
                                     <div>
                                         {fecha}
@@ -127,21 +136,21 @@ export default function Quiniela(props) {
                                             <div className='flex flex-col items-center w-2/5'> 
                                                 <div>
                                                     <img 
-                                                        src={juego.imagenTeam1 == null ? 'img/static/pendiente.jpeg' : juego.imagenTeam1} 
+                                                        src={juego.imagenequipo1 == null ? 'img/static/pendiente.jpeg' : juego.imagenequipo1} 
                                                         alt="imagen" 
                                                         className='w-10 h-10'
                                                     />
                                                 </div>
-                                                <div className='text-center'>{juego.team1 ?? 'Pendiente'}</div>
+                                                <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
                                             </div>
                                 
                                             <div className='flex items-center'>
                                                 <div className='flex flex-row items-center'>
                                                 <div>
-                                                        {juego.status.nombre === "En juego" 
+                                                        {juego.estatus.nombre === "En juego" 
                                                             ? (
                                                             <span>
-                                                                {resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                                {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
                                                             </span>
                                                             ) 
                                                             : (
@@ -150,12 +159,12 @@ export default function Quiniela(props) {
                                                                 min={0}
                                                                 required
                                                                 className='w-20 h-[2rem]'
-                                                                value={resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                                value={resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
                                                                 onChange={(e) => setResultados({
                                                                     ...resultados,
                                                                     [juego.id]: {
                                                                         ...resultados[juego.id],
-                                                                        team1: e.target.value
+                                                                        equipo1: e.target.value
                                                                     }
                                                                 })}
                                                             />
@@ -165,10 +174,10 @@ export default function Quiniela(props) {
                                                     <div className='mx-2'>:</div>
                                                     
                                                     <div>
-                                                        {juego.status.nombre === "En juego" 
+                                                        {juego.estatus.nombre === "En juego" 
                                                             ? (
                                                             <span>
-                                                                {resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                                {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
                                                             </span>
                                                             ) 
                                                             : (
@@ -177,12 +186,12 @@ export default function Quiniela(props) {
                                                                 min={0}
                                                                 required
                                                                 className='w-20 h-[2rem]'
-                                                                value={resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                                value={resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
                                                                 onChange={(e) => setResultados({
                                                                     ...resultados,
                                                                     [juego.id]: {
                                                                         ...resultados[juego.id],
-                                                                        team2: e.target.value
+                                                                        equipo2: e.target.value
                                                                     }
                                                                 })}
                                                             />
@@ -194,23 +203,23 @@ export default function Quiniela(props) {
                                             <div className='flex flex-col items-center w-2/5'> 
                                                 <div>
                                                     <img 
-                                                        src={juego.imagenTeam2 == null ? 'img/static/pendiente.jpeg' : juego.imagenTeam2} 
+                                                        src={juego.imagenequipo2 == null ? 'img/static/pendiente.jpeg' : juego.imagenequipo2} 
                                                         alt="imagen" 
                                                         className='w-10 h-10'
                                                     />
                                                 </div>
-                                                <div className='text-center'>{juego.team2 ?? 'Pendiente'}</div>
+                                                <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
                                             </div>
                                 
                                         </div>
                                         <div className='mt-[-1rem] flex flex-row justify-center'> 
                                         <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                        {juego.status.nombre != "Programado" 
+                                        {juego.estatus.nombre != "Programado" 
                                             ? (
-                                                <div style={{ backgroundColor: juego.status.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
+                                                <div style={{ backgroundColor: juego.estatus.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
                                                     {/* spinner */}
                                                     {/* <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>                                                     */}
-                                                    {juego.status.nombre}
+                                                    {juego.estatus.nombre}
                                                 </div>
                                             ) 
                                             : (
@@ -232,14 +241,15 @@ export default function Quiniela(props) {
                     }
 
                     {/* Tab 2 */}
-                    {activeTab === "ingresadas" && <div className='mx-3'>
+                    {activeTab === "ingresadas" && props.juegosIngresados > 0 && 
+                        <div className='mx-3'>
                         {Object.entries(juegosPorFecha2).map(([fecha, juegos]) => (
                             <div key={fecha} className="mt-6">
 
                                 {/* FECHA */}
                                 <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
                                     <div>
-                                        {juegos[0].typeGame}
+                                        {juegos[0].tipoJuego}
                                     </div>
                                     <div>
                                         {fecha}
@@ -254,21 +264,21 @@ export default function Quiniela(props) {
                                             <div className='flex flex-col items-center w-2/5'> 
                                                 <div>
                                                     <img 
-                                                        src={juego.imagenTeam1 == null ? 'img/static/pendiente.jpeg' : juego.imagenTeam1} 
+                                                        src={juego.imagenequipo1 == null ? 'img/static/pendiente.jpeg' : juego.imagenequipo1} 
                                                         alt="imagen" 
                                                         className='w-10 h-10'
                                                     />
                                                 </div>
-                                                <div className='text-center'>{juego.team1 ?? 'Pendiente'}</div>
+                                                <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
                                             </div>
                                 
                                             <div className='flex items-center'>
                                                 <div className='flex flex-row items-center'>
                                                     <div>
-                                                        {juego.status.nombre === "En juego" 
+                                                        {juego.estatus.nombre === "En juego" 
                                                             ? (
                                                             <span>
-                                                                {resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                                {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
                                                             </span>
                                                             ) 
                                                             : (
@@ -277,12 +287,12 @@ export default function Quiniela(props) {
                                                                 min={0}
                                                                 required
                                                                 className='w-20 h-[2rem]'
-                                                                value={resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''}
+                                                                value={resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
                                                                 onChange={(e) => setResultados({
                                                                     ...resultados,
                                                                     [juego.id]: {
                                                                         ...resultados[juego.id],
-                                                                        team1: e.target.value
+                                                                        equipo1: e.target.value
                                                                     }
                                                                 })}
                                                             />
@@ -292,10 +302,10 @@ export default function Quiniela(props) {
                                                     <div className='mx-2'>:</div>
                                                     
                                                     <div>
-                                                        {juego.status.nombre === "En juego" 
+                                                        {juego.estatus.nombre === "En juego" 
                                                             ? (
                                                             <span>
-                                                                {resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                                {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
                                                             </span>
                                                             ) 
                                                             : (
@@ -304,12 +314,12 @@ export default function Quiniela(props) {
                                                                 min={0}
                                                                 required
                                                                 className='w-20 h-[2rem]'
-                                                                value={resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''}
+                                                                value={resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
                                                                 onChange={(e) => setResultados({
                                                                     ...resultados,
                                                                     [juego.id]: {
                                                                         ...resultados[juego.id],
-                                                                        team2: e.target.value
+                                                                        equipo2: e.target.value
                                                                     }
                                                                 })}
                                                             />
@@ -321,22 +331,22 @@ export default function Quiniela(props) {
                                             <div className='flex flex-col items-center w-2/5'> 
                                                 <div>
                                                     <img 
-                                                        src={juego.imagenTeam2 == null ? 'img/static/pendiente.jpeg' : juego.imagenTeam2} 
+                                                        src={juego.imagenequipo2 == null ? 'img/static/pendiente.jpeg' : juego.imagenequipo2} 
                                                         alt="imagen" 
                                                         className='w-10 h-10'
                                                     />
                                                 </div>
-                                                <div className='text-center'>{juego.team2 ?? 'Pendiente'}</div>
+                                                <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
                                             </div>
                                 
                                         </div>
                                         <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                        {juego.status.nombre != "Programado" 
+                                        {juego.estatus.nombre != "Programado" 
                                             ? (
-                                                <div style={{ backgroundColor: juego.status.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
+                                                <div style={{ backgroundColor: juego.estatus.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-2 text-sm">
                                                     {/* spinner */}
                                                     {/* <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>                                                     */}
-                                                    {juego.status.nombre}
+                                                    {juego.estatus.nombre}
                                                 </div>
                                             ) 
                                             : (
@@ -353,17 +363,19 @@ export default function Quiniela(props) {
                                 
                                 </div>
                             ))}
-                    </div>}
+                        </div>
+                    }
                     
                     {/* Tab 3 */}
-                    {activeTab === "finalizados" && <div className='mx-3'>
+                    {activeTab === "finalizados"&& props.juegosFinalizados > 0 && 
+                        <div className='mx-3'>
                         {Object.entries(juegosPorFecha3).map(([fecha, juegos]) => (
                             <div key={fecha} className="mt-6">
 
                                 {/* FECHA */}
                                 <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
                                     <div>
-                                        {juegos[0].typeGame}
+                                        {juegos[0].tipoJuego}
                                     </div>
                                     <div>
                                         {fecha}
@@ -378,27 +390,27 @@ export default function Quiniela(props) {
                                             <div className='flex flex-col items-center w-[40%] '> 
                                                 <div>
                                                     <img 
-                                                        src={juego.imagenTeam1 == null ? 'img/static/pendiente.jpeg' : juego.imagenTeam1} 
+                                                        src={juego.imagenequipo1 == null ? 'img/static/pendiente.jpeg' : juego.imagenequipo1} 
                                                         alt="imagen" 
                                                         className='w-10 h-10'
                                                     />
                                                 </div>
-                                                <div className='text-center'>{juego.team1 ?? 'Pendiente'}</div>
+                                                <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
                                             </div>
                                 
                                             <div className='flex flex-col items-center flex-1'>
                                             <div className='flex flex-row justify-center w-full'>
                                                     <div className='mx-2'>Resultado</div>
-                                                    <div> {resultados[juego.id]?.score1 ?? juego.score1 ?? ''} </div>
+                                                    <div> {resultados[juego.id]?.resultadoEquipo1 ?? juego.resultadoEquipo1 ?? ''} </div>
                                                     <div className='mx-2'>:</div>
-                                                    <div> {resultados[juego.id]?.score2 ?? juego.score2 ?? ''} </div>
+                                                    <div> {resultados[juego.id]?.resultadoEquipo2 ?? juego.resultadoEquipo2 ?? ''} </div>
                                                 </div>
 
                                                 <div className='flex flex-row justify-center w-full'>
                                                     <div className='mx-2'>Quiniela</div>
-                                                    <div> {resultados[juego.id]?.team1 ?? juego.scoreTeam1 ?? ''} </div>
+                                                    <div> {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''} </div>
                                                     <div className='mx-2'>:</div>
-                                                    <div> {resultados[juego.id]?.team2 ?? juego.scoreTeam2 ?? ''} </div>
+                                                    <div> {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''} </div>
                                                 </div>
                                             </div>
                                             
@@ -406,12 +418,12 @@ export default function Quiniela(props) {
                                             <div className='flex flex-col items-center w-[40%] '> 
                                                 <div>
                                                     <img 
-                                                        src={juego.imagenTeam2 == null ? 'img/static/pendiente.jpeg' : juego.imagenTeam2} 
+                                                        src={juego.imagenequipo2 == null ? 'img/static/pendiente.jpeg' : juego.imagenequipo2} 
                                                         alt="imagen" 
                                                         className='w-10 h-10'
                                                     />
                                                 </div>
-                                                <div className='text-center'>{juego.team2 ?? 'Pendiente'}</div>
+                                                <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
                                             </div>
                                 
                                         </div>
@@ -426,7 +438,8 @@ export default function Quiniela(props) {
                                 
                                 </div>
                             ))}
-                    </div>}
+                        </div>
+                    }
                 </div>
             </div>
         </AuthenticatedLayout>

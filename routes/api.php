@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UsuariosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('test', function (){
-    return "sssss";
+Route::post('/crearUsuario', function (Request $request, UsuariosController $usuarioController) {
+    try {
+        $respuesta = $usuarioController->crear($request->nombre, $request->email);
+        return response()->json([
+            'codigo' => 1,
+            'mensaje' => $respuesta
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'codigo' => 0,
+            'mensaje' => $th->getMessage()
+        ]);
+    }
 });

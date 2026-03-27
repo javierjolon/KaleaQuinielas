@@ -8,9 +8,9 @@
                     <div class="card-header">Bienvenido {{ Auth::user()->name  }}</div>
 
                     <div class="card-body text-center">
-                        @if (session('status'))
+                        @if (session('estatus'))
                             <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
+                                {{ session('estatus') }}
                             </div>
                         @endif
 

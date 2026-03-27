@@ -4,7 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, useForm } from '@inertiajs/react';
 
-export default function ForgotPassword({ status }) {
+export default function ForgotPassword({ estatus }) {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
     });
@@ -28,7 +28,7 @@ export default function ForgotPassword({ status }) {
                 reset link that will allow you to choose a new one.
             </div>
 
-            {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
+            {estatus && <div className="mb-4 font-medium text-sm text-green-600">{estatus}</div>}
 
             <form onSubmit={submit}>
                 <TextInput

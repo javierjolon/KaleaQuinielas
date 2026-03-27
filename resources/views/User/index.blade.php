@@ -22,9 +22,9 @@
                     </ul>
 
                     <div class="card-body">
-                        @if (session('status'))
+                        @if (session('estatus'))
                             <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
+                                {{ session('estatus') }}
                             </div>
                         @endif
 
@@ -33,7 +33,7 @@
 
                             @if($cantidad == 1)
                                 <span>En juego</span>
-                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: red">
+                                <div class="spinner-grow spinner-grow-sm" role="estatus" style="color: red">
                                     <span class="visually-hidden"></span>
                                 </div>
                             @endif

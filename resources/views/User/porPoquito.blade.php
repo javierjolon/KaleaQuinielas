@@ -19,9 +19,9 @@
                     </ul>
 
                     <div class="card-body">
-                        @if (session('status'))
+                        @if (session('estatus'))
                             <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
+                                {{ session('estatus') }}
                             </div>
                         @endif
 
@@ -41,14 +41,14 @@
                                 <tr>
                                     <td>{{$game->name}}</td>
                                     <td>
-                                        {{$game->team1}}({{$game->original1}})
+                                        {{$game->equipo1}}({{$game->original1}})
                                         <br>
-                                        {{$game->score1}}
+                                        {{$game->resultadoEquipo1}}
                                     </td>
                                     <td>
-                                        {{$game->team2}}({{$game->original2}})
+                                        {{$game->equipo2}}({{$game->original2}})
                                         <br>
-                                        {{$game->score2}}
+                                        {{$game->resultadoEquipo2}}
                                     </td>
                                 </tr>
                             @endforeach

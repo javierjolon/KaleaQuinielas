@@ -23,26 +23,26 @@
                                 <form method="get" action="{{ route('initGame') }}">
                                     <tr>
                                         <td>
-                                            {{$game->team1}} vrs {{$game->team2}}
+                                            {{$game->equipo1}} vrs {{$game->equipo2}}
                                         </td>
                                         <td>
-                                            <input type="text" name="gameId" value="{{$game->id}}" hidden>
+                                            <input type="text" name="juegoId" value="{{$game->id}}" hidden>
 
-                                            @switch($game->status)
+                                            @switch($game->estatus)
                                                 @case(1)
-                                                    <input type="submit" value="{{$game->statusname}}" class="btn btn-outline-danger">
+                                                    <input type="submit" value="{{$game->estatusname}}" class="btn btn-outline-danger">
                                                 @break
                                                 @case(2)
-                                                    <input type="submit" value="{{$game->statusname}}" class="btn btn-outline-primary">
+                                                    <input type="submit" value="{{$game->estatusname}}" class="btn btn-outline-primary">
                                                 @break
                                             @endswitch
                                             <br>
-                                            @if(is_numeric($game->score1) && is_numeric($game->score2))
-                                                {{ $game->score1 }} - {{ $game->score2 }}
+                                            @if(is_numeric($game->resultadoEquipo1) && is_numeric($game->resultadoEquipo2))
+                                                {{ $game->resultadoEquipo1 }} - {{ $game->resultadoEquipo2 }}
                                             @endif
                                         </td>
-                                        <td>{{$game->dateGame}}</td>
-                                        <td>{{$game->timeGame}}</td>
+                                        <td>{{$game->fechaJuego}}</td>
+                                        <td>{{$game->horaJuego}}</td>
                                     </tr>
                                 </form>
                             @endforeach

@@ -13,12 +13,12 @@ class HomeController extends Controller
 {
     public function var(){
         $respuesta = DB::table('game')
-            ->select('users.name', 'quiniela.scoreTeam1', 'quiniela.scoreTeam2', 'quiniela.created_at as fecha', 't1.name as e1', 't2.name as e2', 'game.id')
-            ->leftJoin('quiniela', 'game.id', '=', 'quiniela.gameId')
-            ->leftJoin('team as t1', 'game.team1', '=', 't1.id')
-            ->leftJoin('team as t2', 'game.team2', '=', 't2.id')
-            ->leftJoin('users', 'quiniela.userId', '=', 'users.id')
-            ->where('game.status', '!=', '1')
+            ->select('users.name', 'quiniela.quinielaEquipo1', 'quiniela.quinielaEquipo2', 'quiniela.created_at as fecha', 't1.name as e1', 't2.name as e2', 'game.id')
+            ->leftJoin('quiniela', 'game.id', '=', 'quiniela.juegoId')
+            ->leftJoin('team as t1', 'game.equipo1', '=', 't1.id')
+            ->leftJoin('team as t2', 'game.equipo2', '=', 't2.id')
+            ->leftJoin('users', 'quiniela.usuarioId', '=', 'users.id')
+            ->where('game.estatus', '!=', '1')
             ->orderBy('game.id', 'desc')
             ->get();
 
@@ -48,8 +48,8 @@ class HomeController extends Controller
             return view('Admin/index');
         }else{
             $cantidad = DB::table('game')
-                ->where('status', '=', 2)
-                ->count('status');
+                ->where('estatus', '=', 2)
+                ->count('estatus');
 
 //            if ($cantidad > 0){
 //                $positions = DB::table('users')
@@ -104,13 +104,13 @@ class HomeController extends Controller
     public function porPoquito(){
         $fecha = date('Y-m-d');
         $games = DB::table('game as g')
-            ->select('t1.name as team1', 't2.name as team2', 'u.name', 'q.scoreTeam1 as score1', 'q.scoreTeam2 as score2', 'g.score1 as original1', 'g.score2 as original2')
-            ->leftJoin('quiniela as q', 'q.gameId', '=', 'g.id')
-            ->leftJoin('users as u', 'u.id', '=', 'q.userId')
-            ->leftJoin('team as t1', 't1.id', '=', 'g.team1')
-            ->leftJoin('team as t2', 't2.id', '=', 'g.team2')
-            ->where('g.dateGame', '=', $fecha)
-            ->where('q.pointsXGame', '=', 2)
+            ->select('t1.name as equipo1', 't2.name as equipo2', 'u.name', 'q.quinielaEquipo1 as resultadoEquipo1', 'q.quinielaEquipo2 as resultadoEquipo2', 'g.resultadoEquipo1 as original1', 'g.resultadoEquipo2 as original2')
+            ->leftJoin('quiniela as q', 'q.juegoId', '=', 'g.id')
+            ->leftJoin('users as u', 'u.id', '=', 'q.usuarioId')
+            ->leftJoin('team as t1', 't1.id', '=', 'g.equipo1')
+            ->leftJoin('team as t2', 't2.id', '=', 'g.equipo2')
+            ->where('g.fechaJuego', '=', $fecha)
+            ->where('q.puntosXjuego', '=', 2)
             ->get();
 
         return view('User/porPoquito', compact('games'));
@@ -119,13 +119,13 @@ class HomeController extends Controller
     public function nadaQueVer(){
         $fecha = date('Y-m-d');
         $games = DB::table('game as g')
-            ->select('t1.name as team1', 't2.name as team2', 'u.name', 'q.scoreTeam1 as score1', 'q.scoreTeam2 as score2', 'g.score1 as original1', 'g.score2 as original2')
-            ->leftJoin('quiniela as q', 'q.gameId', '=', 'g.id')
-            ->leftJoin('users as u', 'u.id', '=', 'q.userId')
-            ->leftJoin('team as t1', 't1.id', '=', 'g.team1')
-            ->leftJoin('team as t2', 't2.id', '=', 'g.team2')
-            ->where('g.dateGame', '=', $fecha)
-            ->where('q.pointsXGame', '=', 0)
+            ->select('t1.name as equipo1', 't2.name as equipo2', 'u.name', 'q.quinielaEquipo1 as resultadoEquipo1', 'q.quinielaEquipo2 as resultadoEquipo2', 'g.resultadoEquipo1 as original1', 'g.resultadoEquipo2 as original2')
+            ->leftJoin('quiniela as q', 'q.juegoId', '=', 'g.id')
+            ->leftJoin('users as u', 'u.id', '=', 'q.usuarioId')
+            ->leftJoin('team as t1', 't1.id', '=', 'g.equipo1')
+            ->leftJoin('team as t2', 't2.id', '=', 'g.equipo2')
+            ->where('g.fechaJuego', '=', $fecha)
+            ->where('q.puntosXjuego', '=', 0)
             ->get();
 
         return view('User/nadaQueVer', compact('games'));
@@ -134,8 +134,8 @@ class HomeController extends Controller
     public function tablaPosiciones(){
 
             $cantidad = DB::table('game')
-                ->where('status', '=', 2)
-                ->count('status');
+                ->where('estatus', '=', 2)
+                ->count('estatus');
 
             if ($cantidad > 0){
                 $positions = DB::table('users')

@@ -49,7 +49,7 @@
         return $translations[$teamName] ?? $teamName;
     }
 
-    function traducir_status(string $status){
+    function traducir_estatus(string $estatus){
         $translations = [
             "TIMED" => "Programado",
             "IN_PLAY" => "En juego",
@@ -64,10 +64,10 @@
             "INVALID" => "No válido"
         ];
 
-        return $translations[$status] ?? $status;
+        return $translations[$estatus] ?? $estatus;
     }
 
-    function color_status(string $status){
+    function color_estatus(string $estatus){
         $translations = [
             "TIMED" => "#474A4A",
             "IN_PLAY" => "#0b461c",
@@ -82,7 +82,7 @@
             "INVALID" => "#C00707"
         ];
 
-        return $translations[$status] ?? $status;
+        return $translations[$estatus] ?? $estatus;
     }
 
     function traducir_rondas($stage)

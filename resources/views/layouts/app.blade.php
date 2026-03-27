@@ -64,7 +64,7 @@
                                         Mi quiniela
                                     </a>
 
-                                    <a class="dropdown-item" href="{{ route('pointsXgame') }}">
+                                    <a class="dropdown-item" href="{{ route('puntosXjuego') }}">
                                         Mis puntos por partido
                                     </a>
 

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Controllers\GamesController;
+use App\Models\Juegos;
 use App\Models\Partidos;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -19,28 +20,28 @@ class apiFotballService
 
         if ($response->successful()) {
             foreach ($response['matches'] as $key => $partido) {
-                Partidos::updateOrCreate(
+                Juegos::updateOrCreate(
                     [
                         'api_id' => $partido['id']
                     ],
                     [
-                        'team1' => $partido['homeTeam']['name'],
-                        'imagenTeam1' => $partido['homeTeam']['crest'],
-                        'score1' => 0 ,
-                        'team2' => $partido['awayTeam']['name'],
-                        'imagenTeam2' => $partido['awayTeam']['crest'],
-                        'score2' => 0,
-                        'typeGame' => $partido['stage'],
-                        'status' => $partido['status'],
-                        'dateGame' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
-                        'timeGame' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
+                        'equipo1' => $partido['homeTeam']['name'],
+                        'equipo2' => $partido['awayTeam']['name'],
+                        'resultadoEquipo1' => 0 ,
+                        'resultadoEquipo2' => 0,
+                        'imagenEquipo1' => $partido['homeTeam']['crest'],
+                        'imagenEquipo2' => $partido['awayTeam']['crest'],
+                        'estatus' => $partido['status'],
+                        'ronda' => $partido['stage'],
+                        'fechaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
+                        'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
                     ]
                 );
             }
 
             
 
-            Log::alert('API Success', 'Actualizado correctamente');
+            // Log::alert('API Success', 'Actualizado correctamente');
 
             return [
                 'success' => true,
@@ -51,7 +52,7 @@ class apiFotballService
 
         if ($response->failed()) {
             Log::error('API Error', [
-                'status' => $response->status(),
+                'estatus' => $response->estatus(),
                 'body' => $response->body()
             ]);
 
@@ -64,8 +65,8 @@ class apiFotballService
     }
 
     public function iniciarPartido(GamesController $juegos){
-        $respuesta = $juegos->iniciarPartido();
+        $respuesta = $juegos->iniciarPartido(222, "IN_PLAY");
 
-        Log::alert($respuesta);
+        // Log::alert($respuesta);
     }
 }

@@ -7,14 +7,14 @@ export default function Quiniela(props) {
 
     const juegosPorFecha = props.juegos.reduce((acc, juego) => {
         console.log(juego);
-        if (!acc[juego.dateGame]) {
-            acc[juego.dateGame] = [];
+        if (!acc[juego.fechaJuego]) {
+            acc[juego.fechaJuego] = [];
         }
-        acc[juego.dateGame].push(juego);
+        acc[juego.fechaJuego].push(juego);
         return acc;
     }, {});
 
-    const statusColors = {
+    const estatusColors = {
         'Programado' : "bg-[#BFC9D1] text-black",
         'En juego' : "bg-dos text-white",
         'Medio tiempo' : "bg-white text-black",
@@ -49,7 +49,7 @@ export default function Quiniela(props) {
                             {fecha}
                         </div>
                         <div>
-                         {juegos[0].typeGame}
+                         {juegos[0].tipoJuego}
                         </div>
                     </div>
 
@@ -61,38 +61,38 @@ export default function Quiniela(props) {
                                 <div className='flex flex-col items-center w-2/5'> 
                                     <div>
                                         <img 
-                                            src={juego.imagenTeam1 == null ? 'img/static/balon.jpeg' : juego.imagenTeam1} 
+                                            src={juego.imagenequipo1 == null ? 'img/static/balon.jpeg' : juego.imagenequipo1} 
                                             alt="imagen" 
                                             className='w-10 h-10'
                                         />
                                     </div>
-                                    <div>{juego.team1 ?? 'Pendiente'}</div>
+                                    <div>{juego.equipo1 ?? 'Pendiente'}</div>
                                 </div>
 
                                 <div className='flex flex-col items-center'>
-                                    <div>{juego.timeGame}</div>
+                                    <div>{juego.horaJuego}</div>
 
                                     <div className='flex flex-row items-center'>
-                                        <div>{juego.score1 ?? 'Pendiente'}</div>
+                                        <div>{juego.resultadoEquipo1 ?? 'Pendiente'}</div>
                                         <div className='mx-1'>:</div>
-                                        <div>{juego.score2 ?? 'Pendiente'}</div>
+                                        <div>{juego.resultadoEquipo2 ?? 'Pendiente'}</div>
                                     </div>
                                 </div>
 
                                 <div className='flex flex-col items-center w-2/5'> 
                                     <div>
                                     <img 
-                                            src={juego.imagenTeam2 == null ? 'img/static/balon.jpeg' : juego.imagenTeam2} 
+                                            src={juego.imagenequipo2 == null ? 'img/static/balon.jpeg' : juego.imagenequipo2} 
                                             alt="imagen" 
                                             className='w-10 h-10'
                                         />
                                     </div>
-                                    <div>{juego.team2 ?? 'Pendiente'}</div>
+                                    <div>{juego.equipo2 ?? 'Pendiente'}</div>
                                 </div>
 
                             </div>
                             <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                <div className={`w-fit rounded-xl py-1 px-3 text-sm ${statusColors[juego.status] || 'bg-white'}`}>{juego.status} </div> 
+                                <div className={`w-fit rounded-xl py-1 px-3 text-sm ${estatusColors[juego.estatus] || 'bg-white'}`}>{juego.estatus} </div> 
                             </div>
                         </div>
                     ))}

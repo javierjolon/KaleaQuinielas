@@ -10,29 +10,29 @@ use Inertia\Inertia;
 
 class GamesController extends Controller
 {
-    public function iniciarPartido($partidoId, $status){
+    public function iniciarPartido($partidoId, $estatus){
         DB::table('game')
             ->where('id', '=', $partidoId)
             ->update([
-                'status' => $status
+                'estatus' => $estatus
             ]);
     }
 
     public function actualizarQuiniela(){
         $partidos = DB::table('game')
-            ->where('game.dateGame', '=', Carbon::today())
-            ->where('game.status', '=', 'IN_PLAY')
-            ->orWhere('game.status', '=', 'LIVE')
-            ->orWhere('game.status', '=', 'PAUSED')
+            ->where('game.fechaJuego', '=', Carbon::today())
+            ->where('game.estatus', '=', 'IN_PLAY')
+            ->orWhere('game.estatus', '=', 'LIVE')
+            ->orWhere('game.estatus', '=', 'PAUSED')
             ->get();
 
         if (count($partidos) > 0) {
             foreach ($partidos as $key => $partido) {
                 DB::table('quiniela')
-                ->where('gameId', $partido->id)
-                ->where('status', '!=', 'INVALID')
+                ->where('juegoId', $partido->id)
+                ->where('estatus', '!=', 'INVALID')
                 ->update([
-                    'status' => 'IN_PLAY'
+                    'estatus' => 'IN_PLAY'
                 ]);
             };
         }
@@ -42,14 +42,14 @@ class GamesController extends Controller
 
     public function index(){
         $juegos = DB::table('game')
-        ->orderBy('dateGame')
-        ->orderBy('timeGame')
+        ->orderBy('fechaJuego')
+        ->orderBy('horaJuego')
         ->get()
         ->map(function ($game) {
-            $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
-            $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
-            $game->status = traducir_status($game->status ?? " ");
-            $game->typeGame = traducir_rondas($game->typeGame ?? " ");
+            $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
+            $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
+            $game->estatus = traducir_estatus($game->estatus ?? " ");
+            $game->tipoJuego = traducir_rondas($game->tipoJuego ?? " ");
             return $game;
         });
         // dd($juegos);
@@ -58,21 +58,21 @@ class GamesController extends Controller
 
     // public function setGame()
     // {
-    //     $team1 = request()->get('team1');
-    //     $team2 = request()->get('team2');
+    //     $equipo1 = request()->get('equipo1');
+    //     $equipo2 = request()->get('equipo2');
     //     $date = request()->get('date');
     //     $time = request()->get('time');
     //     $type = request()->get('type');
 
     //     DB::table('game')->insert(
     //         [
-    //             'team1' => $team1,
-    //             'score1' => null,
-    //             'team2' => $team2,
-    //             'score2' => null,
-    //             'typeGame' => $type,
-    //             'dateGame' => $date,
-    //             'timeGame' => $time,
+    //             'equipo1' => $equipo1,
+    //             'resultadoEquipo1' => null,
+    //             'equipo2' => $equipo2,
+    //             'resultadoEquipo2' => null,
+    //             'tipoJuego' => $type,
+    //             'fechaJuego' => $date,
+    //             'horaJuego' => $time,
     //             'created_at' => date('Y-m-d H:i:s'),
     //             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
     //         ]
@@ -83,22 +83,22 @@ class GamesController extends Controller
 
     // public function addResult(){
     //     $games = DB::table('game')
-    //         ->join('team as t1', 't1.id', '=', 'game.team1')
-    //         ->join('team as t2', 't2.id', '=', 'game.team2')
-    //         ->join('statusgame as sg', 'game.status', '=', 'sg.id')
+    //         ->join('team as t1', 't1.id', '=', 'game.equipo1')
+    //         ->join('team as t2', 't2.id', '=', 'game.equipo2')
+    //         ->join('estatusgame as sg', 'game.estatus', '=', 'sg.id')
     //         ->select(
-    //             't1.name as team1',
-    //             't2.name as team2',
-    //             'game.dateGame',
-    //             'game.timeGame',
+    //             't1.name as equipo1',
+    //             't2.name as equipo2',
+    //             'game.fechaJuego',
+    //             'game.horaJuego',
     //             'game.id',
-    //             'game.status',
-    //             'game.score1',
-    //             'game.score2',
-    //             'sg.name as statusname'
+    //             'game.estatus',
+    //             'game.resultadoEquipo1',
+    //             'game.resultadoEquipo2',
+    //             'sg.name as estatusname'
     //         )
-    //         ->orderBy('dateGame','asc')
-    //         ->orderBy('timeGame', 'asc')
+    //         ->orderBy('fechaJuego','asc')
+    //         ->orderBy('horaJuego', 'asc')
     //         ->get();
 
     //     return view('games/addResult', compact('games'));
@@ -106,53 +106,53 @@ class GamesController extends Controller
 
     public function setResultGame(){
 
-        $gameId = request()->get('gameId');
-        $score1 = request()->get('score1');
-        $score2 = request()->get('score2');
+        $juegoId = request()->get('juegoId');
+        $resultadoEquipo1 = request()->get('resultadoEquipo1');
+        $resultadoEquipo2 = request()->get('resultadoEquipo2');
 
         DB::table('game')
-            ->where('id', '=', $gameId)
-            ->update(['score1' => $score1, 'score2' => $score2]);
+            ->where('id', '=', $juegoId)
+            ->update(['resultadoEquipo1' => $resultadoEquipo1, 'resultadoEquipo2' => $resultadoEquipo2]);
 
         $quinielas = DB::table('quiniela')
-            ->where('gameId', '=', $gameId)
+            ->where('juegoId', '=', $juegoId)
             ->get();
 
-        $pointsXGame = 0;
+        $puntosXjuego = 0;
 
         foreach($quinielas as $quiniela){
-            if ($score1 == $quiniela->scoreTeam1){
-                $pointsXGame++;
+            if ($resultadoEquipo1 == $quiniela->quinielaEquipo1){
+                $puntosXjuego++;
             }
-            if ($score2 == $quiniela->scoreTeam2){
-                $pointsXGame++;
+            if ($resultadoEquipo2 == $quiniela->quinielaEquipo2){
+                $puntosXjuego++;
             }
 
-            $winMatch = $this->analizeGame($score1, $score2);
-            $winQuiniela = $this->analizeGame($quiniela->scoreTeam1, $quiniela->scoreTeam2);
+            $winMatch = $this->analizeGame($resultadoEquipo1, $resultadoEquipo2);
+            $winQuiniela = $this->analizeGame($quiniela->quinielaEquipo1, $quiniela->quinielaEquipo2);
 
             if ($winMatch == $winQuiniela){
-                $pointsXGame++;
+                $puntosXjuego++;
             }
 
             DB::table('quiniela')
                 ->where('id', '=', $quiniela->id)
-                ->update([ 'pointsXGame' => $pointsXGame ]);
+                ->update([ 'puntosXjuego' => $puntosXjuego ]);
 
             $userPoint = DB::table('quiniela')
-                ->where('userId', '=', $quiniela->userId)
-                ->sum('pointsXGame');
+                ->where('usuarioId', '=', $quiniela->usuarioId)
+                ->sum('puntosXjuego');
 
             DB::table('users')
-                ->where('id', '=', $quiniela->userId)
+                ->where('id', '=', $quiniela->usuarioId)
                 ->update(['accumulatedPointsTemp' => $userPoint]);
 
-            $pointsXGame = 0;
+            $puntosXjuego = 0;
         }
 
         $this->updateTempPosition();
 
-        return redirect()->action('GamesController@initGame', ['gameId' => $gameId]);
+        return redirect()->action('GamesController@initGame', ['juegoId' => $juegoId]);
     }
 
     private function updateTempPosition(){
@@ -207,94 +207,94 @@ class GamesController extends Controller
         }
     }
 
-    private function analizeGame($score1, $score2){
-        if ($score1 > $score2){
+    private function analizeGame($resultadoEquipo1, $resultadoEquipo2){
+        if ($resultadoEquipo1 > $resultadoEquipo2){
             return 'G1';
-        }elseif($score1 == $score2){
+        }elseif($resultadoEquipo1 == $resultadoEquipo2){
             return 'E';
-        }elseif($score1 < $score2){
+        }elseif($resultadoEquipo1 < $resultadoEquipo2){
             return 'G2';
         }
     }
 
     public function initGame(){
-        $gamesId = request()->get('gameId');
+        $gamesId = request()->get('juegoId');
 
         $games = DB::table('game')
-            ->join('team as t1', 't1.id', '=', 'game.team1')
-            ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->join('statusgame as sg', 'game.status', '=', 'sg.id')
+            ->join('team as t1', 't1.id', '=', 'game.equipo1')
+            ->join('team as t2', 't2.id', '=', 'game.equipo2')
+            ->join('estatusgame as sg', 'game.estatus', '=', 'sg.id')
             ->select(
-                't1.name as team1',
+                't1.name as equipo1',
                 't1.image as img1',
-                't2.name as team2',
+                't2.name as equipo2',
                 't2.image as img2',
-                'game.score1',
-                'game.score2',
-                'game.dateGame',
-                'game.timeGame',
+                'game.resultadoEquipo1',
+                'game.resultadoEquipo2',
+                'game.fechaJuego',
+                'game.horaJuego',
                 'game.id',
-                'game.status',
-                'sg.name as statusname'
+                'game.estatus',
+                'sg.name as estatusname'
             )
             ->where('game.id', '=', $gamesId)
-            ->orderBy('dateGame','asc')
-            ->orderBy('timeGame', 'asc')
+            ->orderBy('fechaJuego','asc')
+            ->orderBy('horaJuego', 'asc')
             ->first();
 
         return view("games/initGame", compact('games'));
     }
 
     public function endGame(){
-        $gameId = request()->get('gameId');
+        $juegoId = request()->get('juegoId');
 
         DB::table('game')
-            ->where('id', '=', $gameId)
-            ->update([ 'status' => 3 ]);
+            ->where('id', '=', $juegoId)
+            ->update([ 'estatus' => 3 ]);
 
 //        $quinielas = DB::table('game')
-//            ->leftJoin('quiniela as q', 'game.id', '=' , 'q.gameId')
+//            ->leftJoin('quiniela as q', 'game.id', '=' , 'q.juegoId')
 //            ->select(
 //                'q.id as quinielaId',
-//                'game.score1 as final1',
-//                'game.score2 as final2',
-//                'q.scoreTeam1 as quiniela1',
-//                'q.scoreTeam2 as quiniela2',
-//                'q.userId'
+//                'game.resultadoEquipo1 as final1',
+//                'game.resultadoEquipo2 as final2',
+//                'q.quinielaEquipo1 as quiniela1',
+//                'q.quinielaEquipo2 as quiniela2',
+//                'q.usuarioId'
 //            )
-//            ->where('game.id', '=', $gameId)
+//            ->where('game.id', '=', $juegoId)
 //            ->get();
 //
-//        $pointsXGame = 0;
+//        $puntosXjuego = 0;
 //
 //        foreach($quinielas as $quiniela){
 //            if ($quiniela->final1 == $quiniela->quiniela1){
-//                $pointsXGame++;
+//                $puntosXjuego++;
 //            }
 //            if ($quiniela->final2 == $quiniela->quiniela2){
-//                $pointsXGame++;
+//                $puntosXjuego++;
 //            }
 //
 //            $winMatch = $this->analizeGame($quiniela->final1, $quiniela->final2);
 //            $winQuiniela = $this->analizeGame($quiniela->quiniela1, $quiniela->quiniela2);
 //
 //            if ($winMatch == $winQuiniela){
-//                $pointsXGame++;
+//                $puntosXjuego++;
 //            }
 //
 //            DB::table('quiniela')
 //                ->where('id', '=', $quiniela->quinielaId)
-//                ->update([ 'pointsXGame' => $pointsXGame ]);
+//                ->update([ 'puntosXjuego' => $puntosXjuego ]);
 //
 //            $accumulatedPoints = DB::table('users')
 //                ->select('accumulatedPoints')
-//                ->where('id', '=', $quiniela->userId)->first();
+//                ->where('id', '=', $quiniela->usuarioId)->first();
 //
 //            DB::table('users')
-//                ->where('id', '=', $quiniela->userId)
-//                ->update(['accumulatedPoints' => intval($pointsXGame + $accumulatedPoints->accumulatedPoints)]);
+//                ->where('id', '=', $quiniela->usuarioId)
+//                ->update(['accumulatedPoints' => intval($puntosXjuego + $accumulatedPoints->accumulatedPoints)]);
 //
-//            $pointsXGame = 0;
+//            $puntosXjuego = 0;
 //        }
 //        $this->updateActualPostition();
 
@@ -302,12 +302,12 @@ class GamesController extends Controller
     }
 
     public function starGame(){
-        $gamesId = request()->get('gameId');
+        $gamesId = request()->get('juegoId');
 
         DB::table('game')
             ->where('id', '=', $gamesId)
-            ->update(['status' => 2]);
+            ->update(['estatus' => 2]);
 
-        return redirect()->action('GamesController@initGame', ['gameId' => $gamesId]);
+        return redirect()->action('GamesController@initGame', ['juegoId' => $gamesId]);
     }
 }
