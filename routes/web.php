@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/quiniela', [QuinielaController::class, 'index'])->name('quiniela.index');
+    Route::get('/quiniela/create', [QuinielaController::class, 'create'])->name('quiniela.create');
     Route::post('/quiniela', [QuinielaController::class, 'store'])->name('quiniela.store');
     Route::patch('/quiniela/{juegoId}', [QuinielaController::class, 'patch'])->name('quiniela.patch');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

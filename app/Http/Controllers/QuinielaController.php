@@ -11,13 +11,21 @@ use Inertia\Inertia;
 
 class QuinielaController extends Controller
 {
-    public function crear($nombreQuiniela){
+
+    public function create() {
+        return Inertia::render("Quiniela/create", []);
+    }
+
+    public function store(){
+        $nombreQuiniela = request()->get('nombre');
 
         $quinielaId = DB::table("quinielas")
             ->insertGetId([
                 'usuarioId' => Auth::user()->id,
                 'nombre' => $nombreQuiniela,
-                'status' => "TIMED"
+                'status' => "TIMED",
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
         $partidos = DB::table("juegos")->get();
@@ -36,7 +44,14 @@ class QuinielaController extends Controller
             ];
         }
 
-        DB::table('quinielaJuegos')->insert($data);
+        DB::table('quinielasJuegos')->insert($data);
+        DB::table('usuariosQuinielas')->insert([
+            'usuarioId' => Auth::user()->id,
+            'quinielaId' => $quinielaId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
     }
 
 
@@ -104,58 +119,58 @@ class QuinielaController extends Controller
         return Inertia::render('Quiniela/quiniela', ['juegosPendientes' => $juegosPendientes, 'juegosIngresados' => $juegosIngresados, 'juegosFinalizados' => $juegosFinalizados]);
     }
 
-    public function store(){
-        $juegoId = request()->get('juego_id');
-        $equipo1 = request()->get('equipo1');
-        $equipo2 = request()->get('equipo2');
+    // public function store(){
+    //     $juegoId = request()->get('juego_id');
+    //     $equipo1 = request()->get('equipo1');
+    //     $equipo2 = request()->get('equipo2');
 
-        $datosJuego = DB::table("game")
-        ->select("fechaJuego", "horaJuego")    
-        ->where("id", "=", $juegoId)
-        ->first();
+    //     $datosJuego = DB::table("game")
+    //     ->select("fechaJuego", "horaJuego")    
+    //     ->where("id", "=", $juegoId)
+    //     ->first();
 
-        $horaJuego = Carbon::parse($datosJuego->horaJuego)->subMinutes(10);
+    //     $horaJuego = Carbon::parse($datosJuego->horaJuego)->subMinutes(10);
 
-        if(Carbon::today()->lt($datosJuego->fechaJuego) && $datosJuego->fechaJuego == "TIMED"){
-            DB::table('quiniela')
-                ->Insert(
-                [
-                    'usuarioId' => Auth::user()->id,
-                    'juegoId' => $juegoId,
-                    'quinielaEquipo1' => $equipo1,
-                    'quinielaEquipo2' => $equipo2,
-                    'puntosXjuego' => 0,
-                    'estatus' => "TIMED",
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-            return back();
-        }elseif (Carbon::today()->eq($datosJuego->fechaJuego) && $datosJuego->fechaJuego == "TIMED"){
-            if (Carbon::now()->lt($horaJuego)){
-                DB::table('quiniela')
-                ->Insert(
-                [
-                    'usuarioId' => Auth::user()->id,
-                    'juegoId' => $juegoId,
-                    'quinielaEquipo1' => $equipo1,
-                    'quinielaEquipo2' => $equipo2,
-                    'puntosXjuego' => 0,
-                    'estatus' => "TIMED",
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-                return back();
-            }else{
-                $array = [ 'estatus' => 'INVALID', 'quinielaEquipo1' => '-1', 'quinielaEquipo2' => '-1', 'puntosXjuego' => 0];
-                $this->actualizarDB('quiniela', $juegoId, $array);
-                return back()->withErrors(['error' => 'Fuera de horario']);
-            }
-        }else{
-            $array = [ 'estatus' => 'INVALID', 'quinielaEquipo1' => '-1', 'quinielaEquipo2' => '-1', 'puntosXjuego' => 0];
-            $this->actualizarDB('quiniela', $juegoId, $array);
-            return back()->withErrors(['error' => 'Fuera de horario']);
-        }
-    }
+    //     if(Carbon::today()->lt($datosJuego->fechaJuego) && $datosJuego->fechaJuego == "TIMED"){
+    //         DB::table('quiniela')
+    //             ->Insert(
+    //             [
+    //                 'usuarioId' => Auth::user()->id,
+    //                 'juegoId' => $juegoId,
+    //                 'quinielaEquipo1' => $equipo1,
+    //                 'quinielaEquipo2' => $equipo2,
+    //                 'puntosXjuego' => 0,
+    //                 'estatus' => "TIMED",
+    //                 'created_at' => date('Y-m-d H:i:s'),
+    //                 'updated_at' => date('Y-m-d H:i:s')
+    //             ]);
+    //         return back();
+    //     }elseif (Carbon::today()->eq($datosJuego->fechaJuego) && $datosJuego->fechaJuego == "TIMED"){
+    //         if (Carbon::now()->lt($horaJuego)){
+    //             DB::table('quiniela')
+    //             ->Insert(
+    //             [
+    //                 'usuarioId' => Auth::user()->id,
+    //                 'juegoId' => $juegoId,
+    //                 'quinielaEquipo1' => $equipo1,
+    //                 'quinielaEquipo2' => $equipo2,
+    //                 'puntosXjuego' => 0,
+    //                 'estatus' => "TIMED",
+    //                 'created_at' => date('Y-m-d H:i:s'),
+    //                 'updated_at' => date('Y-m-d H:i:s')
+    //             ]);
+    //             return back();
+    //         }else{
+    //             $array = [ 'estatus' => 'INVALID', 'quinielaEquipo1' => '-1', 'quinielaEquipo2' => '-1', 'puntosXjuego' => 0];
+    //             $this->actualizarDB('quiniela', $juegoId, $array);
+    //             return back()->withErrors(['error' => 'Fuera de horario']);
+    //         }
+    //     }else{
+    //         $array = [ 'estatus' => 'INVALID', 'quinielaEquipo1' => '-1', 'quinielaEquipo2' => '-1', 'puntosXjuego' => 0];
+    //         $this->actualizarDB('quiniela', $juegoId, $array);
+    //         return back()->withErrors(['error' => 'Fuera de horario']);
+    //     }
+    // }
 
     public function patch($juegoId){
         $quinielaEquipo1 = request()->get("quinielaEquipo1");
