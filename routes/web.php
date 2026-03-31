@@ -4,6 +4,8 @@ use App\Http\Controllers\GamesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuinielaController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +37,28 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
+    $quinielas = DB::table('quinielas')
+    ->where('usuarioId', '=', Auth::user()->id)
+    ->get();
+    
+    if (count($quinielas) === 0) {
+        session([
+            'quinielas' => [[
+            'id' => 0,
+            'nombre' => 'No estas en una quiniela, crea una nueva',
+            'activo' => true
+        ]]]);
+    }else{
+        session([
+            'quinielas' => $quinielas->values()->map(function ($q, $index) {
+                return [
+                    'id' => $q->id,
+                    'nombre' => $q->nombre,
+                    'activo' => $index === 0
+                ];
+            })
+        ]);
+    }
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 

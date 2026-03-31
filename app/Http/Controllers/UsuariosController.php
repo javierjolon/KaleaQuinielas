@@ -11,7 +11,7 @@ class UsuariosController extends Controller
         try {
             DB::table("users")
             ->insert([
-                "nombre" => $nombre,
+                "name" => $nombre,
                 "email" => $email,
                 "posicionActual" => 0,
                 "posicionActualTemp" => 0,

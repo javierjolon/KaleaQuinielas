@@ -61,7 +61,8 @@
             "CANCELLED" => "Cancelado",
             "AWARDED" => "Gano por default",
             "LOCKED" => "Bloqueado",
-            "INVALID" => "No válido"
+            "INVALID" => "No válido",
+            "PENDING" => "Pendiente"
         ];
 
         return $translations[$estatus] ?? $estatus;

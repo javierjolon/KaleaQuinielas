@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer("quinielaEquipo2")->nullable();
             $table->integer("puntosXjuego")->default(0);
             $table->string("status");
+            $table->string("fechaJuego");
+            $table->string("horaJuego");
             $table->timestamps();
         });
     }

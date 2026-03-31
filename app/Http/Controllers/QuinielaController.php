@@ -38,13 +38,16 @@ class QuinielaController extends Controller
                 'usuarioId' => Auth::user()->id,
                 'juegoId' => $partido->id,
                 'puntosXjuego' => 0,
-                'status' => 'TIMED',
+                'status' => 'PENDING',
+                // 'fechaJuego' => $partido->fechaJuego,
+                // 'horaJuego' => $partido->horaJuego,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
 
         DB::table('quinielasJuegos')->insert($data);
+
         DB::table('usuariosQuinielas')->insert([
             'usuarioId' => Auth::user()->id,
             'quinielaId' => $quinielaId,
@@ -57,12 +60,49 @@ class QuinielaController extends Controller
 
     public function index(){
         $usuarioId = Auth::user()->id;
+        $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
 
         $juegosPendientes = DB::table('quinielasJuegos')
+        ->select(
+            'quinielasJuegos.*', 
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.estatus', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego')
+        ->leftJoin('juegos', 'quinielasJuegos.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
-        ->where('status', "=", "PENDIENTE")        
-        ->get();
+        ->where("quinielaId", "=", $quinielaActiva)
+        ->where('status', "=", "PENDING")    
+        ->orderBy('juegos.fechaJuego')
+        ->orderBy('juegos.horaJuego')    
+        ->get()
+        ->map(function ($game) {
+            $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
+            $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
+            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->status ?? " "), 'color' => color_estatus($game->status ?? " ")];
+            $game->tipoJuego = traducir_rondas($game->ronda ?? " ");
+            return $game;
+        });
 
+        $juegosIngresados = DB::table('quinielasJuegos')
+        ->select(
+            'quinielasJuegos.*', 
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego')
+        ->leftJoin('juegos', 'quinielasJuegos.juegoId', 'juegos.id')
+        ->where('usuarioId', "=", $usuarioId)
+        ->where("quinielaId", "=", $quinielaActiva)
+        ->where('quinielasJuegos.status', "=", "TIMED")    
+        ->orWhere('quinielasJuegos.status', "=", "LOCKED")    
+        ->orderBy('juegos.fechaJuego')
+        ->orderBy('juegos.horaJuego')    
+        ->get()
+        ->map(function ($game) {
+            $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
+            $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
+            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->status ?? " "), 'color' => color_estatus($game->status ?? " ")];
+            $game->tipoJuego = traducir_rondas($game->ronda ?? " ");
+            return $game;
+        });
+
+
+        // dd($juegosIngresados);
         // $juegosPendientes = DB::table('juegos as g')
         // ->where('g.fechaJuego', ">=", Carbon::today())
         // ->whereNotExists(function ($query) use ($usuarioId) {
@@ -114,9 +154,8 @@ class QuinielaController extends Controller
         //     return $game;
         // });
 
-        $juegosIngresados = [];
         $juegosFinalizados = [];
-        return Inertia::render('Quiniela/quiniela', ['juegosPendientes' => $juegosPendientes, 'juegosIngresados' => $juegosIngresados, 'juegosFinalizados' => $juegosFinalizados]);
+        return Inertia::render('Quiniela/quiniela', ['juegosPendientes' => $juegosPendientes, 'juegosIngresados' => $juegosIngresados, 'juegosFinalizados' => $juegosFinalizados, 'quinielaActiva' => $quinielaActiva]);
     }
 
     // public function store(){
@@ -175,6 +214,8 @@ class QuinielaController extends Controller
     public function patch($juegoId){
         $quinielaEquipo1 = request()->get("quinielaEquipo1");
         $quinielaEquipo2 = request()->get("quinielaEquipo2");
+        $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
+
         
         $data = [ 'updated_at' => now() ];
     
@@ -186,7 +227,7 @@ class QuinielaController extends Controller
             $data['quinielaEquipo2'] = $quinielaEquipo2;
         }
 
-        $datosJuego = DB::table("game")
+        $datosJuego = DB::table("juegos")
         ->select("fechaJuego", "horaJuego")    
         ->where("id", "=", $juegoId)
         ->first();
@@ -194,32 +235,38 @@ class QuinielaController extends Controller
         $horaJuego = Carbon::parse($datosJuego->horaJuego)->subMinutes(10);
 
         if(Carbon::today()->lt($datosJuego->fechaJuego)){
-            $this->actualizarDB('quiniela', $juegoId, $data);
+            $data['status'] = 'TIMED';
+            $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
             return back();
-        
+            
         }elseif (Carbon::today()->eq($datosJuego->fechaJuego)){
             
             if (Carbon::now()->lt($horaJuego)){
-                $this->actualizarDB('quiniela', $juegoId, $data);
+                $data['status'] = 'TIMED';
+                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
                 return back();
             }else{
-                $array = ['estatus' => 'LOCKED'];
-                $this->actualizarDB('quiniela', $juegoId, $array);
+                $data['status'] = 'LOCKED';
+                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
                 return back()->withErrors(['error' => 'Fuera de horario']);
             }
         }else{
-            $array = ['estatus' => 'LOCKED'];
-            $this->actualizarDB('quiniela', $juegoId, $array);
+            $data['status'] = 'LOCKED';
+            $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
             return back()->withErrors(['error' => 'Fuera de horario']);
         }
 
         return back();
     }
 
-    public function actualizarDB($tabla, $juegoId, $arrayCampos){
+    private function actualizarDB($tabla, $juegoId, $quinielaId, $arrayCampos){
         DB::table($tabla)
         ->updateOrInsert(
-            ['usuarioId'=> Auth::user()->id, 'juegoId' => $juegoId],
+            [
+                'usuarioId'=> Auth::user()->id, 
+                'juegoId' => $juegoId,
+                'quinielaId' => $quinielaId,
+            ],
             $arrayCampos
         );
         return;

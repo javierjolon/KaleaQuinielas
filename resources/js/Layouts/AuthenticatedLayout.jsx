@@ -14,9 +14,9 @@ export default function Authenticated({ auth, header, children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
-                            <div className="shrink-0 flex items-start">
+                            <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <ApplicationLogo className="block h-14 w-auto fill-current" />
                                 </Link>
                             </div>
 
@@ -35,6 +35,12 @@ export default function Authenticated({ auth, header, children }) {
                                 </NavLink>
                             </div>
                         </div>
+
+                        {header && (
+                            <header className="flex md:hidden bg-white shadow text-center">
+                                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
+                            </header>
+                        )}
 
                         <div className="hidden sm:flex sm:items-center sm:ml-6">
                             <div className="ml-3 relative">
@@ -134,7 +140,7 @@ export default function Authenticated({ auth, header, children }) {
             </nav>
 
             {header && (
-                <header className="bg-white shadow">
+                <header className="hidden md:flex bg-white shadow text-center">
                     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
