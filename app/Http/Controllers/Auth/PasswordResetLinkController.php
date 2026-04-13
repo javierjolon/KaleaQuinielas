@@ -30,14 +30,14 @@ class PasswordResetLinkController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => 'required|email',
+            'telefono' => ['required', 'string', 'regex:/^[0-9+\s\-]{8,20}$/'],
         ]);
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
         $estatus = Password::sendResetLink(
-            $request->only('email')
+            $request->only('telefono')
         );
 
         if ($estatus == Password::RESET_LINK_SENT) {
@@ -45,7 +45,7 @@ class PasswordResetLinkController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => [trans($estatus)],
+            'telefono' => [trans($estatus)],
         ]);
     }
 }

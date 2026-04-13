@@ -44,7 +44,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (Auth::user()->email == 'admin@admin.com'){
+        $adminTelefono = config('app.admin_telefono');
+        if ($adminTelefono && Auth::user()->telefono === $adminTelefono){
             return view('Admin/index');
         }else{
             $cantidad = DB::table('game')
@@ -80,9 +81,10 @@ class HomeController extends Controller
         try {
             $respuesta = User::create([
                 'name' => $data['name'],
-                'email' => $data['email'],
+                'telefono' => $data['telefono'],
                 'password' => Hash::make($data['password']),
             ]);
+            $respuesta->markEmailAsVerified();
 
             if ($data->file('image') != null){
                 $file= $data->file('image');

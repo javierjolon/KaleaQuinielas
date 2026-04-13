@@ -9,6 +9,8 @@ use App\Services\apiFotballService;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
+use function PHPSTORM_META\map;
+
 class QuinielaController extends Controller
 {
 
@@ -19,6 +21,7 @@ class QuinielaController extends Controller
     public function store(){
         $nombreQuiniela = request()->get('nombre');
 
+        // Registra la quiniela en la base de datos
         $quinielaId = DB::table("quinielas")
             ->insertGetId([
                 'usuarioId' => Auth::user()->id,
@@ -27,11 +30,11 @@ class QuinielaController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-
+            
+        // Toma todos los partidos de la tabla juegos y los en la tabla quinielaJuegos con el nuevo usuario 
         $partidos = DB::table("juegos")->get();
-    
         $data = [];
-    
+        
         foreach ($partidos as $partido) {
             $data[] = [
                 'quinielaId' => $quinielaId,
@@ -39,8 +42,6 @@ class QuinielaController extends Controller
                 'juegoId' => $partido->id,
                 'puntosXjuego' => 0,
                 'status' => 'PENDING',
-                // 'fechaJuego' => $partido->fechaJuego,
-                // 'horaJuego' => $partido->horaJuego,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -48,6 +49,7 @@ class QuinielaController extends Controller
 
         DB::table('quinielasJuegos')->insert($data);
 
+        // asocia el usuario creado a la quiniela creada
         DB::table('usuariosQuinielas')->insert([
             'usuarioId' => Auth::user()->id,
             'quinielaId' => $quinielaId,
@@ -60,102 +62,103 @@ class QuinielaController extends Controller
 
     public function index(){
         $usuarioId = Auth::user()->id;
+        $quinielaActivaId = 0;
+
         $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
+        $quinielaActivaId = $quinielaActiva['id']; 
 
-        $juegosPendientes = DB::table('quinielasJuegos')
+        $juegosPendientes = DB::table('quinielasJuegos as qj')
         ->select(
-            'quinielasJuegos.*', 
-            'juegos.equipo1', 'juegos.equipo2', 'juegos.estatus', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego')
-        ->leftJoin('juegos', 'quinielasJuegos.juegoId', 'juegos.id')
+            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id', 
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.estatus as estatusJuego', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego')
+        ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
-        ->where("quinielaId", "=", $quinielaActiva)
-        ->where('status', "=", "PENDING")    
+        ->where("quinielaId", "=", $quinielaActivaId)
+        ->where('qj.status', "=", "PENDING")    
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
         ->map(function ($game) {
             $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
             $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
-            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->status ?? " "), 'color' => color_estatus($game->status ?? " ")];
+            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->estatusQuiniela ?? " "), 'color' => color_estatus($game->estatusQuiniela ?? " ")];
+            $game->estatusJuego = ['nombre' => traducir_estatus($game->estatusJuego ?? " "), 'color' => color_estatus($game->estatusJuego ?? " ")];
             $game->tipoJuego = traducir_rondas($game->ronda ?? " ");
             return $game;
         });
 
-        $juegosIngresados = DB::table('quinielasJuegos')
+        $listadoJuegosPendientes = $juegosPendientes->filter(function ($juego) {
+            return Carbon::parse($juego->fechaJuego)->isToday() || Carbon::parse($juego->fechaJuego)->isFuture();
+        })->groupBy(function ($juego) {
+            return Carbon::parse($juego->fechaJuego)->format('d-m-Y');
+        });
+
+
+        
+        // dd($listadoJuegosPendientes);
+
+        $juegosIngresados = DB::table('quinielasJuegos as qj')
         ->select(
-            'quinielasJuegos.*', 
+            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id',
             'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego')
-        ->leftJoin('juegos', 'quinielasJuegos.juegoId', 'juegos.id')
+        ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
-        ->where("quinielaId", "=", $quinielaActiva)
-        ->where('quinielasJuegos.status', "=", "TIMED")    
-        ->orWhere('quinielasJuegos.status', "=", "LOCKED")    
+        ->where("qj.quinielaId", "=", $quinielaActivaId)
+        ->where('qj.status', "=", "LOCKED")    
+        ->orWhere('qj.status', "=", "TIMED")    
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
         ->map(function ($game) {
             $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
             $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
-            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->status ?? " "), 'color' => color_estatus($game->status ?? " ")];
+            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->estatusQuiniela ?? " "), 'color' => color_estatus($game->estatusQuiniela ?? " ")];
+            $game->estatusJuego = ['nombre' => traducir_estatus($game->estatusJuego ?? " "), 'color' => color_estatus($game->estatusJuego ?? " ")];
             $game->tipoJuego = traducir_rondas($game->ronda ?? " ");
             return $game;
         });
-
 
         // dd($juegosIngresados);
-        // $juegosPendientes = DB::table('juegos as g')
-        // ->where('g.fechaJuego', ">=", Carbon::today())
-        // ->whereNotExists(function ($query) use ($usuarioId) {
-        //     $query->select(DB::raw(1))
-        //         ->from('quinielasJuegos as q')
-        //         ->whereColumn('q.juegoId', 'g.id')
-        //         ->where('q.usuarioId', $usuarioId);
-        // })
-        // ->orderBy('g.fechaJuego')
-        // ->orderBy('g.horaJuego')
-        // ->get()
-        // ->map(function ($game) {
-        //     $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
-        //     $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
-        //     $game->estatus = ['nombre' => traducir_estatus($game->estatus ?? " "), 'color' => color_estatus($game->estatus ?? " ")];
-        //     $game->tipoJuego = traducir_rondas($game->tipoJuego ?? " ");
-        //     return $game;
-        // });
 
-        // $juegosIngresados = DB::table('quiniela')
-        // ->select("quiniela.quinielaEquipo1", "quiniela.quinielaEquipo2", "quiniela.estatus", 
-        //     "game.id", "game.fechaJuego", "game.horaJuego", "game.equipo1", "game.imagenequipo1", "game.equipo2", "game.imagenequipo2", "game.tipoJuego")
-        // ->leftJoin('game', 'quiniela.juegoId', "=", "game.id")
-        // ->orderBy('game.fechaJuego')
-        // ->orderBy('game.horaJuego')
-        // ->where("usuarioId", "=", $usuarioId)
-        // ->get()
-        // ->map(function ($game) {
-        //     $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
-        //     $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
-        //     $game->estatus = ['nombre' => traducir_estatus($game->estatus ?? " "), 'color' => color_estatus($game->estatus ?? " ")];
-        //     $game->tipoJuego = traducir_rondas($game->tipoJuego ?? " ");
-        //     return $game;
-        // });
+        $listadoJuegosIngresados = $juegosIngresados->filter(function ($juego) {
+            return Carbon::parse($juego->fechaJuego)->isToday() || Carbon::parse($juego->fechaJuego)->isFuture();
+        })->groupBy(function ($juego) {
+            return Carbon::parse($juego->fechaJuego)->format('d-m-Y');
+        });
 
-        // $juegosFinalizados = DB::table('quiniela')
-        // ->select("quiniela.quinielaEquipo1", "quiniela.quinielaEquipo2", "quiniela.puntosXjuego", 
-        //     "game.id", "game.fechaJuego", "game.equipo1", "game.imagenequipo1", "game.equipo2", "game.imagenequipo2", "game.tipoJuego", "game.resultadoEquipo1", "game.resultadoEquipo2")
-        // ->leftJoin('game', 'quiniela.juegoId', "=", "game.id")
-        // ->where("usuarioId", "=", $usuarioId)
-        // ->where("game.estatus", "=", "FINISHED")
-        // ->orderBy('game.fechaJuego')
-        // ->orderBy('game.horaJuego')
-        // ->get()
-        // ->map(function ($game) {
-        //     $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
-        //     $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
-        //     $game->tipoJuego = traducir_rondas($game->tipoJuego ?? " ");
-        //     return $game;
-        // });
+        // dd($listadoJuegosIngresados);
 
-        $juegosFinalizados = [];
-        return Inertia::render('Quiniela/quiniela', ['juegosPendientes' => $juegosPendientes, 'juegosIngresados' => $juegosIngresados, 'juegosFinalizados' => $juegosFinalizados, 'quinielaActiva' => $quinielaActiva]);
+
+        $juegosFinalizados = DB::table('quinielasJuegos as qj')
+        ->select(
+            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id',
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego')
+        ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
+        ->where('usuarioId', "=", $usuarioId)
+        ->where("qj.quinielaId", "=", $quinielaActivaId)
+        ->where('qj.status', "=", "FINISHED")    
+        ->orWhere('qj.status', "=", "INVALID")    
+        ->orderBy('juegos.fechaJuego')
+        ->orderBy('juegos.horaJuego')    
+        ->get()
+        ->map(function ($game) {
+            $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
+            $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
+            $game->estatusQuiniela = ['nombre' => traducir_estatus($game->estatusQuiniela ?? " "), 'color' => color_estatus($game->estatusQuiniela ?? " ")];
+            $game->estatusJuego = ['nombre' => traducir_estatus($game->estatusJuego ?? " "), 'color' => color_estatus($game->estatusJuego ?? " ")];
+            $game->tipoJuego = traducir_rondas($game->ronda ?? " ");
+            return $game;
+        });
+
+        // dd($juegosFinalizados);
+
+        $listadoJuegosFinalizados = $juegosFinalizados->filter(function ($juego) {
+            return Carbon::parse($juego->fechaJuego)->isLastDay();
+        })->groupBy(function ($juego) {
+            return Carbon::parse($juego->fechaJuego)->format('d-m-Y');
+        });
+
+        return Inertia::render('Quiniela/quiniela', ['juegosPendientes' => $listadoJuegosPendientes, 'juegosIngresados' => $listadoJuegosIngresados, 'juegosFinalizados' => $listadoJuegosFinalizados, 'quinielaActiva' => $quinielaActiva]);
     }
 
     // public function store(){

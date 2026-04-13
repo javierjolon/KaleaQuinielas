@@ -5,16 +5,7 @@ import { useState } from 'react';
 export default function TablaPartidos(props) {
     const [resultados, setResultados] = useState({});
 
-    const listadoJuegos = props.listadoJuegos.length > 0 
-    ? props.listadoJuegos.reduce((acc, juego) => {
-        if (!acc[juego.fechaJuego]) {
-            acc[juego.fechaJuego] = [];
-        }
-        acc[juego.fechaJuego].push(juego);
-        return acc;
-    }, {})
-    : {};
-
+   
 
     const actualizarResultado = (juegoId) => {
         const data = resultados[juegoId];
@@ -41,9 +32,9 @@ export default function TablaPartidos(props) {
 
     return(
         <div>
-            { Object.keys(listadoJuegos).length > 0 && 
+            { Object.keys(props.listadoJuegos).length > 0 && 
                 <div className='mx-3'>
-                    {Object.entries(listadoJuegos).map(([fecha, juegos]) => (
+                    {Object.entries(props.listadoJuegos).map(([fecha, juegos]) => (
                         <div key={fecha} className="mt-6">
 
                             {/* FECHA */}
@@ -58,9 +49,9 @@ export default function TablaPartidos(props) {
                             
                             {juegos.map((juego) => (
                                 <div key={juego.id}> 
-                                    <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3'>
+                                    <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
                             
-                                        <div className='flex flex-col items-center w-2/5'> 
+                                        <div className='flex flex-col items-center w-2/5 justify-center'> 
                                             <div>
                                                 <img 
                                                     src={juego.imagenEquipo1 == null ? 'img/static/pendiente.jpeg' : juego.imagenEquipo1} 
@@ -74,7 +65,7 @@ export default function TablaPartidos(props) {
                                         <div className='flex items-center'>
                                             <div className='flex flex-row items-center'>
                                             <div>
-                                                    {juego.estatusQuiniela.nombre === "Bloqueado" 
+                                                    {juego.estatusQuiniela.nombre === "Bloqueado" || juego.estatusQuiniela.nombre === "Finalizado" || juego.estatusQuiniela.nombre === "En juego"
                                                         ? (
                                                         <span>
                                                             {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
@@ -101,7 +92,7 @@ export default function TablaPartidos(props) {
                                                 <div className='mx-2'>:</div>
                                                 
                                                 <div>
-                                                    {juego.estatusQuiniela.nombre === "Bloqueado" 
+                                                    {juego.estatusQuiniela.nombre === "Bloqueado" || juego.estatusQuiniela.nombre === "Finalizado" || juego.estatusQuiniela.nombre === "En juego"
                                                         ? (
                                                         <span>
                                                             {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
@@ -127,7 +118,7 @@ export default function TablaPartidos(props) {
                                             </div>
                                         </div>
                             
-                                        <div className='flex flex-col items-center w-2/5'> 
+                                        <div className='flex flex-col items-center w-2/5 justify-center'> 
                                             <div>
                                                 <img 
                                                     src={juego.imagenEquipo2 == null ? 'img/static/pendiente.jpeg' : juego.imagenEquipo2} 
@@ -139,24 +130,22 @@ export default function TablaPartidos(props) {
                                         </div>
                             
                                     </div>
-                                    <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                    <div className='mt-[-1rem] flex flex-row justify-center'> 
-                                    {juego.estatusQuiniela.nombre == "Bloqueado" 
+                                    <div className='mt-[-0.5rem] flex flex-row justify-center'> 
+                                        {juego.estatusJuego.nombre == "Bloqueado" || juego.estatusJuego.nombre == "Finalizado" || juego.estatusJuego.nombre == "En juego"
                                         ? (
-                                            <div style={{ backgroundColor: juego.estatusQuiniela.color }} className="text-white w-fit rounded-lg py-1 px-3 mt-6 text-sm">
+                                            <div style={{ backgroundColor: juego.estatusJuego.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
                                                 {/* spinner */}
                                                 {/* <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>                                                     */}
-                                                {juego.estatusQuiniela.nombre}
+                                                {juego.estatusJuego.nombre}
                                             </div>
                                         ) 
                                         : (
                                             <div 
-                                                className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 mt-6 text-sm cursor-pointer' 
+                                                className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 text-sm cursor-pointer' 
                                                 onClick={() => actualizarResultado(juego.id)}>
                                                 {props.textoBoton}
                                             </div>
                                         )}
-                                    </div>
                                     </div>
                                 </div>
                                 

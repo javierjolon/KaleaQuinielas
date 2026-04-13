@@ -55,7 +55,7 @@
             "IN_PLAY" => "En juego",
             "LIVE" => "En juego",
             "PAUSED" => "Medio tiempo",
-            "FINISHED" => "Finalizdo",
+            "FINISHED" => "Finalizado",
             "SUSPENDED" => "Suspendido",
             "POSTPONED" => "Pospuesto",
             "CANCELLED" => "Cancelado",
@@ -80,7 +80,8 @@
             "CANCELLED" => "#474A4A",
             "AWARDED" => "#474A4A",
             "LOCKED" => "#474A4A",
-            "INVALID" => "#C00707"
+            "INVALID" => "#C00707",
+            "PENDING" => "#474A4A"
         ];
 
         return $translations[$estatus] ?? $estatus;

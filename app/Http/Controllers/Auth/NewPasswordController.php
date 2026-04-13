@@ -21,8 +21,10 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): Response
     {
+        $telefono = $request->query('email', $request->query('telefono'));
+
         return Inertia::render('Auth/ResetPassword', [
-            'email' => $request->email,
+            'telefono' => $telefono,
             'token' => $request->route('token'),
         ]);
     }
@@ -36,7 +38,7 @@ class NewPasswordController extends Controller
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email',
+            'telefono' => ['required', 'string', 'regex:/^[0-9+\s\-]{8,20}$/'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -44,7 +46,7 @@ class NewPasswordController extends Controller
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
         $estatus = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            $request->only('telefono', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
@@ -63,7 +65,7 @@ class NewPasswordController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => [trans($estatus)],
+            'telefono' => [trans($estatus)],
         ]);
     }
 }

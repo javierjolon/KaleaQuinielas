@@ -57,6 +57,16 @@ return [
     'asset_url' => env('ASSET_URL', null),
 
     /*
+    | Teléfono del usuario administrador (acceso panel admin en HomeController).
+    */
+    'admin_telefono' => env('ADMIN_TELEFONO'),
+
+    /*
+    | Correo donde recibir enlaces de restablecimiento de contraseña (el usuario inicia con su teléfono).
+    */
+    'admin_email_for_password_resets' => env('ADMIN_EMAIL_FOR_PASSWORD_RESET'),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------

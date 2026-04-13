@@ -126,7 +126,7 @@ export default function Authenticated({ auth, header, children }) {
                             <div className="font-medium text-base text-gray-800">
                                 {auth.user.name}
                             </div>
-                            <div className="font-medium text-sm text-gray-500">{auth.user.email}</div>
+                            <div className="font-medium text-sm text-gray-500">{auth.user.telefono}</div>
                         </div>
 
                         <div className="mt-3 space-y-1">

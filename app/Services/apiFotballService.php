@@ -12,14 +12,29 @@ use Illuminate\Support\Facades\Log;
 
 class apiFotballService
 {
-    public function sincronizarJugos()
+    
+    
+    public function sincronizarJugos($torneo)
     {
+        switch ($torneo) {
+            case 'CL':
+                $url = 'https://api.football-data.org/v4/competitions/CL/matches';
+                break;
+            case 'PD':
+                $url = 'https://api.football-data.org/v4/competitions/PD/matches';
+                break;
+            case 'WC':
+                $url = 'https://api.football-data.org/v4/competitions/WC/matches';
+                break;
+        }
+        
         $response = Http::withHeaders([
             'X-Auth-Token' => env('FOOTBALL_API_KEY'),
-        ])->get('https://api.football-data.org/v4/competitions/WC/matches');
+        ])->get($url);
 
         if ($response->successful()) {
             foreach ($response['matches'] as $key => $partido) {
+
                 Juegos::updateOrCreate(
                     [
                         'api_id' => $partido['id']
@@ -27,12 +42,13 @@ class apiFotballService
                     [
                         'equipo1' => $partido['homeTeam']['name'],
                         'equipo2' => $partido['awayTeam']['name'],
-                        'resultadoEquipo1' => 0 ,
-                        'resultadoEquipo2' => 0,
+                        'resultadoEquipo1' => $partido['score']['fullTime']['home'] ?? 0,
+                        'resultadoEquipo2' => $partido['score']['fullTime']['away'] ?? 0,
                         'imagenEquipo1' => $partido['homeTeam']['crest'],
                         'imagenEquipo2' => $partido['awayTeam']['crest'],
                         'estatus' => $partido['status'],
                         'ronda' => $partido['stage'],
+                        'competicion' => $partido['competition']['code'],
                         'fechaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
                         'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
                     ]

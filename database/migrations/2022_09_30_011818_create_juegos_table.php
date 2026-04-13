@@ -24,6 +24,7 @@ class CreateJuegosTable extends Migration
             $table->string("imagenEquipo2")->nullable();
             $table->string("estatus");
             $table->string('ronda');
+            $table->string('competicion');
             $table->date("fechaJuego");
             $table->time("horaJuego");
             $table->timestamps();
