@@ -243,19 +243,16 @@ class QuinielaController extends Controller
             return back();
             
         }elseif (Carbon::today()->eq($datosJuego->fechaJuego)){
-            
             if (Carbon::now()->lt($horaJuego)){
                 $data['status'] = 'TIMED';
                 $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
                 return back();
             }else{
                 $data['status'] = 'LOCKED';
-                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
                 return back()->withErrors(['error' => 'Fuera de horario']);
             }
         }else{
             $data['status'] = 'LOCKED';
-            $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
             return back()->withErrors(['error' => 'Fuera de horario']);
         }
 
