@@ -20,6 +20,11 @@ module.exports = {
                 rojo: '#C00707',
                 grisOscuro: '#474A4A',
                 grisClaro: '#D1D4D1',
+
+                jfondo: '#0B1211',
+                jamarillo: '#FFD700',
+                jazul: '#2979FF',
+                jverde: '#00FF85'
             }
         },
     },
