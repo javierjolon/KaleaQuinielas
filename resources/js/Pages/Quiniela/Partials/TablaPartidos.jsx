@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 export default function TablaPartidos(props) {
     const [resultados, setResultados] = useState({});
+    const soloLectura = props.soloLectura === true;
 
    
 
@@ -49,6 +50,11 @@ export default function TablaPartidos(props) {
                             
                             {juegos.map((juego) => (
                                 <div key={juego.id}> 
+                                    {(() => {
+                                        const tieneMarcador = juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null;
+                                        const mostrarInputs = !soloLectura && juego.estatusQuiniela.nombre !== "Bloqueado" && juego.estatusQuiniela.nombre !== "Finalizado" && juego.estatusQuiniela.nombre !== "En juego";
+
+                                        return (
                                     <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
                             
                                         <div className='flex flex-col items-center w-2/5 justify-center'> 
@@ -65,13 +71,9 @@ export default function TablaPartidos(props) {
                                         <div className='flex items-center'>
                                             <div className='flex flex-row items-center'>
                                             <div>
-                                                    {juego.estatusQuiniela.nombre === "Bloqueado" || juego.estatusQuiniela.nombre === "Finalizado" || juego.estatusQuiniela.nombre === "En juego"
-                                                        ? (
-                                                        <span>
-                                                            {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
-                                                        </span>
-                                                        ) 
-                                                        : (
+                                                    {soloLectura && !tieneMarcador ? (
+                                                        <span className='text-red-600 font-semibold'>No valido</span>
+                                                    ) : mostrarInputs ? (
                                                             <input 
                                                             type='number'
                                                             min={0}
@@ -86,19 +88,17 @@ export default function TablaPartidos(props) {
                                                                 }
                                                             })}
                                                         />
+                                                    ) : (
+                                                        <span>
+                                                            {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
+                                                        </span>
                                                     )}
                                                 </div>
 
-                                                <div className='mx-2'>:</div>
+                                                {soloLectura && !tieneMarcador ? null : <div className='mx-2'>:</div>}
                                                 
                                                 <div>
-                                                    {juego.estatusQuiniela.nombre === "Bloqueado" || juego.estatusQuiniela.nombre === "Finalizado" || juego.estatusQuiniela.nombre === "En juego"
-                                                        ? (
-                                                        <span>
-                                                            {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
-                                                        </span>
-                                                        ) 
-                                                        : (
+                                                    {soloLectura && !tieneMarcador ? null : mostrarInputs ? (
                                                             <input 
                                                             type='number'
                                                             min={0}
@@ -113,6 +113,10 @@ export default function TablaPartidos(props) {
                                                                 }
                                                             })}
                                                         />
+                                                    ) : (
+                                                        <span>
+                                                            {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
+                                                        </span>
                                                     )}
                                                 </div>
                                             </div>
@@ -130,8 +134,14 @@ export default function TablaPartidos(props) {
                                         </div>
                             
                                     </div>
+                                        );
+                                    })()}
                                     <div className='mt-[-0.5rem] flex flex-row justify-center'> 
-                                        {juego.estatusJuego.nombre == "Bloqueado" || juego.estatusJuego.nombre == "Finalizado" || juego.estatusJuego.nombre == "En juego"
+                                        {soloLectura ? (
+                                            <div style={{ backgroundColor: juego.estatusQuiniela.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
+                                                {juego.estatusQuiniela.nombre}
+                                            </div>
+                                        ) : juego.estatusJuego.nombre == "Bloqueado" || juego.estatusJuego.nombre == "Finalizado" || juego.estatusJuego.nombre == "En juego"
                                         ? (
                                             <div style={{ backgroundColor: juego.estatusJuego.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
                                                 {/* spinner */}

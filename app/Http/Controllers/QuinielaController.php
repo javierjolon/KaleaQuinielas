@@ -15,24 +15,66 @@ class QuinielaController extends Controller
 {
 
     public function create() {
-        return Inertia::render("Quiniela/create", []);
+        $quinielasActivas = DB::table('quinielas')
+            ->select('id', 'nombre')
+            ->where('usuarioId', '=', Auth::id())
+            ->where('status', '=', 'TIMED')
+            ->orderBy('nombre')
+            ->get();
+
+        $competicionesDisponibles = DB::table('juegos')
+            ->select('competicion', 'season', DB::raw('MAX(nombreCompeticion) as nombreCompeticion'))
+            ->where('estatus', '!=', 'FINISHED')
+            ->whereNotNull('competicion')
+            ->whereNotNull('season')
+            ->groupBy('competicion', 'season')
+            ->orderByDesc('season')
+            ->orderBy('nombreCompeticion')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'competicion' => $item->competicion,
+                    'season' => $item->season,
+                    'nombre' => $item->nombreCompeticion ?: $item->competicion,
+                ];
+            });
+
+        return Inertia::render("Quiniela/create", [
+            'quinielasActivas' => $quinielasActivas,
+            'competicionesDisponibles' => $competicionesDisponibles,
+            'estatus' => session('estatus'),
+        ]);
     }
 
-    public function store(){
-        $nombreQuiniela = request()->get('nombre');
+    public function store(Request $request){
+        $data = $request->validate([
+            'nombre' => ['required', 'string', 'max:120'],
+            'competicion' => ['required', 'string'],
+            'season' => ['required', 'integer'],
+        ]);
 
         // Registra la quiniela en la base de datos
         $quinielaId = DB::table("quinielas")
             ->insertGetId([
                 'usuarioId' => Auth::user()->id,
-                'nombre' => $nombreQuiniela,
+                'nombre' => $data['nombre'],
                 'status' => "TIMED",
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
             
-        // Toma todos los partidos de la tabla juegos y los en la tabla quinielaJuegos con el nuevo usuario 
-        $partidos = DB::table("juegos")->get();
+        // Toma los partidos de la competicion y season seleccionadas.
+        $partidos = DB::table("juegos")
+            ->where('competicion', '=', $data['competicion'])
+            ->where('season', '=', $data['season'])
+            ->get();
+
+        if ($partidos->isEmpty()) {
+            return back()->withErrors([
+                'competicion' => 'No hay juegos disponibles para la competicion seleccionada.',
+            ]);
+        }
+
         $data = [];
         
         foreach ($partidos as $partido) {
@@ -57,6 +99,143 @@ class QuinielaController extends Controller
             'updated_at' => now(),
         ]);
 
+        return back()->with('estatus', 'Quiniela creada correctamente.');
+    }
+
+    public function agregarUsuario(Request $request)
+    {
+        $data = $request->validate([
+            'telefono' => ['required', 'string', 'regex:/^[0-9+\s\-]{8,20}$/'],
+            'quinielaId' => ['required', 'integer'],
+        ]);
+
+        $quiniela = DB::table('quinielas')
+            ->where('id', '=', $data['quinielaId'])
+            ->where('usuarioId', '=', Auth::id())
+            ->where('status', '=', 'TIMED')
+            ->first();
+
+        if (! $quiniela) {
+            return back()->withErrors([
+                'telefonoInvitado' => 'La quiniela seleccionada no es valida o no esta activa.',
+            ]);
+        }
+
+        $usuarioInvitado = DB::table('users')
+            ->select('id', 'telefono')
+            ->where('telefono', '=', $data['telefono'])
+            ->first();
+
+        if (! $usuarioInvitado) {
+            return back()->withErrors([
+                'telefonoInvitado' => 'No existe un usuario con ese numero de telefono.',
+            ]);
+        }
+
+        $yaExiste = DB::table('usuariosQuinielas')
+            ->where('usuarioId', '=', $usuarioInvitado->id)
+            ->where('quinielaId', '=', $quiniela->id)
+            ->exists();
+
+        if ($yaExiste) {
+            return back()->withErrors([
+                'telefonoInvitado' => 'Ese usuario ya pertenece a la quiniela seleccionada.',
+            ]);
+        }
+
+        DB::table('usuariosQuinielas')->insert([
+            'usuarioId' => $usuarioInvitado->id,
+            'quinielaId' => $quiniela->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $filtroCompeticionSeason = DB::table('quinielasJuegos as qj')
+            ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+            ->select('j.competicion', 'j.season')
+            ->where('qj.quinielaId', '=', $quiniela->id)
+            ->groupBy('j.competicion', 'j.season')
+            ->get();
+
+        $partidosQuery = DB::table('juegos')->select('id');
+
+        if ($filtroCompeticionSeason->count() === 1) {
+            $partidosQuery
+                ->where('competicion', '=', $filtroCompeticionSeason[0]->competicion)
+                ->where('season', '=', $filtroCompeticionSeason[0]->season);
+        }
+
+        $partidos = $partidosQuery->get();
+        $partidosUsuario = [];
+
+        foreach ($partidos as $partido) {
+            $partidosUsuario[] = [
+                'quinielaId' => $quiniela->id,
+                'usuarioId' => $usuarioInvitado->id,
+                'juegoId' => $partido->id,
+                'puntosXjuego' => 0,
+                'status' => 'PENDING',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (! empty($partidosUsuario)) {
+            DB::table('quinielasJuegos')->insert($partidosUsuario);
+        }
+
+        return back()->with('estatus', 'Usuario agregado correctamente a la quiniela.');
+    }
+
+    public function seleccionarActiva(Request $request)
+    {
+        $data = $request->validate([
+            'quinielaId' => ['required', 'integer'],
+        ]);
+
+        $existe = DB::table('usuariosQuinielas as uq')
+            ->join('quinielas as q', 'q.id', '=', 'uq.quinielaId')
+            ->where('uq.usuarioId', '=', Auth::id())
+            ->where('q.id', '=', $data['quinielaId'])
+            ->where('q.status', '=', 'TIMED')
+            ->exists();
+
+        if (! $existe) {
+            return back()->withErrors([
+                'quinielaId' => 'La quiniela seleccionada no es valida.',
+            ]);
+        }
+
+        $quinielasSession = collect(session('quinielas', []));
+
+        if ($quinielasSession->isEmpty()) {
+            $quinielasUsuario = DB::table('usuariosQuinielas as uq')
+                ->join('quinielas as q', 'q.id', '=', 'uq.quinielaId')
+                ->select('q.id', 'q.nombre')
+                ->where('uq.usuarioId', '=', Auth::id())
+                ->where('q.status', '=', 'TIMED')
+                ->orderBy('q.nombre')
+                ->get();
+
+            $quinielasSession = $quinielasUsuario->map(function ($q) use ($data) {
+                return [
+                    'id' => $q->id,
+                    'nombre' => $q->nombre,
+                    'activo' => (int) $q->id === (int) $data['quinielaId'],
+                ];
+            });
+        } else {
+            $quinielasSession = $quinielasSession->map(function ($q) use ($data) {
+                $q['activo'] = (int) $q['id'] === (int) $data['quinielaId'];
+                return $q;
+            });
+        }
+
+        session([
+            'quinielas' => $quinielasSession->values()->all(),
+        ]);
+
+        return back()->with('estatus', 'Quiniela activa actualizada.');
     }
 
 
@@ -64,8 +243,17 @@ class QuinielaController extends Controller
         $usuarioId = Auth::user()->id;
         $quinielaActivaId = 0;
 
-        $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
-        $quinielaActivaId = $quinielaActiva['id']; 
+        $quinielaActiva = collect(session('quinielas', []))->firstWhere('activo', true);
+        $quinielaActivaId = (int) ($quinielaActiva['id'] ?? 0);
+
+        if ($quinielaActivaId <= 0) {
+            return Inertia::render('Quiniela/quiniela', [
+                'juegosPendientes' => [],
+                'juegosIngresados' => [],
+                'juegosFinalizados' => [],
+                'quinielaActiva' => null,
+            ]);
+        }
 
         $juegosPendientes = DB::table('quinielasJuegos as qj')
         ->select(
@@ -74,7 +262,10 @@ class QuinielaController extends Controller
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("quinielaId", "=", $quinielaActivaId)
-        ->where('qj.status', "=", "PENDING")    
+        ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+        ->whereNull('qj.quinielaEquipo1')
+        ->whereNull('qj.quinielaEquipo2')
+        ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
@@ -87,9 +278,7 @@ class QuinielaController extends Controller
             return $game;
         });
 
-        $listadoJuegosPendientes = $juegosPendientes->filter(function ($juego) {
-            return Carbon::parse($juego->fechaJuego)->isToday() || Carbon::parse($juego->fechaJuego)->isFuture();
-        })->groupBy(function ($juego) {
+        $listadoJuegosPendientes = $juegosPendientes->groupBy(function ($juego) {
             return Carbon::parse($juego->fechaJuego)->format('d-m-Y');
         });
 
@@ -104,8 +293,10 @@ class QuinielaController extends Controller
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("qj.quinielaId", "=", $quinielaActivaId)
-        ->where('qj.status', "=", "LOCKED")    
-        ->orWhere('qj.status', "=", "TIMED")    
+        ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+        ->whereNotNull('qj.quinielaEquipo1')
+        ->whereNotNull('qj.quinielaEquipo2')
+        ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
@@ -120,9 +311,7 @@ class QuinielaController extends Controller
 
         // dd($juegosIngresados);
 
-        $listadoJuegosIngresados = $juegosIngresados->filter(function ($juego) {
-            return Carbon::parse($juego->fechaJuego)->isToday() || Carbon::parse($juego->fechaJuego)->isFuture();
-        })->groupBy(function ($juego) {
+        $listadoJuegosIngresados = $juegosIngresados->groupBy(function ($juego) {
             return Carbon::parse($juego->fechaJuego)->format('d-m-Y');
         });
 
@@ -136,8 +325,8 @@ class QuinielaController extends Controller
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("qj.quinielaId", "=", $quinielaActivaId)
-        ->where('qj.status', "=", "FINISHED")    
-        ->orWhere('qj.status', "=", "INVALID")    
+        ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+        ->whereIn('qj.status', ['FINISHED', 'INVALID'])
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
@@ -152,9 +341,7 @@ class QuinielaController extends Controller
 
         // dd($juegosFinalizados);
 
-        $listadoJuegosFinalizados = $juegosFinalizados->filter(function ($juego) {
-            return Carbon::parse($juego->fechaJuego)->isLastDay();
-        })->groupBy(function ($juego) {
+        $listadoJuegosFinalizados = $juegosFinalizados->groupBy(function ($juego) {
             return Carbon::parse($juego->fechaJuego)->format('d-m-Y');
         });
 
@@ -218,6 +405,11 @@ class QuinielaController extends Controller
         $quinielaEquipo1 = request()->get("quinielaEquipo1");
         $quinielaEquipo2 = request()->get("quinielaEquipo2");
         $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
+        $quinielaActivaId = (int) ($quinielaActiva['id'] ?? 0);
+
+        if ($quinielaActivaId <= 0) {
+            return back()->withErrors(['error' => 'No hay una quiniela activa seleccionada.']);
+        }
 
         
         $data = [ 'updated_at' => now() ];
@@ -231,29 +423,68 @@ class QuinielaController extends Controller
         }
 
         $datosJuego = DB::table("juegos")
-        ->select("fechaJuego", "horaJuego")    
+        ->select("fechaJuego", "horaJuego", "estatus")    
         ->where("id", "=", $juegoId)
         ->first();
 
-        $horaJuego = Carbon::parse($datosJuego->horaJuego)->subMinutes(10);
+        if (! $datosJuego) {
+            return back()->withErrors(['error' => 'El partido no existe.']);
+        }
+
+        $registroQuiniela = DB::table('quinielasJuegos')
+            ->select('quinielaEquipo1', 'quinielaEquipo2')
+            ->where('usuarioId', '=', Auth::id())
+            ->where('quinielaId', '=', $quinielaActivaId)
+            ->where('juegoId', '=', $juegoId)
+            ->first();
+
+        // Regla: si el partido ya no esta TIMED, no se permite capturar/modificar quiniela.
+        if ($datosJuego->estatus !== 'TIMED') {
+            $sinCaptura = is_null($registroQuiniela?->quinielaEquipo1) && is_null($registroQuiniela?->quinielaEquipo2);
+
+            if ($sinCaptura) {
+                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActivaId, [
+                    'status' => 'INVALID',
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return back()->withErrors(['error' => 'El partido ya no esta programado. No se puede ingresar quiniela.']);
+        }
+
+        $cierreCaptura = Carbon::parse($datosJuego->fechaJuego . ' ' . $datosJuego->horaJuego)->subMinutes(10);
+        $fueraDeHorario = Carbon::now()->greaterThanOrEqualTo($cierreCaptura);
+
+        if ($fueraDeHorario) {
+            $sinCaptura = is_null($registroQuiniela?->quinielaEquipo1) && is_null($registroQuiniela?->quinielaEquipo2);
+
+            if ($sinCaptura) {
+                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActivaId, [
+                    'status' => 'INVALID',
+                    'updated_at' => now(),
+                ]);
+
+                return back()->withErrors(['error' => 'Fuera de horario. El partido se marco como INVALID.']);
+            }
+
+            return back()->withErrors(['error' => 'Fuera de horario. Ya no es posible modificar este partido.']);
+        }
 
         if(Carbon::today()->lt($datosJuego->fechaJuego)){
             $data['status'] = 'TIMED';
-            $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
+            $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActivaId, $data);
             return back();
             
         }elseif (Carbon::today()->eq($datosJuego->fechaJuego)){
-            if (Carbon::now()->lt($horaJuego)){
+            if (! $fueraDeHorario){
                 $data['status'] = 'TIMED';
-                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActiva, $data);
+                $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActivaId, $data);
                 return back();
             }else{
-                $data['status'] = 'LOCKED';
-                return back()->withErrors(['error' => 'Fuera de horario']);
+                return back()->withErrors(['error' => 'Fuera de horario.']);
             }
         }else{
-            $data['status'] = 'LOCKED';
-            return back()->withErrors(['error' => 'Fuera de horario']);
+            return back()->withErrors(['error' => 'Fuera de horario.']);
         }
 
         return back();

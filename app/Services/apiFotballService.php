@@ -49,6 +49,10 @@ class apiFotballService
                         'estatus' => $partido['status'],
                         'ronda' => $partido['stage'],
                         'competicion' => $partido['competition']['code'],
+                        'season' => isset($partido['season']['startDate'])
+                            ? Carbon::parse($partido['season']['startDate'])->year
+                            : null,
+                        'nombreCompeticion' => $partido['competition']['name'] ?? null,
                         'fechaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
                         'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
                     ]

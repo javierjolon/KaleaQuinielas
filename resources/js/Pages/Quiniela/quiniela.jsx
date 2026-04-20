@@ -48,7 +48,7 @@ export default function Quiniela(props) {
                         
                         {/* Tab 3 */}
                         {activeTab === "finalizados" && (
-                            <TablaPartidos listadoJuegos={props.juegosFinalizados}/>
+                            <TablaPartidos listadoJuegos={props.juegosFinalizados} soloLectura={true}/>
                         )}
                     </div>
                 </div>

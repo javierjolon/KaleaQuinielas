@@ -3,10 +3,21 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 export default function Authenticated({ auth, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const { quinielasHeader = [], quinielaActivaId } = usePage().props;
+
+    const handleChangeQuiniela = (event) => {
+        const quinielaId = event.target.value;
+
+        if (!quinielaId) {
+            return;
+        }
+
+        router.post(route('quiniela.seleccionar-activa'), { quinielaId }, { preserveScroll: true });
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -42,7 +53,21 @@ export default function Authenticated({ auth, header, children }) {
                             </header>
                         )}
 
-                        <div className="hidden sm:flex sm:items-center sm:ml-6">
+                        <div className="hidden sm:flex sm:items-center sm:ml-6 gap-3">
+                            {quinielasHeader.length > 0 && (
+                                <select
+                                    value={quinielaActivaId ?? ''}
+                                    onChange={handleChangeQuiniela}
+                                    className="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    {quinielasHeader.map((quiniela) => (
+                                        <option key={quiniela.id} value={quiniela.id}>
+                                            {quiniela.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+
                             <div className="ml-3 relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -122,6 +147,23 @@ export default function Authenticated({ auth, header, children }) {
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
+                        {quinielasHeader.length > 0 && (
+                            <div className="px-4 mb-3">
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Quiniela activa</label>
+                                <select
+                                    value={quinielaActivaId ?? ''}
+                                    onChange={handleChangeQuiniela}
+                                    className="w-full border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    {quinielasHeader.map((quiniela) => (
+                                        <option key={quiniela.id} value={quiniela.id}>
+                                            {quiniela.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
                         <div className="px-4">
                             <div className="font-medium text-base text-gray-800">
                                 {auth.user.name}
