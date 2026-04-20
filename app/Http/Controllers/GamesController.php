@@ -10,274 +10,327 @@ use Inertia\Inertia;
 
 class GamesController extends Controller
 {
-    public function index(){
-        $juegos = DB::table('game')
-        ->orderBy('dateGame')
-        ->orderBy('timeGame')
-        ->get()
-        ->map(function ($game) {
-            $game->team1 = traducir_equipos($game->team1 ?? "Pendiente");
-            $game->team2 = traducir_equipos($game->team2 ?? "Pendiente");
-            $game->status = traducir_status($game->status ?? " ");
-            $game->typeGame = traducir_rondas($game->typeGame ?? " ");
-            return $game;
-        });
-        // dd($juegos);
-        return Inertia::render('Games/index', ['juegos' => $juegos]);
+    public function ApiActualizarPartido($partidoId, $resultadoEquipo1, $resultadoEquipo2, $estatus){
+        try {
+            DB::table('juegos')
+            ->where('id', $partidoId)
+            ->update([
+                'resultadoEquipo1' => $resultadoEquipo1,
+                'resultadoEquipo2' => $resultadoEquipo2,
+                'estatus' => $estatus
+            ]);
+
+            return ("Actualizando correctamente");
+        } catch (\Throwable $th) {
+            return ("Error " . $th->getMessage());
+        }
     }
 
-    public function setGame()
-    {
-        $team1 = request()->get('team1');
-        $team2 = request()->get('team2');
-        $date = request()->get('date');
-        $time = request()->get('time');
-        $type = request()->get('type');
 
-        DB::table('game')->insert(
-            [
-                'team1' => $team1,
-                'score1' => null,
-                'team2' => $team2,
-                'score2' => null,
-                'typeGame' => $type,
-                'dateGame' => $date,
-                'timeGame' => $time,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]
-        );
+    // public function iniciarPartido($partidoId, $estatus){
+    //     DB::table('game')
+    //         ->where('id', '=', $partidoId)
+    //         ->update([
+    //             'estatus' => $estatus
+    //         ]);
+    // }
 
-        return back();
-    }
+    // public function actualizarQuiniela(){
+    //     $partidos = DB::table('game')
+    //         ->where('game.fechaJuego', '=', Carbon::today())
+    //         ->where('game.estatus', '=', 'IN_PLAY')
+    //         ->orWhere('game.estatus', '=', 'LIVE')
+    //         ->orWhere('game.estatus', '=', 'PAUSED')
+    //         ->get();
 
-    public function addResult(){
-        $games = DB::table('game')
-            ->join('team as t1', 't1.id', '=', 'game.team1')
-            ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->join('statusgame as sg', 'game.status', '=', 'sg.id')
-            ->select(
-                't1.name as team1',
-                't2.name as team2',
-                'game.dateGame',
-                'game.timeGame',
-                'game.id',
-                'game.status',
-                'game.score1',
-                'game.score2',
-                'sg.name as statusname'
-            )
-            ->orderBy('dateGame','asc')
-            ->orderBy('timeGame', 'asc')
+    //     if (count($partidos) > 0) {
+    //         foreach ($partidos as $key => $partido) {
+    //             DB::table('quiniela')
+    //             ->where('juegoId', $partido->id)
+    //             ->where('estatus', '!=', 'INVALID')
+    //             ->update([
+    //                 'estatus' => 'IN_PLAY'
+    //             ]);
+    //         };
+    //     }
+    //     return; 
+    // }
+
+
+    // public function index(){
+    //     $juegos = DB::table('game')
+    //     ->orderBy('fechaJuego')
+    //     ->orderBy('horaJuego')
+    //     ->get()
+    //     ->map(function ($game) {
+    //         $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
+    //         $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
+    //         $game->estatus = traducir_estatus($game->estatus ?? " ");
+    //         $game->tipoJuego = traducir_rondas($game->tipoJuego ?? " ");
+    //         return $game;
+    //     });
+    //     // dd($juegos);
+    //     return Inertia::render('Games/index', ['juegos' => $juegos]);
+    // }
+
+    // public function setGame()
+    // {
+    //     $equipo1 = request()->get('equipo1');
+    //     $equipo2 = request()->get('equipo2');
+    //     $date = request()->get('date');
+    //     $time = request()->get('time');
+    //     $type = request()->get('type');
+
+    //     DB::table('game')->insert(
+    //         [
+    //             'equipo1' => $equipo1,
+    //             'resultadoEquipo1' => null,
+    //             'equipo2' => $equipo2,
+    //             'resultadoEquipo2' => null,
+    //             'tipoJuego' => $type,
+    //             'fechaJuego' => $date,
+    //             'horaJuego' => $time,
+    //             'created_at' => date('Y-m-d H:i:s'),
+    //             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+    //         ]
+    //     );
+
+    //     return back();
+    // }
+
+    // public function addResult(){
+    //     $games = DB::table('game')
+    //         ->join('team as t1', 't1.id', '=', 'game.equipo1')
+    //         ->join('team as t2', 't2.id', '=', 'game.equipo2')
+    //         ->join('estatusgame as sg', 'game.estatus', '=', 'sg.id')
+    //         ->select(
+    //             't1.name as equipo1',
+    //             't2.name as equipo2',
+    //             'game.fechaJuego',
+    //             'game.horaJuego',
+    //             'game.id',
+    //             'game.estatus',
+    //             'game.resultadoEquipo1',
+    //             'game.resultadoEquipo2',
+    //             'sg.name as estatusname'
+    //         )
+    //         ->orderBy('fechaJuego','asc')
+    //         ->orderBy('horaJuego', 'asc')
+    //         ->get();
+
+    //     return view('games/addResult', compact('games'));
+    // }
+
+    public function ApiActualizarPuntaje($juegoId){
+        
+        $juego = DB::table('juegos')
+            ->select('resultadoEquipo1', 'resultadoEquipo2')
+            ->where('id', '=', $juegoId)
+            ->first();
+        // dd($juego->resultadoEquipo1);
+        $quinielas = DB::table('quinielasJuegos')
+            ->select('id', 'quinielaEquipo1', 'quinielaEquipo2')
+            ->where('juegoId', '=', $juegoId)
+            // ->where("quinielaEquipo1", '!=', null)
+            // ->where("quinielaEquipo2", '!=', null)
             ->get();
 
-        return view('games/addResult', compact('games'));
-    }
-
-    public function setResultGame(){
-
-        $gameId = request()->get('gameId');
-        $score1 = request()->get('score1');
-        $score2 = request()->get('score2');
-
-        DB::table('game')
-            ->where('id', '=', $gameId)
-            ->update(['score1' => $score1, 'score2' => $score2]);
-
-        $quinielas = DB::table('quiniela')
-            ->where('gameId', '=', $gameId)
-            ->get();
-
-        $pointsXGame = 0;
-
+        
         foreach($quinielas as $quiniela){
-            if ($score1 == $quiniela->scoreTeam1){
-                $pointsXGame++;
-            }
-            if ($score2 == $quiniela->scoreTeam2){
-                $pointsXGame++;
+            // dd($quiniela);
+            if ($quiniela->quinielaEquipo1 == null && $quiniela->quinielaEquipo2 == null) {
+                DB::table('quinielasJuegos')
+                ->where('id', '=', $quiniela->id)
+                ->update([ 'status' => 'INVALID' ]);
+            }else{
+                $puntosXjuego = 0;
+
+            if ($juego->resultadoEquipo1 == $quiniela->quinielaEquipo1){
+                $puntosXjuego++;
             }
 
-            $winMatch = $this->analizeGame($score1, $score2);
-            $winQuiniela = $this->analizeGame($quiniela->scoreTeam1, $quiniela->scoreTeam2);
+            if ($juego->resultadoEquipo2 == $quiniela->quinielaEquipo2){
+                $puntosXjuego++;
+            }
+            // dd("test");
+            $winMatch = $this->analizeGame($juego->resultadoEquipo1, $juego->resultadoEquipo2);
+            $winQuiniela = $this->analizeGame($quiniela->quinielaEquipo1, $quiniela->quinielaEquipo2);
 
             if ($winMatch == $winQuiniela){
-                $pointsXGame++;
+                $puntosXjuego++;
             }
 
-            DB::table('quiniela')
+            DB::table('quinielaJuegos')
                 ->where('id', '=', $quiniela->id)
-                ->update([ 'pointsXGame' => $pointsXGame ]);
+                ->update([ 'puntosXjuego' => $puntosXjuego ]);
 
             $userPoint = DB::table('quiniela')
-                ->where('userId', '=', $quiniela->userId)
-                ->sum('pointsXGame');
+                ->where('usuarioId', '=', $quiniela->usuarioId)
+                ->sum('puntosXjuego');
 
             DB::table('users')
-                ->where('id', '=', $quiniela->userId)
-                ->update(['accumulatedPointsTemp' => $userPoint]);
-
-            $pointsXGame = 0;
+                ->where('id', '=', $quiniela->usuarioId)
+                ->update(['puntosAcumulaodsTemp' => $userPoint]);
+            }
         }
 
         $this->updateTempPosition();
 
-        return redirect()->action('GamesController@initGame', ['gameId' => $gameId]);
+        return ("Actualizado correctamente");
     }
 
     private function updateTempPosition(){
 
         $users = DB::table('users')
-            ->where('id', '<>', '1')
-            ->orderBy('accumulatedPointsTemp', 'desc')
+            ->orderBy('puntosAcumuladosTemp', 'desc')
             ->get();
 
-        foreach ($users as $clave => $user) {
-            if ($user->actualPositionTemp > $clave+1){
+        foreach ($users as $key => $user) {
+            if ($user->posicionActualTemp > $key+1){
                 DB::table('users')
                     ->where('id', '=', $user->id)
-                    ->update(['actualPositionTemp' => intval($clave +1), 'upDownTemp' => 's']);
+                    ->update(['posicionActualTemp' => intval($key +1), 'subeBajaTemp' => 's']);
 
-            }elseif ($user->actualPositionTemp == $clave+1){
+            }elseif ($user->posicionActualTemp == $key+1){
                 DB::table('users')
                     ->where('id', '=', $user->id)
-                    ->update(['actualPositionTemp' => intval($clave +1), 'upDownTemp' => 'i']);
+                    ->update(['posicionActualTemp' => intval($key +1), 'subeBajaTemp' => 'i']);
 
-            }elseif($user->actualPositionTemp < $clave+1){
+            }elseif($user->posicionActualTemp < $key+1){
                 DB::table('users')
                     ->where('id', '=', $user->id)
-                    ->update(['actualPositionTemp' => intval($clave +1), 'upDownTemp' => 'b']);
+                    ->update(['posicionActualTemp' => intval($key +1), 'subeBajaTemp' => 'b']);
             }
         }
     }
 
-    private function updateActualPostition(){
+    // private function updateActualPostition(){
 
-        $users = DB::table('users')
-            ->where('id', '<>', '1')
-            ->orderBy('accumulatedPoints', 'desc')
-            ->get();
+    //     $users = DB::table('users')
+    //         ->where('id', '<>', '1')
+    //         ->orderBy('accumulatedPoints', 'desc')
+    //         ->get();
 
-        foreach ($users as $clave => $user) {
-            if ($user->actualPosition > $clave+1){
-                DB::table('users')
-                    ->where('id', '=', $user->id)
-                    ->update(['actualPosition' => intval($clave +1), 'upDown' => 's']);
+    //     foreach ($users as $clave => $user) {
+    //         if ($user->actualPosition > $clave+1){
+    //             DB::table('users')
+    //                 ->where('id', '=', $user->id)
+    //                 ->update(['actualPosition' => intval($clave +1), 'upDown' => 's']);
 
-            }elseif ($user->actualPosition == $clave+1){
-                DB::table('users')
-                    ->where('id', '=', $user->id)
-                    ->update(['actualPosition' => intval($clave +1), 'upDown' => 'i']);
+    //         }elseif ($user->actualPosition == $clave+1){
+    //             DB::table('users')
+    //                 ->where('id', '=', $user->id)
+    //                 ->update(['actualPosition' => intval($clave +1), 'upDown' => 'i']);
 
-            }elseif($user->actualPosition < $clave+1){
-                DB::table('users')
-                    ->where('id', '=', $user->id)
-                    ->update(['actualPosition' => intval($clave +1), 'upDown' => 'b']);
-            }
-        }
-    }
+    //         }elseif($user->actualPosition < $clave+1){
+    //             DB::table('users')
+    //                 ->where('id', '=', $user->id)
+    //                 ->update(['actualPosition' => intval($clave +1), 'upDown' => 'b']);
+    //         }
+    //     }
+    // }
 
-    private function analizeGame($score1, $score2){
-        if ($score1 > $score2){
+    private function analizeGame($resultadoEquipo1, $resultadoEquipo2){
+        if ($resultadoEquipo1 > $resultadoEquipo2){
             return 'G1';
-        }elseif($score1 == $score2){
+        }elseif($resultadoEquipo1 == $resultadoEquipo2){
             return 'E';
-        }elseif($score1 < $score2){
+        }elseif($resultadoEquipo1 < $resultadoEquipo2){
             return 'G2';
         }
     }
 
-    public function initGame(){
-        $gamesId = request()->get('gameId');
+    // public function initGame(){
+    //     $gamesId = request()->get('juegoId');
 
-        $games = DB::table('game')
-            ->join('team as t1', 't1.id', '=', 'game.team1')
-            ->join('team as t2', 't2.id', '=', 'game.team2')
-            ->join('statusgame as sg', 'game.status', '=', 'sg.id')
-            ->select(
-                't1.name as team1',
-                't1.image as img1',
-                't2.name as team2',
-                't2.image as img2',
-                'game.score1',
-                'game.score2',
-                'game.dateGame',
-                'game.timeGame',
-                'game.id',
-                'game.status',
-                'sg.name as statusname'
-            )
-            ->where('game.id', '=', $gamesId)
-            ->orderBy('dateGame','asc')
-            ->orderBy('timeGame', 'asc')
-            ->first();
+    //     $games = DB::table('game')
+    //         ->join('team as t1', 't1.id', '=', 'game.equipo1')
+    //         ->join('team as t2', 't2.id', '=', 'game.equipo2')
+    //         ->join('estatusgame as sg', 'game.estatus', '=', 'sg.id')
+    //         ->select(
+    //             't1.name as equipo1',
+    //             't1.image as img1',
+    //             't2.name as equipo2',
+    //             't2.image as img2',
+    //             'game.resultadoEquipo1',
+    //             'game.resultadoEquipo2',
+    //             'game.fechaJuego',
+    //             'game.horaJuego',
+    //             'game.id',
+    //             'game.estatus',
+    //             'sg.name as estatusname'
+    //         )
+    //         ->where('game.id', '=', $gamesId)
+    //         ->orderBy('fechaJuego','asc')
+    //         ->orderBy('horaJuego', 'asc')
+    //         ->first();
 
-        return view("games/initGame", compact('games'));
-    }
+    //     return view("games/initGame", compact('games'));
+    // }
 
-    public function endGame(){
-        $gameId = request()->get('gameId');
+    // public function endGame(){
+    //     $juegoId = request()->get('juegoId');
 
-        DB::table('game')
-            ->where('id', '=', $gameId)
-            ->update([ 'status' => 3 ]);
+    //     DB::table('game')
+    //         ->where('id', '=', $juegoId)
+    //         ->update([ 'estatus' => 3 ]);
 
 //        $quinielas = DB::table('game')
-//            ->leftJoin('quiniela as q', 'game.id', '=' , 'q.gameId')
+//            ->leftJoin('quiniela as q', 'game.id', '=' , 'q.juegoId')
 //            ->select(
 //                'q.id as quinielaId',
-//                'game.score1 as final1',
-//                'game.score2 as final2',
-//                'q.scoreTeam1 as quiniela1',
-//                'q.scoreTeam2 as quiniela2',
-//                'q.userId'
+//                'game.resultadoEquipo1 as final1',
+//                'game.resultadoEquipo2 as final2',
+//                'q.quinielaEquipo1 as quiniela1',
+//                'q.quinielaEquipo2 as quiniela2',
+//                'q.usuarioId'
 //            )
-//            ->where('game.id', '=', $gameId)
+//            ->where('game.id', '=', $juegoId)
 //            ->get();
 //
-//        $pointsXGame = 0;
+//        $puntosXjuego = 0;
 //
 //        foreach($quinielas as $quiniela){
 //            if ($quiniela->final1 == $quiniela->quiniela1){
-//                $pointsXGame++;
+//                $puntosXjuego++;
 //            }
 //            if ($quiniela->final2 == $quiniela->quiniela2){
-//                $pointsXGame++;
+//                $puntosXjuego++;
 //            }
 //
 //            $winMatch = $this->analizeGame($quiniela->final1, $quiniela->final2);
 //            $winQuiniela = $this->analizeGame($quiniela->quiniela1, $quiniela->quiniela2);
 //
 //            if ($winMatch == $winQuiniela){
-//                $pointsXGame++;
+//                $puntosXjuego++;
 //            }
 //
 //            DB::table('quiniela')
 //                ->where('id', '=', $quiniela->quinielaId)
-//                ->update([ 'pointsXGame' => $pointsXGame ]);
+//                ->update([ 'puntosXjuego' => $puntosXjuego ]);
 //
 //            $accumulatedPoints = DB::table('users')
 //                ->select('accumulatedPoints')
-//                ->where('id', '=', $quiniela->userId)->first();
+//                ->where('id', '=', $quiniela->usuarioId)->first();
 //
 //            DB::table('users')
-//                ->where('id', '=', $quiniela->userId)
-//                ->update(['accumulatedPoints' => intval($pointsXGame + $accumulatedPoints->accumulatedPoints)]);
+//                ->where('id', '=', $quiniela->usuarioId)
+//                ->update(['accumulatedPoints' => intval($puntosXjuego + $accumulatedPoints->accumulatedPoints)]);
 //
-//            $pointsXGame = 0;
+//            $puntosXjuego = 0;
 //        }
 //        $this->updateActualPostition();
 
-        return back()->with('success', 'Actualizado correctamente');
-    }
+    //     return back()->with('success', 'Actualizado correctamente');
+    // }
 
-    public function starGame(){
-        $gamesId = request()->get('gameId');
+    // public function starGame(){
+    //     $gamesId = request()->get('juegoId');
 
-        DB::table('game')
-            ->where('id', '=', $gamesId)
-            ->update(['status' => 2]);
+    //     DB::table('game')
+    //         ->where('id', '=', $gamesId)
+    //         ->update(['estatus' => 2]);
 
-        return redirect()->action('GamesController@initGame', ['gameId' => $gamesId]);
-    }
+    //     return redirect()->action('GamesController@initGame', ['juegoId' => $gamesId]);
+    // }
 }

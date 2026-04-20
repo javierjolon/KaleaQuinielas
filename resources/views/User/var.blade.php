@@ -40,9 +40,9 @@
                                     <td>{{$item->name}}</td>
                                     <td>
 
-                                        {{$item->e1}} - {{$item->scoreTeam1}}
+                                        {{$item->e1}} - {{$item->quinielaEquipo1}}
                                         <br>
-                                        {{$item->e2}} - {{$item->scoreTeam2}}
+                                        {{$item->e2}} - {{$item->quinielaEquipo2}}
                                     </td>
                                     <td>
                                         {{$item->fecha}}

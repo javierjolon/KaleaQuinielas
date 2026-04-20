@@ -49,20 +49,42 @@
         return $translations[$teamName] ?? $teamName;
     }
 
-    function traducir_status(string $status){
+    function traducir_estatus(string $estatus){
         $translations = [
             "TIMED" => "Programado",
             "IN_PLAY" => "En juego",
             "LIVE" => "En juego",
             "PAUSED" => "Medio tiempo",
-            "FINISHED" => "Finalizdo",
+            "FINISHED" => "Finalizado",
             "SUSPENDED" => "Suspendido",
             "POSTPONED" => "Pospuesto",
             "CANCELLED" => "Cancelado",
             "AWARDED" => "Gano por default",
+            "LOCKED" => "Bloqueado",
+            "INVALID" => "No válido",
+            "PENDING" => "Pendiente"
         ];
 
-        return $translations[$status] ?? $status;
+        return $translations[$estatus] ?? $estatus;
+    }
+
+    function color_estatus(string $estatus){
+        $translations = [
+            "TIMED" => "#474A4A",
+            "IN_PLAY" => "#0b461c",
+            "LIVE" => "#0b461c",
+            "PAUSED" => "#0b461c",
+            "FINISHED" => "#474A4A",
+            "SUSPENDED" => "#474A4A",
+            "POSTPONED" => "#474A4A",
+            "CANCELLED" => "#474A4A",
+            "AWARDED" => "#474A4A",
+            "LOCKED" => "#474A4A",
+            "INVALID" => "#C00707",
+            "PENDING" => "#474A4A"
+        ];
+
+        return $translations[$estatus] ?? $estatus;
     }
 
     function traducir_rondas($stage)

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStatusGameTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class CreateStatusGameTable extends Migration
      */
     public function up()
     {
-        Schema::create('statusGame', function (Blueprint $table) {
-            $table->id()->autoIncrement();
-            $table->string('name');
+        Schema::create('etiquetas', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->string('color');
+            $table->integer('nivel');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +29,6 @@ class CreateStatusGameTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('statusGame');
+        Schema::dropIfExists('etiquetas');
     }
-}
+};

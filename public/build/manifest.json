@@ -1,0 +1,266 @@
+{
+  "_ApplicationLogo-3e40aecc.js": {
+    "file": "assets/ApplicationLogo-3e40aecc.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_AuthenticatedLayout-375cbdc0.js": {
+    "file": "assets/AuthenticatedLayout-375cbdc0.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_ApplicationLogo-3e40aecc.js",
+      "_transition-9478c986.js"
+    ]
+  },
+  "_GuestLayout-2e270af5.js": {
+    "file": "assets/GuestLayout-2e270af5.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_ApplicationLogo-3e40aecc.js"
+    ]
+  },
+  "_PrimaryButton-02773e03.js": {
+    "file": "assets/PrimaryButton-02773e03.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_TextInput-6c6fce65.js": {
+    "file": "assets/TextInput-6c6fce65.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_pagination-ca26d7d3.js": {
+    "css": [
+      "assets/pagination-7b706591.css"
+    ],
+    "file": "assets/pagination-ca26d7d3.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_transition-9478c986.js": {
+    "file": "assets/transition-9478c986.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "pagination.css": {
+    "file": "assets/pagination-7b706591.css",
+    "src": "pagination.css"
+  },
+  "resources/js/Pages/Auth/ConfirmPassword.jsx": {
+    "file": "assets/ConfirmPassword-808ce6ce.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_GuestLayout-2e270af5.js",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_ApplicationLogo-3e40aecc.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Auth/ConfirmPassword.jsx"
+  },
+  "resources/js/Pages/Auth/ForgotPassword.jsx": {
+    "file": "assets/ForgotPassword-d2e30278.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_GuestLayout-2e270af5.js",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_ApplicationLogo-3e40aecc.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Auth/ForgotPassword.jsx"
+  },
+  "resources/js/Pages/Auth/Login.jsx": {
+    "file": "assets/Login-b36e4be0.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_GuestLayout-2e270af5.js",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_ApplicationLogo-3e40aecc.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Auth/Login.jsx"
+  },
+  "resources/js/Pages/Auth/Register.jsx": {
+    "file": "assets/Register-ad9bc837.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_GuestLayout-2e270af5.js",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_ApplicationLogo-3e40aecc.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Auth/Register.jsx"
+  },
+  "resources/js/Pages/Auth/ResetPassword.jsx": {
+    "file": "assets/ResetPassword-3c657868.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_GuestLayout-2e270af5.js",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_ApplicationLogo-3e40aecc.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Auth/ResetPassword.jsx"
+  },
+  "resources/js/Pages/Auth/VerifyEmail.jsx": {
+    "file": "assets/VerifyEmail-a0c46c2b.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_GuestLayout-2e270af5.js",
+      "_PrimaryButton-02773e03.js",
+      "_ApplicationLogo-3e40aecc.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Auth/VerifyEmail.jsx"
+  },
+  "resources/js/Pages/Dashboard.jsx": {
+    "file": "assets/Dashboard-88056ea7.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_AuthenticatedLayout-375cbdc0.js",
+      "_pagination-ca26d7d3.js",
+      "_ApplicationLogo-3e40aecc.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Dashboard.jsx"
+  },
+  "resources/js/Pages/Games/index.jsx": {
+    "file": "assets/index-946a14b9.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_AuthenticatedLayout-375cbdc0.js",
+      "_pagination-ca26d7d3.js",
+      "_ApplicationLogo-3e40aecc.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Games/index.jsx"
+  },
+  "resources/js/Pages/Profile/Edit.jsx": {
+    "file": "assets/Edit-8b7dd65d.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_AuthenticatedLayout-375cbdc0.js",
+      "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
+      "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
+      "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
+      "_ApplicationLogo-3e40aecc.js",
+      "_transition-9478c986.js",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Profile/Edit.jsx"
+  },
+  "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx": {
+    "file": "assets/DeleteUserForm-f3830269.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_TextInput-6c6fce65.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx"
+  },
+  "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx": {
+    "file": "assets/UpdatePasswordForm-af726092.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx"
+  },
+  "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx": {
+    "file": "assets/UpdateProfileInformationForm-4bdd11cb.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_TextInput-6c6fce65.js",
+      "_PrimaryButton-02773e03.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx"
+  },
+  "resources/js/Pages/Quiniela/Partials/TablaPartidos.jsx": {
+    "file": "assets/TablaPartidos-56df02d9.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Quiniela/Partials/TablaPartidos.jsx"
+  },
+  "resources/js/Pages/Quiniela/create.jsx": {
+    "file": "assets/create-bb95d8ab.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_AuthenticatedLayout-375cbdc0.js",
+      "_ApplicationLogo-3e40aecc.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Quiniela/create.jsx"
+  },
+  "resources/js/Pages/Quiniela/quiniela.jsx": {
+    "file": "assets/quiniela-ef3778f1.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_AuthenticatedLayout-375cbdc0.js",
+      "resources/js/Pages/Quiniela/Partials/TablaPartidos.jsx",
+      "_ApplicationLogo-3e40aecc.js",
+      "_transition-9478c986.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Quiniela/quiniela.jsx"
+  },
+  "resources/js/Pages/Welcome.jsx": {
+    "file": "assets/Welcome-3be26fa2.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Welcome.jsx"
+  },
+  "resources/js/app.css": {
+    "file": "assets/app-afeeb1ac.css",
+    "src": "resources/js/app.css"
+  },
+  "resources/js/app.jsx": {
+    "css": [
+      "assets/app-afeeb1ac.css"
+    ],
+    "dynamicImports": [
+      "resources/js/Pages/Auth/ConfirmPassword.jsx",
+      "resources/js/Pages/Auth/ForgotPassword.jsx",
+      "resources/js/Pages/Auth/Login.jsx",
+      "resources/js/Pages/Auth/Register.jsx",
+      "resources/js/Pages/Auth/ResetPassword.jsx",
+      "resources/js/Pages/Auth/VerifyEmail.jsx",
+      "resources/js/Pages/Dashboard.jsx",
+      "resources/js/Pages/Games/index.jsx",
+      "resources/js/Pages/Profile/Edit.jsx",
+      "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
+      "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
+      "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
+      "resources/js/Pages/Quiniela/Partials/TablaPartidos.jsx",
+      "resources/js/Pages/Quiniela/create.jsx",
+      "resources/js/Pages/Quiniela/quiniela.jsx",
+      "resources/js/Pages/Welcome.jsx"
+    ],
+    "file": "assets/app-38626063.js",
+    "isEntry": true,
+    "src": "resources/js/app.jsx"
+  }
+}

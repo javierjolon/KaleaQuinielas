@@ -4,6 +4,8 @@ use App\Http\Controllers\GamesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuinielaController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,7 +37,61 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $quinielas = DB::table('usuariosQuinielas as uq')
+    ->join('quinielas as q', 'q.id', '=', 'uq.quinielaId')
+    ->select('q.id', 'q.nombre', 'q.status', 'q.usuarioId')
+    ->where('uq.usuarioId', '=', Auth::user()->id)
+    ->orderBy('q.nombre')
+    ->get();
+    
+    if (count($quinielas) === 0) {
+        session([
+            'quinielas' => [[
+            'id' => 0,
+            'nombre' => 'No estas en una quiniela, crea una nueva',
+            'activo' => true
+        ]]]);
+    }else{
+        $quinielasSessionActual = collect(session('quinielas', []));
+        $quinielaActivaActual = $quinielasSessionActual->firstWhere('activo', true);
+        $quinielaActivaId = $quinielaActivaActual['id'] ?? null;
+
+        session([
+            'quinielas' => $quinielas->values()->map(function ($q, $index) {
+                return [
+                    'id' => $q->id,
+                    'nombre' => $q->nombre,
+                    'activo' => false
+                ];
+            })->map(function ($q, $index) use ($quinielaActivaId) {
+                if ($quinielaActivaId !== null) {
+                    $q['activo'] = (int) $q['id'] === (int) $quinielaActivaId;
+                } else {
+                    $q['activo'] = $index === 0;
+                }
+
+                return $q;
+            })
+        ]);
+    }
+
+    $quinielaActiva = collect(session('quinielas', []))->firstWhere('activo', true);
+    $usuariosQuiniela = collect();
+
+    if (!empty($quinielaActiva) && (int) ($quinielaActiva['id'] ?? 0) > 0) {
+        $usuariosQuiniela = DB::table('usuariosQuinielas as uq')
+            ->join('users as u', 'u.id', '=', 'uq.usuarioId')
+            ->select('u.id', 'u.name', 'u.telefono', 'u.puntosAcumulados', 'u.subeBaja')
+            ->where('uq.quinielaId', '=', $quinielaActiva['id'])
+            ->orderByDesc('u.puntosAcumulados')
+            ->orderBy('u.name')
+            ->get();
+    }
+
+    return Inertia::render('Dashboard', [
+        'quinielaActiva' => $quinielaActiva,
+        'usuariosQuiniela' => $usuariosQuiniela,
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -50,7 +106,17 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/quiniela', [QuinielaController::class, 'index'])->middleware(['auth', 'verified'])->name('quiniela');
+Route::middleware('auth')->group(function () {
+    Route::get('/quiniela', [QuinielaController::class, 'index'])->name('quiniela.index');
+    Route::get('/quiniela/create', [QuinielaController::class, 'create'])->name('quiniela.create');
+    Route::post('/quiniela', [QuinielaController::class, 'store'])->name('quiniela.store');
+    Route::post('/quiniela/seleccionar-activa', [QuinielaController::class, 'seleccionarActiva'])->name('quiniela.seleccionar-activa');
+    Route::post('/quiniela/agregar-usuario', [QuinielaController::class, 'agregarUsuario'])->name('quiniela.agregar-usuario');
+    Route::patch('/quiniela/{juegoId}', [QuinielaController::class, 'patch'])->name('quiniela.patch');
+    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Route::get('/quiniela', [QuinielaController::class, 'index'])->middleware(['auth', 'verified'])->name('quiniela');
 
 
 require __DIR__.'/auth.php';

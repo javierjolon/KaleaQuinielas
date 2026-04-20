@@ -148,8 +148,8 @@ module.exports = function xhrAdapter(config) {
       // The request errored out and we didn't get a response, this will be
       // handled by onerror instead
       // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+      // will return estatus as 0 even though it's a successful request
+      if (request.estatus === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
         return;
       }
 
@@ -158,8 +158,8 @@ module.exports = function xhrAdapter(config) {
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
       var response = {
         data: responseData,
-        status: request.status,
-        statusText: request.statusText,
+        estatus: request.estatus,
+        estatusText: request.estatusText,
         headers: responseHeaders,
         config: config,
         request: request
@@ -879,7 +879,7 @@ module.exports = function mergeConfig(config1, config2) {
     'baseURL', 'url', 'transformRequest', 'transformResponse', 'paramsSerializer',
     'timeout', 'withCredentials', 'adapter', 'responseType', 'xsrfCookieName',
     'xsrfHeaderName', 'onUploadProgress', 'onDownloadProgress',
-    'maxContentLength', 'validateStatus', 'maxRedirects', 'httpAgent',
+    'maxContentLength', 'validateestatus', 'maxRedirects', 'httpAgent',
     'httpsAgent', 'cancelToken', 'socketPath'
   ];
 
@@ -946,19 +946,19 @@ module.exports = function mergeConfig(config1, config2) {
 var createError = __webpack_require__(/*! ./createError */ "./node_modules/axios/lib/core/createError.js");
 
 /**
- * Resolve or reject a Promise based on response status.
+ * Resolve or reject a Promise based on response estatus.
  *
  * @param {Function} resolve A function that resolves the promise.
  * @param {Function} reject A function that rejects the promise.
  * @param {object} response The response.
  */
 module.exports = function settle(resolve, reject, response) {
-  var validateStatus = response.config.validateStatus;
-  if (!validateStatus || validateStatus(response.status)) {
+  var validateestatus = response.config.validateestatus;
+  if (!validateestatus || validateestatus(response.estatus)) {
     resolve(response);
   } else {
     reject(createError(
-      'Request failed with status code ' + response.status,
+      'Request failed with estatus code ' + response.estatus,
       response.config,
       null,
       response.request,
@@ -1087,8 +1087,8 @@ var defaults = {
 
   maxContentLength: -1,
 
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
+  validateestatus: function validateestatus(estatus) {
+    return estatus >= 200 && estatus < 300;
   }
 };
 
@@ -15729,8 +15729,8 @@ jQuery.extend( {
 			deferred = jQuery.Deferred(),
 			completeDeferred = jQuery.Callbacks( "once memory" ),
 
-			// Status-dependent callbacks
-			statusCode = s.statusCode || {},
+			// estatus-dependent callbacks
+			estatusCode = s.estatusCode || {},
 
 			// Headers (they are sent all at once)
 			requestHeaders = {},
@@ -15783,19 +15783,19 @@ jQuery.extend( {
 					return this;
 				},
 
-				// Status-dependent callbacks
-				statusCode: function( map ) {
+				// estatus-dependent callbacks
+				estatusCode: function( map ) {
 					var code;
 					if ( map ) {
 						if ( completed ) {
 
 							// Execute the appropriate callbacks
-							jqXHR.always( map[ jqXHR.status ] );
+							jqXHR.always( map[ jqXHR.estatus ] );
 						} else {
 
 							// Lazy-add the new callbacks in a way that preserves old ones
 							for ( code in map ) {
-								statusCode[ code ] = [ statusCode[ code ], map[ code ] ];
+								estatusCode[ code ] = [ estatusCode[ code ], map[ code ] ];
 							}
 						}
 					}
@@ -15803,8 +15803,8 @@ jQuery.extend( {
 				},
 
 				// Cancel the request
-				abort: function( statusText ) {
-					var finalText = statusText || strAbort;
+				abort: function( estatusText ) {
+					var finalText = estatusText || strAbort;
 					if ( transport ) {
 						transport.abort( finalText );
 					}
@@ -16001,9 +16001,9 @@ jQuery.extend( {
 		}
 
 		// Callback for when everything is done
-		function done( status, nativeStatusText, responses, headers ) {
+		function done( estatus, nativeestatusText, responses, headers ) {
 			var isSuccess, success, error, response, modified,
-				statusText = nativeStatusText;
+				estatusText = nativeestatusText;
 
 			// Ignore repeat invocations
 			if ( completed ) {
@@ -16025,10 +16025,10 @@ jQuery.extend( {
 			responseHeadersString = headers || "";
 
 			// Set readyState
-			jqXHR.readyState = status > 0 ? 4 : 0;
+			jqXHR.readyState = estatus > 0 ? 4 : 0;
 
 			// Determine if successful
-			isSuccess = status >= 200 && status < 300 || status === 304;
+			isSuccess = estatus >= 200 && estatus < 300 || estatus === 304;
 
 			// Get response data
 			if ( responses ) {
@@ -16061,46 +16061,46 @@ jQuery.extend( {
 				}
 
 				// if no content
-				if ( status === 204 || s.type === "HEAD" ) {
-					statusText = "nocontent";
+				if ( estatus === 204 || s.type === "HEAD" ) {
+					estatusText = "nocontent";
 
 				// if not modified
-				} else if ( status === 304 ) {
-					statusText = "notmodified";
+				} else if ( estatus === 304 ) {
+					estatusText = "notmodified";
 
 				// If we have data, let's convert it
 				} else {
-					statusText = response.state;
+					estatusText = response.state;
 					success = response.data;
 					error = response.error;
 					isSuccess = !error;
 				}
 			} else {
 
-				// Extract error from statusText and normalize for non-aborts
-				error = statusText;
-				if ( status || !statusText ) {
-					statusText = "error";
-					if ( status < 0 ) {
-						status = 0;
+				// Extract error from estatusText and normalize for non-aborts
+				error = estatusText;
+				if ( estatus || !estatusText ) {
+					estatusText = "error";
+					if ( estatus < 0 ) {
+						estatus = 0;
 					}
 				}
 			}
 
 			// Set data for the fake xhr object
-			jqXHR.status = status;
-			jqXHR.statusText = ( nativeStatusText || statusText ) + "";
+			jqXHR.estatus = estatus;
+			jqXHR.estatusText = ( nativeestatusText || estatusText ) + "";
 
 			// Success/Error
 			if ( isSuccess ) {
-				deferred.resolveWith( callbackContext, [ success, statusText, jqXHR ] );
+				deferred.resolveWith( callbackContext, [ success, estatusText, jqXHR ] );
 			} else {
-				deferred.rejectWith( callbackContext, [ jqXHR, statusText, error ] );
+				deferred.rejectWith( callbackContext, [ jqXHR, estatusText, error ] );
 			}
 
-			// Status-dependent callbacks
-			jqXHR.statusCode( statusCode );
-			statusCode = undefined;
+			// estatus-dependent callbacks
+			jqXHR.estatusCode( estatusCode );
+			estatusCode = undefined;
 
 			if ( fireGlobals ) {
 				globalEventContext.trigger( isSuccess ? "ajaxSuccess" : "ajaxError",
@@ -16108,7 +16108,7 @@ jQuery.extend( {
 			}
 
 			// Complete
-			completeDeferred.fireWith( callbackContext, [ jqXHR, statusText ] );
+			completeDeferred.fireWith( callbackContext, [ jqXHR, estatusText ] );
 
 			if ( fireGlobals ) {
 				globalEventContext.trigger( "ajaxComplete", [ jqXHR, s ] );
@@ -16270,9 +16270,9 @@ jQuery.ajaxSettings.xhr = function() {
 	} catch ( e ) {}
 };
 
-var xhrSuccessStatus = {
+var xhrSuccessestatus = {
 
-		// File protocol always yields status code 0, assume 200
+		// File protocol always yields estatus code 0, assume 200
 		0: 200,
 
 		// Support: IE <=9 only
@@ -16343,20 +16343,20 @@ jQuery.ajaxTransport( function( options ) {
 								// Support: IE <=9 only
 								// On a manual native abort, IE9 throws
 								// errors on any property access that is not readyState
-								if ( typeof xhr.status !== "number" ) {
+								if ( typeof xhr.estatus !== "number" ) {
 									complete( 0, "error" );
 								} else {
 									complete(
 
-										// File: protocol always yields status 0; see trac-8605, trac-14207
-										xhr.status,
-										xhr.statusText
+										// File: protocol always yields estatus 0; see trac-8605, trac-14207
+										xhr.estatus,
+										xhr.estatusText
 									);
 								}
 							} else {
 								complete(
-									xhrSuccessStatus[ xhr.status ] || xhr.status,
-									xhr.statusText,
+									xhrSuccessestatus[ xhr.estatus ] || xhr.estatus,
+									xhr.estatusText,
 
 									// Support: IE <=9 only
 									// IE9 has no XHR2 but throws on binary (trac-11426)
@@ -16704,12 +16704,12 @@ jQuery.fn.load = function( url, params, callback ) {
 				// Otherwise use the full result
 				responseText );
 
-		// If the request succeeds, this function gets "data", "status", "jqXHR"
+		// If the request succeeds, this function gets "data", "estatus", "jqXHR"
 		// but they are ignored because response was set above.
-		// If it fails, this function gets "jqXHR", "status", "error"
-		} ).always( callback && function( jqXHR, status ) {
+		// If it fails, this function gets "jqXHR", "estatus", "error"
+		} ).always( callback && function( jqXHR, estatus ) {
 			self.each( function() {
-				callback.apply( this, response || [ jqXHR.responseText, status, jqXHR ] );
+				callback.apply( this, response || [ jqXHR.responseText, estatus, jqXHR ] );
 			} );
 		} );
 	}

@@ -31,5 +31,8 @@ return [
     ],
     'football_data' => [
         'key' => env('FOOTBALL_DATA_KEY'),
-    ]
+    ],
+    'api' => [
+        'url' => env('API_URL'),
+    ],
 ];

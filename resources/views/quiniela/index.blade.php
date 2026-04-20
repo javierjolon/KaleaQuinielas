@@ -20,73 +20,73 @@
                             @foreach($games as $game)
                                 <form method="post" action="{{ route('setQuiniela') }}">
                                     @csrf
-                                    <input type="text" name="gameId" value="{{$game->id}}" hidden>
-                                    <input type="text" name="timeGame" value="{{ $game->timeGame}}" hidden>
-                                    <input type="text" name="dateGame" value="{{$game->dateGame}}" hidden>
+                                    <input type="text" name="juegoId" value="{{$game->id}}" hidden>
+                                    <input type="text" name="horaJuego" value="{{ $game->horaJuego}}" hidden>
+                                    <input type="text" name="fechaJuego" value="{{$game->fechaJuego}}" hidden>
 
-                                @if($game->status == 1)
+                                @if($game->estatus == 1)
                                     <tr>
                                         <td class="">
                                             <div class="row justify-content-center">
-                                                <span style="font-size: 10px;">{{date_format(date_create($game->dateGame), 'd-m-Y')}} - {{date_format(date_create($game->timeGame), 'H:i')}}</span>
+                                                <span style="font-size: 10px;">{{date_format(date_create($game->fechaJuego), 'd-m-Y')}} - {{date_format(date_create($game->horaJuego), 'H:i')}}</span>
                                             </div>
                                             <div class="row align-items-center">
                                                 <div class="col-6">
-                                                    {{$game->team1}}
+                                                    {{$game->equipo1}}
                                                 </div>
                                                 <div class="col-6">
-                                                    {{$game->team2}}
+                                                    {{$game->equipo2}}
                                                 </div>
                                             </div>
                                             <div class="row align-items-center">
                                                 <div class="col-6">
                                                     <?php $adentro = false; ?>
                                                     @foreach($results as $result)
-                                                        @if($result->gameId == $game->id)
+                                                        @if($result->juegoId == $game->id)
                                                             <?php $adentro = true; ?>
-                                                            @if($game->dateGame > date('Y-m-d'))
-                                                                <input type="number" name="score1" class="w-50 text-center" min="0" value="{{$result->scoreTeam1}}" required>
-                                                            @elseif($game->dateGame == date('Y-m-d'))
-                                                                @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->timeGame))))
-                                                                    <input type="number" name="score1" class="w-50 text-center" min="0" value="{{$result->scoreTeam1}}" required>
+                                                            @if($game->fechaJuego > date('Y-m-d'))
+                                                                <input type="number" name="resultadoEquipo1" class="w-50 text-center" min="0" value="{{$result->quinielaEquipo1}}" required>
+                                                            @elseif($game->fechaJuego == date('Y-m-d'))
+                                                                @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->horaJuego))))
+                                                                    <input type="number" name="resultadoEquipo1" class="w-50 text-center" min="0" value="{{$result->quinielaEquipo1}}" required>
                                                                 @endif
                                                             @else
-                                                                <p style="font-weight: bold">{{$result->scoreTeam1}}</p>
+                                                                <p style="font-weight: bold">{{$result->quinielaEquipo1}}</p>
                                                             @endif
                                                         @endif
                                                     @endforeach
                                                     @if($adentro == false)
-                                                        <input type="number" name="score1" min="0" class="w-50" required>
+                                                        <input type="number" name="resultadoEquipo1" min="0" class="w-50" required>
                                                     @endif
                                                 </div>
                                                 <div class="col-6">
                                                     <?php $adentro = false; ?>
                                                     @foreach($results as $result)
-                                                        @if($result->gameId == $game->id)
+                                                        @if($result->juegoId == $game->id)
                                                             <?php $adentro = true; ?>
-                                                            @if($game->dateGame > date('Y-m-d')  )
-                                                                <input type="number" name="score2" class="w-50 text-center" min="0" value="{{$result->scoreTeam2}}" required>
-                                                            @elseif($game->dateGame == date('Y-m-d'))
-                                                                @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->timeGame))))
-                                                                    <input type="number" name="score2" class="w-50 text-center" min="0" value="{{$result->scoreTeam2}}" required>
+                                                            @if($game->fechaJuego > date('Y-m-d')  )
+                                                                <input type="number" name="resultadoEquipo2" class="w-50 text-center" min="0" value="{{$result->quinielaEquipo2}}" required>
+                                                            @elseif($game->fechaJuego == date('Y-m-d'))
+                                                                @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->horaJuego))))
+                                                                    <input type="number" name="resultadoEquipo2" class="w-50 text-center" min="0" value="{{$result->quinielaEquipo2}}" required>
                                                                 @endif
                                                             @else
-                                                                <p style="font-weight: bold">{{$result->scoreTeam2}}</p>
+                                                                <p style="font-weight: bold">{{$result->quinielaEquipo2}}</p>
                                                             @endif
                                                         @endif
                                                     @endforeach
                                                     @if($adentro == false)
-                                                        <input type="number" name="score2" min="0" class="w-50" required>
+                                                        <input type="number" name="resultadoEquipo2" min="0" class="w-50" required>
                                                     @endif
                                                 </div>
                                             </div>
                                         </td>
                                         <td style="vertical-align: middle">
                                             <div class="">
-                                                @if($game->dateGame > date('Y-m-d'))
+                                                @if($game->fechaJuego > date('Y-m-d'))
                                                     <input type="submit" value="Guardar" class="btn btn-outline-success">
-                                                @elseif($game->dateGame = date('Y-m-d'))
-                                                    @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->timeGame))))
+                                                @elseif($game->fechaJuego = date('Y-m-d'))
+                                                    @if( date('H:i:s') <= Date("H:i", strtotime("-5 minutes", strtotime($game->horaJuego))))
                                                         <input type="submit" value="Guardar" class="btn btn-outline-success">
                                                     @endif
                                                 @endif

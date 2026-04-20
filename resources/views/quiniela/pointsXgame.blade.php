@@ -29,22 +29,22 @@
                                     <div class="row align-items-center">
                                         <div class="col-5">
                                             <img class="avatar" src="{{$game->image1}}">
-                                            <p>{{$game->team1}}</p>
+                                            <p>{{$game->equipo1}}</p>
                                         </div>
                                         <div class="col-3">
                                             <p>Juego</p>
 
-                                            ( {{$game->score1}} )
+                                            ( {{$game->resultadoEquipo1}} )
                                         </div>
                                         <div class="col-4">
                                                 <?php $adentro = true; ?>
                                                 @foreach($results as $result)
-                                                    @if($result->gameId == $game->id && $result->userId == Auth::user()->id )
+                                                    @if($result->juegoId == $game->id && $result->usuarioId == Auth::user()->id )
                                                         <?php $adentro = false; ?>
-                                                        @if( $result->scoreTeam1 >= 0 && $result->scoreTeam2 >= 0)
+                                                        @if( $result->quinielaEquipo1 >= 0 && $result->quinielaEquipo2 >= 0)
                                                                 <p>Mi quiniela</p>
 
-                                                                <span style="font-weight: bold">{{$result->scoreTeam1}}</span>
+                                                                <span style="font-weight: bold">{{$result->quinielaEquipo1}}</span>
                                                         @endif
                                                     @endif
                                                 @endforeach
@@ -61,16 +61,16 @@
                                     <div class="row align-items-center">
                                         <div class="col-5">
                                             <img class="avatar" src="{{$game->image2}}">
-                                            <p>{{$game->team2}}</p>
+                                            <p>{{$game->equipo2}}</p>
                                         </div>
                                         <div class="col-3">
-                                            ( {{$game->score2}} )
+                                            ( {{$game->resultadoEquipo2}} )
                                         </div>
                                         <div class="col-4">
                                                 @foreach($results as $result)
-                                                    @if($result->gameId == $game->id && $result->userId == Auth::user()->id )
-                                                        @if( $result->scoreTeam1 >= 0 && $result->scoreTeam2 >= 0)
-                                                            <span style="font-weight: bold">{{$result->scoreTeam2}}</span>
+                                                    @if($result->juegoId == $game->id && $result->usuarioId == Auth::user()->id )
+                                                        @if( $result->quinielaEquipo1 >= 0 && $result->quinielaEquipo2 >= 0)
+                                                            <span style="font-weight: bold">{{$result->quinielaEquipo2}}</span>
                                                         @endif
                                                     @endif
                                                 @endforeach
@@ -79,27 +79,27 @@
                                 </td>
                                 <td>
                                     <div>
-                                        @switch($game->status)
+                                        @switch($game->estatus)
                                             @case(1)
-                                                <span>{{$game->nameStatusGame}}</span>
+                                                <span>{{$game->nameestatusGame}}</span>
                                             @break
                                             @case(2)
-                                                <span>{{$game->nameStatusGame}}</span>
-                                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: red">
+                                                <span>{{$game->nameestatusGame}}</span>
+                                                <div class="spinner-grow spinner-grow-sm" role="estatus" style="color: red">
                                                     <span class="visually-hidden"></span>
                                                 </div>
                                             @break
                                             @case(3)
-                                                <span style="color: darkred">{{$game->nameStatusGame}}</span>
+                                                <span style="color: darkred">{{$game->nameestatusGame}}</span>
                                             @break
                                         @endswitch
                                     </div>
                                     <div>
                                         @foreach($results as $result)
-                                            @if($result->gameId == $game->id)
-                                                @if(is_numeric($result->pointsXGame))
-                                                    @if(is_numeric($game->score1) && is_numeric($game->score2))
-                                                        <p style="font-weight: bold">Puntos: {{$result->pointsXGame}}</p>
+                                            @if($result->juegoId == $game->id)
+                                                @if(is_numeric($result->puntosXjuego))
+                                                    @if(is_numeric($game->resultadoEquipo1) && is_numeric($game->resultadoEquipo2))
+                                                        <p style="font-weight: bold">Puntos: {{$result->puntosXjuego}}</p>
                                                     @endif
                                                 @endif
                                             @endif
@@ -117,33 +117,33 @@
 {{--                                <td class="text-center">--}}
 {{--                                    <div class="mb-1 d-flex flex-column align-items-center">--}}
 {{--                                        <img class="avatar" src="{{$game->image1}}">--}}
-{{--                                        <p>{{$game->team1}}</p>--}}
+{{--                                        <p>{{$game->equipo1}}</p>--}}
 {{--                                    </div>--}}
 {{--                                    <div class="mt-1 d-flex flex-column align-items-center">--}}
 {{--                                        <img class="avatar" src="{{$game->image2}}">--}}
-{{--                                        <p>{{$game->team2}}</p>--}}
+{{--                                        <p>{{$game->equipo2}}</p>--}}
 {{--                                    </div>--}}
 {{--                                </td>--}}
 {{--                                <td class="text-left">--}}
 {{--                                    <div class="h-50">--}}
-{{--                                        ( {{$game->score1}} )--}}
+{{--                                        ( {{$game->resultadoEquipo1}} )--}}
 {{--                                    </div>--}}
 {{--                                    <div class="h-50">--}}
-{{--                                        ( {{$game->score2}} )--}}
+{{--                                        ( {{$game->resultadoEquipo2}} )--}}
 {{--                                    </div>--}}
 {{--                                </td>--}}
 {{--                                <td>--}}
 {{--                                    <div>--}}
 {{--                                        <?php $adentro = true; ?>--}}
 {{--                                        @foreach($results as $result)--}}
-{{--                                            @if($result->gameId == $game->id && $result->userId == Auth::user()->id )--}}
+{{--                                            @if($result->juegoId == $game->id && $result->usuarioId == Auth::user()->id )--}}
 {{--                                                <?php $adentro = false; ?>--}}
-{{--                                                @if( $result->scoreTeam1 >= 0 && $result->scoreTeam2 >= 0)--}}
+{{--                                                @if( $result->quinielaEquipo1 >= 0 && $result->quinielaEquipo2 >= 0)--}}
 {{--                                                    <div class="mb-5">--}}
-{{--                                                        <p style="font-weight: bold">{{$result->scoreTeam1}}</p>--}}
+{{--                                                        <p style="font-weight: bold">{{$result->quinielaEquipo1}}</p>--}}
 {{--                                                    </div>--}}
 {{--                                                    <div>--}}
-{{--                                                        <p style="font-weight: bold">{{$result->scoreTeam2}}</p>--}}
+{{--                                                        <p style="font-weight: bold">{{$result->quinielaEquipo2}}</p>--}}
 {{--                                                    </div>--}}
 {{--                                                @endif--}}
 {{--                                            @endif--}}
@@ -159,27 +159,27 @@
 {{--                                </td>--}}
 {{--                                <td>--}}
 {{--                                    <div>--}}
-{{--                                        @switch($game->status)--}}
+{{--                                        @switch($game->estatus)--}}
 {{--                                            @case(1)--}}
-{{--                                                <span>{{$game->nameStatusGame}}</span>--}}
+{{--                                                <span>{{$game->nameestatusGame}}</span>--}}
 {{--                                            @break--}}
 {{--                                            @case(2)--}}
-{{--                                                <span>{{$game->nameStatusGame}}</span>--}}
-{{--                                                <div class="spinner-grow spinner-grow-sm" role="status" style="color: red">--}}
+{{--                                                <span>{{$game->nameestatusGame}}</span>--}}
+{{--                                                <div class="spinner-grow spinner-grow-sm" role="estatus" style="color: red">--}}
 {{--                                                    <span class="visually-hidden"></span>--}}
 {{--                                                </div>--}}
 {{--                                            @break--}}
 {{--                                            @case(3)--}}
-{{--                                                <span style="color: darkred">{{$game->nameStatusGame}}</span>--}}
+{{--                                                <span style="color: darkred">{{$game->nameestatusGame}}</span>--}}
 {{--                                            @break--}}
 {{--                                        @endswitch--}}
 {{--                                    </div>--}}
 {{--                                    <div>--}}
 {{--                                        @foreach($results as $result)--}}
-{{--                                            @if($result->gameId == $game->id)--}}
-{{--                                                @if(is_numeric($result->pointsXGame))--}}
-{{--                                                    @if(is_numeric($game->score1) && is_numeric($game->score2))--}}
-{{--                                                        <p style="font-weight: bold">Puntos: {{$result->pointsXGame}}</p>--}}
+{{--                                            @if($result->juegoId == $game->id)--}}
+{{--                                                @if(is_numeric($result->puntosXjuego))--}}
+{{--                                                    @if(is_numeric($game->resultadoEquipo1) && is_numeric($game->resultadoEquipo2))--}}
+{{--                                                        <p style="font-weight: bold">Puntos: {{$result->puntosXjuego}}</p>--}}
 {{--                                                    @endif--}}
 {{--                                                @endif--}}
 {{--                                            @endif--}}
