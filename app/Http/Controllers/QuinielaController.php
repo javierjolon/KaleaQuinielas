@@ -257,15 +257,15 @@ class QuinielaController extends Controller
 
         $juegosPendientes = DB::table('quinielasJuegos as qj')
         ->select(
-            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id', 
-            'juegos.equipo1', 'juegos.equipo2', 'juegos.estatus as estatusJuego', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego')
+            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id',
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.estatus as estatusJuego', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.resultadoEquipo1', 'juegos.resultadoEquipo2')
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("quinielaId", "=", $quinielaActivaId)
         ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
         ->whereNull('qj.quinielaEquipo1')
         ->whereNull('qj.quinielaEquipo2')
-        ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
+        ->whereNotIn('juegos.estatus', ['FINISHED', 'AWARDED', 'CANCELLED', 'POSTPONED', 'SUSPENDED'])
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
@@ -288,15 +288,19 @@ class QuinielaController extends Controller
 
         $juegosIngresados = DB::table('quinielasJuegos as qj')
         ->select(
-            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id',
-            'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego')
+            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id', 'qj.puntosXjuego',
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego', 'juegos.resultadoEquipo1', 'juegos.resultadoEquipo2')
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("qj.quinielaId", "=", $quinielaActivaId)
         ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
         ->whereNotNull('qj.quinielaEquipo1')
         ->whereNotNull('qj.quinielaEquipo2')
-        ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
+        ->where(function($q) {
+            $q->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
+              ->orWhereIn('juegos.estatus', ['IN_PLAY', 'LIVE', 'PAUSED']);
+        })
+        ->whereNotIn('juegos.estatus', ['FINISHED', 'AWARDED', 'CANCELLED', 'POSTPONED', 'SUSPENDED'])
         ->orderBy('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
@@ -325,9 +329,9 @@ class QuinielaController extends Controller
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("qj.quinielaId", "=", $quinielaActivaId)
-        ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
         ->whereIn('qj.status', ['FINISHED', 'INVALID'])
-        ->orderBy('juegos.fechaJuego')
+        ->whereNotIn('juegos.estatus', ['IN_PLAY', 'LIVE', 'PAUSED'])
+        ->orderByDesc('juegos.fechaJuego')
         ->orderBy('juegos.horaJuego')    
         ->get()
         ->map(function ($game) {
