@@ -7,6 +7,7 @@ use App\Services\apiFotballService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class AutoSyncApi extends Command
 {
@@ -47,6 +48,7 @@ class AutoSyncApi extends Command
 
         if ($minutesPassed >= self::ACTIVE_INTERVAL_MINUTES) {
             $this->info('Juego en curso — sincronizando...');
+            Log::channel('sync')->info('[auto-sync] Sync activo — juego en curso');
             $service->sincronizarJugos('PD');
             Cache::put('auto_sync_last_at', now()->timestamp, self::CACHE_TTL);
         }
@@ -77,11 +79,13 @@ class AutoSyncApi extends Command
 
         if ($midSyncsDone === 0 && $now >= $mid1) {
             $this->info('Sync intermedio 1/2 — verificando cambios de horario...');
+            Log::channel('sync')->info('[auto-sync] Sync intermedio 1/2 durante espera');
             $service->sincronizarJugos('PD');
             Cache::put('auto_sync_mid_syncs_done', 1, self::CACHE_TTL);
-            $this->refreshNextGameTime(); // recalcular por si cambió el horario
+            $this->refreshNextGameTime();
         } elseif ($midSyncsDone === 1 && $now >= $mid2) {
             $this->info('Sync intermedio 2/2 — verificando cambios de horario...');
+            Log::channel('sync')->info('[auto-sync] Sync intermedio 2/2 durante espera');
             $service->sincronizarJugos('PD');
             Cache::put('auto_sync_mid_syncs_done', 2, self::CACHE_TTL);
             $this->refreshNextGameTime();
@@ -92,6 +96,7 @@ class AutoSyncApi extends Command
 
         if ($now >= $nextGameAt - self::PRE_GAME_SECONDS) {
             $this->info('Partido próximo — cambiando a modo activo');
+            Log::channel('sync')->info('[auto-sync] Modo activo — partido próximo en menos de 10 min');
             $this->enterActiveMode();
         }
     }
@@ -135,6 +140,10 @@ class AutoSyncApi extends Command
         Cache::put('auto_sync_mid_syncs_done', 0, self::CACHE_TTL);
 
         $this->info('Modo espera hasta: ' . $nextGame->fechaJuego);
+        Log::channel('sync')->info('[auto-sync] Modo espera', [
+            'proximo_partido' => $nextGame->equipo1 . ' vs ' . $nextGame->equipo2,
+            'fecha'           => $nextGame->fechaJuego,
+        ]);
     }
 
     private function refreshNextGameTime(): void

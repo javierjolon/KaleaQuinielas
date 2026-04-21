@@ -28,12 +28,15 @@ class apiFotballService
                 break;
         }
         
+        Log::channel('sync')->info("[$torneo] Iniciando sincronización");
+
         $response = Http::withHeaders([
             'X-Auth-Token' => env('FOOTBALL_API_KEY'),
         ])->get($url);
 
         if ($response->successful()) {
             $gamesController = new GamesController();
+            $cambios = 0;
 
             foreach ($response['matches'] as $key => $partido) {
                 $juegoAntes = Juegos::where('api_id', $partido['id'])->first();
@@ -70,12 +73,23 @@ class apiFotballService
 
                 if ($enJuegoOFinalizado && ($cambioDeEstatus || $tieneGoles)) {
                     $gamesController->ApiActualizarPuntaje($juego->id);
+                    $cambios++;
+
+                    if ($cambioDeEstatus) {
+                        Log::channel('sync')->info("[$torneo] Cambio de estatus", [
+                            'partido' => $partido['homeTeam']['name'] . ' vs ' . $partido['awayTeam']['name'],
+                            'antes'   => $estatusAntes,
+                            'ahora'   => $estatusNuevo,
+                            'marcador' => ($partido['score']['fullTime']['home'] ?? 0) . '-' . ($partido['score']['fullTime']['away'] ?? 0),
+                        ]);
+                    }
                 }
             }
 
-            
-
-            // Log::alert('API Success', 'Actualizado correctamente');
+            Log::channel('sync')->info("[$torneo] Sincronización completada", [
+                'partidos_procesados' => count($response['matches']),
+                'puntajes_actualizados' => $cambios,
+            ]);
 
             return [
                 'success' => true,
@@ -85,9 +99,14 @@ class apiFotballService
         }
 
         if ($response->failed()) {
+            Log::channel('sync')->error("[$torneo] Error al sincronizar", [
+                'status_code' => $response->status(),
+                'body'        => $response->body(),
+            ]);
+
             Log::error('API Error', [
-                'estatus' => $response->estatus(),
-                'body' => $response->body()
+                'status_code' => $response->status(),
+                'body'        => $response->body(),
             ]);
 
             abort(500, [

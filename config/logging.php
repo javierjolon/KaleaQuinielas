@@ -99,6 +99,13 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'sync' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/sync.log'),
+            'level'  => 'debug',
+            'days'   => 30,
+        ],
     ],
 
 ];
