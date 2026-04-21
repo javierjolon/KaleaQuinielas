@@ -10,11 +10,19 @@ export default function TablaPartidos(props) {
 
     const actualizarResultado = (juegoId) => {
         const data = resultados[juegoId];
-        const quinielaEquipo1 = Number(data.equipo1);
-        const quinielaEquipo2 = Number(data.equipo2);
+        const raw1 = data?.equipo1;
+        const raw2 = data?.equipo2;
 
-        if (quinielaEquipo1 === undefined || quinielaEquipo2 === undefined) {
+        if (raw1 === undefined || raw1 === null || raw1 === '' || raw2 === undefined || raw2 === null || raw2 === '') {
             alertify.error("Debes ingresar ambos resultados");
+            return;
+        }
+
+        const quinielaEquipo1 = Number(raw1);
+        const quinielaEquipo2 = Number(raw2);
+
+        if (isNaN(quinielaEquipo1) || isNaN(quinielaEquipo2)) {
+            alertify.error("Los resultados deben ser números válidos");
             return;
         }
     
@@ -52,7 +60,7 @@ export default function TablaPartidos(props) {
                                 <div key={juego.id}> 
                                     {(() => {
                                         const tieneMarcador = juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null;
-                                        const mostrarInputs = !soloLectura && juego.estatusQuiniela.nombre !== "Bloqueado" && juego.estatusQuiniela.nombre !== "Finalizado" && juego.estatusQuiniela.nombre !== "En juego";
+                                        const mostrarInputs = !soloLectura && juego.estatusQuiniela.nombre !== "Bloqueado" && juego.estatusQuiniela.nombre !== "Finalizado" && juego.estatusQuiniela.nombre !== "En juego" && juego.estatusJuego.nombre !== "En juego" && juego.estatusJuego.nombre !== "Finalizado" && juego.estatusJuego.nombre !== "Bloqueado";
 
                                         return (
                                     <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
@@ -69,57 +77,71 @@ export default function TablaPartidos(props) {
                                         </div>
                             
                                         <div className='flex items-center'>
-                                            <div className='flex flex-row items-center'>
-                                            <div>
-                                                    {soloLectura && !tieneMarcador ? (
-                                                        <span className='text-red-600 font-semibold'>No valido</span>
-                                                    ) : mostrarInputs ? (
-                                                            <input 
-                                                            type='number'
-                                                            min={0}
-                                                            required
-                                                            className='w-20 h-[2rem]'
-                                                            value={resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ""}
-                                                            onChange={(e) => setResultados({
-                                                                ...resultados,
-                                                                [juego.id]: {
-                                                                    ...resultados[juego.id],
-                                                                    equipo1: e.target.value
-                                                                }
-                                                            })}
-                                                        />
+                                            {soloLectura ? (
+                                                <div className='flex flex-col items-center gap-1'>
+                                                    <div className='flex flex-row items-center text-lg font-bold'>
+                                                        <span>{juego.resultadoEquipo1 ?? '-'}</span>
+                                                        <span className='mx-2'>:</span>
+                                                        <span>{juego.resultadoEquipo2 ?? '-'}</span>
+                                                    </div>
+                                                    {tieneMarcador ? (
+                                                        <div className='flex flex-row items-center text-sm text-gray-500'>
+                                                            <span>{juego.quinielaEquipo1}</span>
+                                                            <span className='mx-1'>:</span>
+                                                            <span>{juego.quinielaEquipo2}</span>
+                                                        </div>
                                                     ) : (
-                                                        <span>
-                                                            {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}
-                                                        </span>
+                                                        <span className='text-red-600 text-sm font-semibold'>No válido</span>
                                                     )}
+                                                    <div className='text-xs font-semibold text-azul'>
+                                                        {juego.puntosXjuego ?? 0} pts
+                                                    </div>
                                                 </div>
-
-                                                {soloLectura && !tieneMarcador ? null : <div className='mx-2'>:</div>}
-                                                
-                                                <div>
-                                                    {soloLectura && !tieneMarcador ? null : mostrarInputs ? (
-                                                            <input 
-                                                            type='number'
-                                                            min={0}
-                                                            required
-                                                            className='w-20 h-[2rem]'
-                                                            value={resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ""}
-                                                            onChange={(e) => setResultados({
-                                                                ...resultados,
-                                                                [juego.id]: {
-                                                                    ...resultados[juego.id],
-                                                                    equipo2: e.target.value
-                                                                }
-                                                            })}
-                                                        />
-                                                    ) : (
-                                                        <span>
-                                                            {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}
-                                                        </span>
-                                                    )}
+                                            ) : (
+                                                <div className='flex flex-row items-center'>
+                                                    <div>
+                                                        {mostrarInputs ? (
+                                                            <input
+                                                                type='number'
+                                                                min={0}
+                                                                required
+                                                                className='w-20 h-[2rem]'
+                                                                value={resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ""}
+                                                                onChange={(e) => setResultados({
+                                                                    ...resultados,
+                                                                    [juego.id]: {
+                                                                        ...resultados[juego.id],
+                                                                        equipo1: e.target.value
+                                                                    }
+                                                                })}
+                                                            />
+                                                        ) : (
+                                                            <span>{resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}</span>
+                                                        )}
+                                                    </div>
+                                                    <div className='mx-2'>:</div>
+                                                    <div>
+                                                        {mostrarInputs ? (
+                                                            <input
+                                                                type='number'
+                                                                min={0}
+                                                                required
+                                                                className='w-20 h-[2rem]'
+                                                                value={resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ""}
+                                                                onChange={(e) => setResultados({
+                                                                    ...resultados,
+                                                                    [juego.id]: {
+                                                                        ...resultados[juego.id],
+                                                                        equipo2: e.target.value
+                                                                    }
+                                                                })}
+                                                            />
+                                                        ) : (
+                                                            <span>{resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}</span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
                             
                                         <div className='flex flex-col items-center w-2/5 justify-center'> 

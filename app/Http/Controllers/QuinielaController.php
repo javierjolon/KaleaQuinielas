@@ -320,8 +320,8 @@ class QuinielaController extends Controller
 
         $juegosFinalizados = DB::table('quinielasJuegos as qj')
         ->select(
-            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id',
-            'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego')
+            'qj.quinielaEquipo1', 'qj.quinielaEquipo2', 'qj.status as estatusQuiniela', 'qj.juegoId as id', 'qj.puntosXjuego',
+            'juegos.equipo1', 'juegos.equipo2', 'juegos.imagenEquipo1', 'juegos.imagenEquipo2', 'juegos.ronda', 'juegos.fechaJuego', 'juegos.horaJuego', 'juegos.estatus as estatusJuego', 'juegos.resultadoEquipo1', 'juegos.resultadoEquipo2')
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("qj.quinielaId", "=", $quinielaActivaId)

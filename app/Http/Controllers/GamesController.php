@@ -57,21 +57,13 @@ class GamesController extends Controller
     // }
 
 
-    // public function index(){
-    //     $juegos = DB::table('game')
-    //     ->orderBy('fechaJuego')
-    //     ->orderBy('horaJuego')
-    //     ->get()
-    //     ->map(function ($game) {
-    //         $game->equipo1 = traducir_equipos($game->equipo1 ?? "Pendiente");
-    //         $game->equipo2 = traducir_equipos($game->equipo2 ?? "Pendiente");
-    //         $game->estatus = traducir_estatus($game->estatus ?? " ");
-    //         $game->tipoJuego = traducir_rondas($game->tipoJuego ?? " ");
-    //         return $game;
-    //     });
-    //     // dd($juegos);
-    //     return Inertia::render('Games/index', ['juegos' => $juegos]);
-    // }
+    public function index(){
+        $juegos = DB::table('juegos')
+        ->orderBy('fechaJuego')
+        ->orderBy('horaJuego')
+        ->get();
+        return Inertia::render('Games/index', ['juegos' => $juegos]);
+    }
 
     // public function setGame()
     // {
@@ -129,15 +121,13 @@ class GamesController extends Controller
             ->first();
         // dd($juego->resultadoEquipo1);
         $quinielas = DB::table('quinielasJuegos')
-            ->select('id', 'quinielaEquipo1', 'quinielaEquipo2')
+            ->select('id', 'usuarioId', 'quinielaId', 'quinielaEquipo1', 'quinielaEquipo2')
             ->where('juegoId', '=', $juegoId)
-            // ->where("quinielaEquipo1", '!=', null)
-            // ->where("quinielaEquipo2", '!=', null)
             ->get();
 
-        
+        $quinielasAfectadas = collect();
+
         foreach($quinielas as $quiniela){
-            // dd($quiniela);
             if ($quiniela->quinielaEquipo1 == null && $quiniela->quinielaEquipo2 == null) {
                 DB::table('quinielasJuegos')
                 ->where('id', '=', $quiniela->id)
@@ -152,7 +142,7 @@ class GamesController extends Controller
             if ($juego->resultadoEquipo2 == $quiniela->quinielaEquipo2){
                 $puntosXjuego++;
             }
-            // dd("test");
+
             $winMatch = $this->analizeGame($juego->resultadoEquipo1, $juego->resultadoEquipo2);
             $winQuiniela = $this->analizeGame($quiniela->quinielaEquipo1, $quiniela->quinielaEquipo2);
 
@@ -160,23 +150,47 @@ class GamesController extends Controller
                 $puntosXjuego++;
             }
 
-            DB::table('quinielaJuegos')
+            DB::table('quinielasJuegos')
                 ->where('id', '=', $quiniela->id)
-                ->update([ 'puntosXjuego' => $puntosXjuego ]);
+                ->update([ 'puntosXjuego' => $puntosXjuego, 'status' => 'FINISHED' ]);
 
-            $userPoint = DB::table('quiniela')
-                ->where('usuarioId', '=', $quiniela->usuarioId)
-                ->sum('puntosXjuego');
-
-            DB::table('users')
-                ->where('id', '=', $quiniela->usuarioId)
-                ->update(['puntosAcumulaodsTemp' => $userPoint]);
+            $quinielasAfectadas->push($quiniela->quinielaId);
             }
+        }
+
+        foreach($quinielasAfectadas->unique() as $quinielaId){
+            $this->updateQuinielaPositions($quinielaId);
         }
 
         $this->updateTempPosition();
 
         return ("Actualizado correctamente");
+    }
+
+    private function updateQuinielaPositions($quinielaId){
+        $usuarios = DB::table('usuariosQuinielas as uq')
+            ->join('users as u', 'u.id', '=', 'uq.usuarioId')
+            ->leftJoin(DB::raw('(SELECT usuarioId, SUM(puntosXjuego) as total FROM quinielasJuegos WHERE quinielaId = ' . intval($quinielaId) . ' GROUP BY usuarioId) as pts'), 'pts.usuarioId', '=', 'uq.usuarioId')
+            ->select('uq.id', 'uq.posicion', DB::raw('COALESCE(pts.total, 0) as puntosAcumulados'))
+            ->where('uq.quinielaId', '=', $quinielaId)
+            ->orderByDesc('puntosAcumulados')
+            ->get();
+
+        foreach ($usuarios as $key => $usuario) {
+            $nuevaPosicion = $key + 1;
+            if ($usuario->posicion === 0) {
+                $subeBaja = 'i';
+            } elseif ($usuario->posicion > $nuevaPosicion) {
+                $subeBaja = 's';
+            } elseif ($usuario->posicion == $nuevaPosicion) {
+                $subeBaja = 'i';
+            } else {
+                $subeBaja = 'b';
+            }
+            DB::table('usuariosQuinielas')
+                ->where('id', '=', $usuario->id)
+                ->update(['posicion' => $nuevaPosicion, 'subeBaja' => $subeBaja]);
+        }
     }
 
     private function updateTempPosition(){

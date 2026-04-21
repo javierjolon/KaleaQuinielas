@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm } from "@inertiajs/react";
+import { useEffect } from "react";
 
 export default function FormQuiniela(props) {
     const {
@@ -26,6 +27,16 @@ export default function FormQuiniela(props) {
     const quinielasActivas = props.quinielasActivas ?? [];
     const competicionesDisponibles = props.competicionesDisponibles ?? [];
 
+    useEffect(() => {
+        if (props.estatus) alertify.success(props.estatus);
+    }, [props.estatus]);
+
+    useEffect(() => {
+        const err = props.errors?.nombre || props.errors?.competicion || props.errors?.season
+            || props.errors?.telefono || props.errors?.quinielaId || props.errors?.telefonoInvitado;
+        if (err) alertify.error(err);
+    }, [props.errors]);
+
     const handleSubmitCrear = (e) => {
         e.preventDefault();
         postCrear(route("quiniela.store"));
@@ -39,11 +50,6 @@ export default function FormQuiniela(props) {
     return (
         <AuthenticatedLayout auth={props.auth} errors={props.errors} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Crear Quiniela</h2>}>
             <div className="max-w-md mx-auto mt-10 space-y-6">
-                {props.estatus && (
-                    <div className="bg-green-100 border border-green-300 text-green-800 text-sm rounded-lg px-4 py-3">
-                        {props.estatus}
-                    </div>
-                )}
 
                 <div className="bg-white p-6 rounded-xl shadow-md">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
@@ -63,11 +69,6 @@ export default function FormQuiniela(props) {
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
 
-                            {props.errors.nombre && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {props.errors.nombre}
-                                </p>
-                            )}
                         </div>
 
                         <div>
@@ -94,11 +95,6 @@ export default function FormQuiniela(props) {
                                 ))}
                             </select>
 
-                            {(props.errors.competicion || props.errors.season) && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {props.errors.competicion || props.errors.season}
-                                </p>
-                            )}
                         </div>
 
                         <button
@@ -147,11 +143,6 @@ export default function FormQuiniela(props) {
                             </select>
                         </div>
 
-                        {(props.errors.telefono || props.errors.quinielaId || props.errors.telefonoInvitado) && (
-                            <p className="text-red-500 text-sm mt-1">
-                                {props.errors.telefono || props.errors.quinielaId || props.errors.telefonoInvitado}
-                            </p>
-                        )}
 
                         <button
                             type="submit"

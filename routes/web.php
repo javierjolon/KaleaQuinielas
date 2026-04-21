@@ -81,9 +81,14 @@ Route::get('/dashboard', function () {
     if (!empty($quinielaActiva) && (int) ($quinielaActiva['id'] ?? 0) > 0) {
         $usuariosQuiniela = DB::table('usuariosQuinielas as uq')
             ->join('users as u', 'u.id', '=', 'uq.usuarioId')
-            ->select('u.id', 'u.name', 'u.telefono', 'u.puntosAcumulados', 'u.subeBaja')
+            ->leftJoin('quinielasJuegos as qj', function($join) use ($quinielaActiva) {
+                $join->on('qj.usuarioId', '=', 'uq.usuarioId')
+                     ->where('qj.quinielaId', '=', $quinielaActiva['id']);
+            })
+            ->select('u.id', 'u.name', 'u.telefono', 'uq.subeBaja', DB::raw('COALESCE(SUM(qj.puntosXjuego), 0) as puntosAcumulados'))
             ->where('uq.quinielaId', '=', $quinielaActiva['id'])
-            ->orderByDesc('u.puntosAcumulados')
+            ->groupBy('u.id', 'u.name', 'u.telefono', 'uq.subeBaja')
+            ->orderByDesc('puntosAcumulados')
             ->orderBy('u.name')
             ->get();
     }
