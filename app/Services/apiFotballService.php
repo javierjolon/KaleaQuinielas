@@ -33,9 +33,13 @@ class apiFotballService
         ])->get($url);
 
         if ($response->successful()) {
-            foreach ($response['matches'] as $key => $partido) {
+            $gamesController = new GamesController();
 
-                Juegos::updateOrCreate(
+            foreach ($response['matches'] as $key => $partido) {
+                $juegoAntes = Juegos::where('api_id', $partido['id'])->first();
+                $estatusAntes = $juegoAntes?->estatus;
+
+                $juego = Juegos::updateOrCreate(
                     [
                         'api_id' => $partido['id']
                     ],
@@ -57,6 +61,16 @@ class apiFotballService
                         'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
                     ]
                 );
+
+                $estatusNuevo = $partido['status'];
+                $enJuegoOFinalizado = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED', 'FINISHED']);
+                $cambioDeEstatus = $estatusAntes !== $estatusNuevo;
+                $tieneGoles = ($partido['score']['fullTime']['home'] ?? 0) > 0
+                           || ($partido['score']['fullTime']['away'] ?? 0) > 0;
+
+                if ($enJuegoOFinalizado && ($cambioDeEstatus || $tieneGoles)) {
+                    $gamesController->ApiActualizarPuntaje($juego->id);
+                }
             }
 
             

@@ -58,10 +58,26 @@ class GamesController extends Controller
 
 
     public function index(){
-        $juegos = DB::table('juegos')
-        ->orderBy('fechaJuego')
-        ->orderBy('horaJuego')
-        ->get();
+        $quinielaActiva = collect(session('quinielas', []))->firstWhere('activo', true);
+        $quinielaActivaId = (int) ($quinielaActiva['id'] ?? 0);
+
+        $query = DB::table('juegos')->orderBy('fechaJuego')->orderBy('horaJuego');
+
+        if ($quinielaActivaId > 0) {
+            $filtro = DB::table('quinielasJuegos as qj')
+                ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+                ->select('j.competicion', 'j.season')
+                ->where('qj.quinielaId', '=', $quinielaActivaId)
+                ->groupBy('j.competicion', 'j.season')
+                ->first();
+
+            if ($filtro) {
+                $query->where('competicion', '=', $filtro->competicion)
+                      ->where('season', '=', $filtro->season);
+            }
+        }
+
+        $juegos = $query->get();
         return Inertia::render('Games/index', ['juegos' => $juegos]);
     }
 
