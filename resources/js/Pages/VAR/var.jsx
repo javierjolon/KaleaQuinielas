@@ -14,6 +14,34 @@ function PrediccionBadge({ valor, referencia, mostrar }) {
     );
 }
 
+function ganador(equipo1, equipo2) {
+    const e1 = parseInt(equipo1);
+    const e2 = parseInt(equipo2);
+    if (isNaN(e1) || isNaN(e2)) return null;
+    if (e1 > e2) return 'L';   // Local
+    if (e1 < e2) return 'V';   // Visitante
+    return 'E';                 // Empate
+}
+
+function GanadorBadge({ quinielaEquipo1, quinielaEquipo2, resultadoEquipo1, resultadoEquipo2, mostrar, equipo1Nombre, equipo2Nombre }) {
+    if (!mostrar) return <span className="text-gray-400 text-sm italic">-</span>;
+
+    const predicho = ganador(quinielaEquipo1, quinielaEquipo2);
+    const real     = (resultadoEquipo1 !== null && resultadoEquipo2 !== null)
+        ? ganador(resultadoEquipo1, resultadoEquipo2)
+        : null;
+
+    const etiquetas = { L: equipo1Nombre, V: equipo2Nombre, E: 'Empate' };
+    const texto = etiquetas[predicho] ?? '-';
+    const correcto = real !== null && predicho === real;
+
+    return (
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${correcto ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+            {texto}
+        </span>
+    );
+}
+
 function TarjetaJuego({ juego }) {
     const [tab, setTab] = useState('var');
 
@@ -81,13 +109,14 @@ function TarjetaJuego({ juego }) {
                             <th className="px-4 py-2">Participante</th>
                             <th className="px-4 py-2 text-center">{juego.equipo1}</th>
                             <th className="px-4 py-2 text-center">{juego.equipo2}</th>
+                            <th className="px-4 py-2 text-center">Ganador</th>
                             <th className="px-4 py-2 text-center">Pts</th>
                         </tr>
                     </thead>
                     <tbody>
                         {juego.predicciones.length === 0 ? (
                             <tr>
-                                <td colSpan="4" className="px-4 py-4 text-center text-gray-400">
+                                <td colSpan="5" className="px-4 py-4 text-center text-gray-400">
                                     No hay participantes.
                                 </td>
                             </tr>
@@ -109,6 +138,17 @@ function TarjetaJuego({ juego }) {
                                                 valor={p.quinielaEquipo2}
                                                 referencia={juego.resultadoEquipo2}
                                                 mostrar={tieneQuiniela}
+                                            />
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <GanadorBadge
+                                                quinielaEquipo1={p.quinielaEquipo1}
+                                                quinielaEquipo2={p.quinielaEquipo2}
+                                                resultadoEquipo1={juego.resultadoEquipo1}
+                                                resultadoEquipo2={juego.resultadoEquipo2}
+                                                mostrar={tieneQuiniela}
+                                                equipo1Nombre={juego.equipo1}
+                                                equipo2Nombre={juego.equipo2}
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-center">

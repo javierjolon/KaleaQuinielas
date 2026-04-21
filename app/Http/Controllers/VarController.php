@@ -49,7 +49,35 @@ class VarController extends Controller
                     'qj.status'
                 )
                 ->orderBy('u.name')
-                ->get();
+                ->get()
+                ->map(function ($p) use ($juego) {
+                    if ($p->quinielaEquipo1 === null || $p->quinielaEquipo2 === null) {
+                        return $p;
+                    }
+
+                    $r1 = $juego->resultadoEquipo1;
+                    $r2 = $juego->resultadoEquipo2;
+
+                    if ($r1 === null || $r2 === null) {
+                        $p->puntosXjuego = 0;
+                        return $p;
+                    }
+
+                    $pts = 0;
+
+                    if ((int) $p->quinielaEquipo1 === (int) $r1) $pts++;
+                    if ((int) $p->quinielaEquipo2 === (int) $r2) $pts++;
+
+                    $ganadorReal     = $r1 > $r2 ? 'G1' : ($r1 === $r2 ? 'E' : 'G2');
+                    $ganadorQuiniela = (int) $p->quinielaEquipo1 > (int) $p->quinielaEquipo2
+                        ? 'G1'
+                        : ((int) $p->quinielaEquipo1 === (int) $p->quinielaEquipo2 ? 'E' : 'G2');
+
+                    if ($ganadorReal === $ganadorQuiniela) $pts++;
+
+                    $p->puntosXjuego = $pts;
+                    return $p;
+                });
 
             $juego->equipo1 = traducir_equipos($juego->equipo1 ?? 'Pendiente');
             $juego->equipo2 = traducir_equipos($juego->equipo2 ?? 'Pendiente');
