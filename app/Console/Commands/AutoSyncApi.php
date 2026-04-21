@@ -112,11 +112,26 @@ class AutoSyncApi extends Command
         $this->transitionToWaiting();
     }
 
+    private function nextGameTimestamp(Juegos $game): int
+    {
+        return Carbon::parse($game->fechaJuego . ' ' . $game->horaJuego)->timestamp;
+    }
+
     private function transitionToWaiting(): void
     {
+        $today    = now()->toDateString();
+        $timeNow  = now()->format('H:i:s');
+
         $nextGame = Juegos::whereIn('estatus', ['TIMED', 'SCHEDULED'])
-            ->where('fechaJuego', '>', now())
+            ->where(function ($q) use ($today, $timeNow) {
+                $q->whereDate('fechaJuego', '>', $today)
+                  ->orWhere(function ($q2) use ($today, $timeNow) {
+                      $q2->whereDate('fechaJuego', '=', $today)
+                         ->whereTime('horaJuego', '>=', $timeNow);
+                  });
+            })
             ->orderBy('fechaJuego')
+            ->orderBy('horaJuego')
             ->first();
 
         if (!$nextGame) {
@@ -125,7 +140,7 @@ class AutoSyncApi extends Command
             return;
         }
 
-        $nextGameAt = Carbon::parse($nextGame->fechaJuego)->timestamp;
+        $nextGameAt = $this->nextGameTimestamp($nextGame);
         $now        = now()->timestamp;
 
         if ($nextGameAt - $now <= self::PRE_GAME_SECONDS) {
@@ -148,17 +163,27 @@ class AutoSyncApi extends Command
 
     private function refreshNextGameTime(): void
     {
+        $today   = now()->toDateString();
+        $timeNow = now()->format('H:i:s');
+
         $nextGame = Juegos::whereIn('estatus', ['TIMED', 'SCHEDULED'])
-            ->where('fechaJuego', '>', now())
+            ->where(function ($q) use ($today, $timeNow) {
+                $q->whereDate('fechaJuego', '>', $today)
+                  ->orWhere(function ($q2) use ($today, $timeNow) {
+                      $q2->whereDate('fechaJuego', '=', $today)
+                         ->whereTime('horaJuego', '>=', $timeNow);
+                  });
+            })
             ->orderBy('fechaJuego')
+            ->orderBy('horaJuego')
             ->first();
 
         if ($nextGame) {
-            $newTimestamp = Carbon::parse($nextGame->fechaJuego)->timestamp;
+            $newTimestamp = $this->nextGameTimestamp($nextGame);
             $oldTimestamp = Cache::get('auto_sync_next_game_at');
 
             if ($newTimestamp !== $oldTimestamp) {
-                $this->info('Horario del próximo partido actualizado: ' . $nextGame->fechaJuego);
+                $this->info('Horario del próximo partido actualizado: ' . $nextGame->fechaJuego . ' ' . $nextGame->horaJuego);
                 Cache::put('auto_sync_next_game_at', $newTimestamp, self::CACHE_TTL);
             }
         }

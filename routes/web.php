@@ -80,15 +80,14 @@ Route::get('/dashboard', function () {
     $usuariosQuiniela = collect();
 
     if (!empty($quinielaActiva) && (int) ($quinielaActiva['id'] ?? 0) > 0) {
+        $qid = intval($quinielaActiva['id']);
         $usuariosQuiniela = DB::table('usuariosQuinielas as uq')
             ->join('users as u', 'u.id', '=', 'uq.usuarioId')
-            ->leftJoin('quinielasJuegos as qj', function($join) use ($quinielaActiva) {
-                $join->on('qj.usuarioId', '=', 'uq.usuarioId')
-                     ->where('qj.quinielaId', '=', $quinielaActiva['id']);
-            })
-            ->select('u.id', 'u.name', 'u.telefono', 'uq.subeBaja', DB::raw('COALESCE(SUM(qj.puntosXjuego), 0) as puntosAcumulados'))
-            ->where('uq.quinielaId', '=', $quinielaActiva['id'])
-            ->groupBy('u.id', 'u.name', 'u.telefono', 'uq.subeBaja')
+            ->select(
+                'u.id', 'u.name', 'u.telefono', 'uq.subeBaja',
+                DB::raw("(SELECT COALESCE(SUM(puntosXjuego), 0) FROM quinielasJuegos WHERE quinielaId = $qid AND usuarioId = u.id AND status = 'FINISHED') as puntosAcumulados")
+            )
+            ->where('uq.quinielaId', '=', $qid)
             ->orderByDesc('puntosAcumulados')
             ->orderBy('u.name')
             ->get();

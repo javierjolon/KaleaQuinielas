@@ -169,8 +169,10 @@ function TarjetaJuego({ juego }) {
 
 export default function Var(props) {
     const { quinielaActiva } = usePage().props;
-    const juegosEnCurso = props.juegosEnCurso ?? [];
-    const nombreQuiniela = quinielaActiva?.nombre ?? 'Sin quiniela activa';
+    const juegosEnCurso     = props.juegosEnCurso ?? [];
+    const juegosFinalizados = props.juegosFinalizados ?? [];
+    const nombreQuiniela    = quinielaActiva?.nombre ?? 'Sin quiniela activa';
+    const [tab, setTab]     = useState('enCurso');
 
     return (
         <AuthenticatedLayout
@@ -182,19 +184,55 @@ export default function Var(props) {
 
             <div className="py-8">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
-                    <p className="text-sm text-gray-500 mb-6 text-center">
+                    <p className="text-sm text-gray-500 mb-4 text-center">
                         Quiniela: <span className="font-medium text-gray-700">{nombreQuiniela}</span>
                     </p>
 
-                    {juegosEnCurso.length === 0 ? (
-                        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400">
-                            <span className="material-symbols-outlined text-5xl block mb-3">sports_soccer</span>
-                            No hay juegos en curso en este momento.
-                        </div>
-                    ) : (
-                        juegosEnCurso.map((juego) => (
-                            <TarjetaJuego key={juego.id} juego={juego} />
-                        ))
+                    {/* Tabs principales */}
+                    <div className="flex border-b border-gray-200 mb-6">
+                        <button
+                            onClick={() => setTab('enCurso')}
+                            className={`px-5 py-2 text-sm font-medium ${tab === 'enCurso' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            En Curso
+                        </button>
+                        <button
+                            onClick={() => setTab('historial')}
+                            className={`px-5 py-2 text-sm font-medium ${tab === 'historial' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Historial
+                            {juegosFinalizados.length > 0 && (
+                                <span className="ml-2 bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">
+                                    {juegosFinalizados.length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+
+                    {tab === 'enCurso' && (
+                        juegosEnCurso.length === 0 ? (
+                            <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400">
+                                <span className="material-symbols-outlined text-5xl block mb-3">sports_soccer</span>
+                                No hay juegos en curso en este momento.
+                            </div>
+                        ) : (
+                            juegosEnCurso.map((juego) => (
+                                <TarjetaJuego key={juego.id} juego={juego} />
+                            ))
+                        )
+                    )}
+
+                    {tab === 'historial' && (
+                        juegosFinalizados.length === 0 ? (
+                            <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400">
+                                <span className="material-symbols-outlined text-5xl block mb-3">history</span>
+                                No hay juegos finalizados aún.
+                            </div>
+                        ) : (
+                            juegosFinalizados.map((juego) => (
+                                <TarjetaJuego key={juego.id} juego={juego} />
+                            ))
+                        )
                     )}
                 </div>
             </div>

@@ -72,7 +72,8 @@ class apiFotballService
                            || ($partido['score']['fullTime']['away'] ?? 0) > 0;
 
                 if ($enJuegoOFinalizado && ($cambioDeEstatus || $tieneGoles)) {
-                    $gamesController->ApiActualizarPuntaje($juego->id);
+                    $acabaDeTerminar = $cambioDeEstatus && $estatusNuevo === 'FINISHED';
+                    $gamesController->ApiActualizarPuntaje($juego->id, $acabaDeTerminar);
                     $cambios++;
 
                     if ($cambioDeEstatus) {

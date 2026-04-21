@@ -129,7 +129,7 @@ class GamesController extends Controller
     //     return view('games/addResult', compact('games'));
     // }
 
-    public function ApiActualizarPuntaje($juegoId){
+    public function ApiActualizarPuntaje($juegoId, bool $actualizarPosiciones = false){
         
         $juego = DB::table('juegos')
             ->select('resultadoEquipo1', 'resultadoEquipo2')
@@ -174,11 +174,12 @@ class GamesController extends Controller
             }
         }
 
-        foreach($quinielasAfectadas->unique() as $quinielaId){
-            $this->updateQuinielaPositions($quinielaId);
+        if ($actualizarPosiciones) {
+            foreach($quinielasAfectadas->unique() as $quinielaId){
+                $this->updateQuinielaPositions($quinielaId);
+            }
+            $this->updateTempPosition();
         }
-
-        $this->updateTempPosition();
 
         return ("Actualizado correctamente");
     }

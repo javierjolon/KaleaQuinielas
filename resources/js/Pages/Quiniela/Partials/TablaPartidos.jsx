@@ -1,6 +1,13 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
+function resultadoGanador(e1, e2) {
+    const a = parseInt(e1), b = parseInt(e2);
+    if (isNaN(a) || isNaN(b)) return null;
+    if (a > b) return 'L';
+    if (a < b) return 'V';
+    return 'E';
+}
 
 export default function TablaPartidos(props) {
     const [resultados, setResultados] = useState({});
@@ -60,7 +67,8 @@ export default function TablaPartidos(props) {
                                 <div key={juego.id}> 
                                     {(() => {
                                         const tieneMarcador = juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null;
-                                        const mostrarInputs = !soloLectura && juego.estatusQuiniela.nombre !== "Bloqueado" && juego.estatusQuiniela.nombre !== "Finalizado" && juego.estatusQuiniela.nombre !== "En juego" && juego.estatusJuego.nombre !== "En juego" && juego.estatusJuego.nombre !== "Finalizado" && juego.estatusJuego.nombre !== "Bloqueado";
+                                        const estatusBloquea = ["Bloqueado", "Finalizado", "En juego", "Medio tiempo"];
+                                        const mostrarInputs = !soloLectura && !estatusBloquea.includes(juego.estatusQuiniela.nombre) && !estatusBloquea.includes(juego.estatusJuego.nombre);
 
                                         return (
                                     <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
@@ -84,16 +92,33 @@ export default function TablaPartidos(props) {
                                                         <span className='mx-2'>:</span>
                                                         <span>{juego.resultadoEquipo2 ?? '-'}</span>
                                                     </div>
-                                                    {tieneMarcador ? (
-                                                        <div className='flex flex-row items-center text-sm text-gray-500'>
-                                                            <span>{juego.quinielaEquipo1}</span>
-                                                            <span className='mx-1'>:</span>
-                                                            <span>{juego.quinielaEquipo2}</span>
-                                                        </div>
-                                                    ) : (
+                                                    {tieneMarcador ? (() => {
+                                                        const ganadorReal      = resultadoGanador(juego.resultadoEquipo1, juego.resultadoEquipo2);
+                                                        const ganadorPredicho  = resultadoGanador(juego.quinielaEquipo1, juego.quinielaEquipo2);
+                                                        const acertoGanador    = ganadorReal !== null && ganadorReal === ganadorPredicho;
+                                                        const etiquetas        = { L: juego.equipo1, V: juego.equipo2, E: 'Empate' };
+                                                        return (
+                                                            <>
+                                                                <div className='flex flex-row items-center text-sm'>
+                                                                    <span className={parseInt(juego.quinielaEquipo1) === parseInt(juego.resultadoEquipo1) ? 'text-green-600 font-bold' : 'text-gray-500'}>
+                                                                        {juego.quinielaEquipo1}
+                                                                    </span>
+                                                                    <span className='mx-1 text-gray-400'>:</span>
+                                                                    <span className={parseInt(juego.quinielaEquipo2) === parseInt(juego.resultadoEquipo2) ? 'text-green-600 font-bold' : 'text-gray-500'}>
+                                                                        {juego.quinielaEquipo2}
+                                                                    </span>
+                                                                </div>
+                                                                {ganadorPredicho && (
+                                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${acertoGanador ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                                                        {etiquetas[ganadorPredicho]}
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        );
+                                                    })() : (
                                                         <span className='text-red-600 text-sm font-semibold'>No válido</span>
                                                     )}
-                                                    <div className='text-xs font-semibold text-azul'>
+                                                    <div className={`text-xs font-semibold ${(juego.puntosXjuego ?? 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
                                                         {juego.puntosXjuego ?? 0} pts
                                                     </div>
                                                 </div>
@@ -163,7 +188,7 @@ export default function TablaPartidos(props) {
                                             <div style={{ backgroundColor: juego.estatusQuiniela.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
                                                 {juego.estatusQuiniela.nombre}
                                             </div>
-                                        ) : juego.estatusJuego.nombre == "Bloqueado" || juego.estatusJuego.nombre == "Finalizado" || juego.estatusJuego.nombre == "En juego"
+                                        ) : estatusBloquea.includes(juego.estatusJuego.nombre)
                                         ? (
                                             <div style={{ backgroundColor: juego.estatusJuego.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
                                                 {/* spinner */}
