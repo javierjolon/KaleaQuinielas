@@ -3,6 +3,7 @@
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuinielaController;
+use App\Http\Controllers\VarController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -109,6 +110,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/juegos', [GamesController::class, 'index'])->name('juegos.index');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/var', [VarController::class, 'index'])->name('var.index');
 });
 
 Route::middleware('auth')->group(function () {
