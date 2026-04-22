@@ -25,6 +25,25 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('Admin/Dashboard');
     });
+
+    Route::get('/admin/recalcular-puntajes', function (GamesController $gamesController) {
+        $juegoIds = DB::table('quinielasJuegos as qj')
+            ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+            ->whereIn('j.estatus', ['FINISHED', 'AWARDED'])
+            ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
+            ->select('qj.juegoId')
+            ->distinct()
+            ->pluck('juegoId');
+
+        foreach ($juegoIds as $juegoId) {
+            $gamesController->ApiActualizarPuntaje($juegoId, true);
+        }
+
+        return response()->json([
+            'juegos_recalculados' => $juegoIds->count(),
+            'ids' => $juegoIds,
+        ]);
+    });
 });
 
 

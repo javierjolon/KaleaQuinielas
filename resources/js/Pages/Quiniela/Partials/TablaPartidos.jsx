@@ -63,12 +63,13 @@ export default function TablaPartidos(props) {
                                 </div>
                             </div>
                             
-                            {juegos.map((juego) => (
-                                <div key={juego.id}> 
+                            {juegos.map((juego) => {
+                                const estatusBloquea = ["Bloqueado", "Finalizado", "En juego", "Medio tiempo"];
+                                const mostrarInputs = !soloLectura && !estatusBloquea.includes(juego.estatusQuiniela.nombre) && !estatusBloquea.includes(juego.estatusJuego.nombre);
+                                return (
+                                <div key={juego.id}>
                                     {(() => {
                                         const tieneMarcador = juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null;
-                                        const estatusBloquea = ["Bloqueado", "Finalizado", "En juego", "Medio tiempo"];
-                                        const mostrarInputs = !soloLectura && !estatusBloquea.includes(juego.estatusQuiniela.nombre) && !estatusBloquea.includes(juego.estatusJuego.nombre);
 
                                         return (
                                     <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
@@ -205,8 +206,8 @@ export default function TablaPartidos(props) {
                                         )}
                                     </div>
                                 </div>
-                                
-                            ))}
+                                );
+                            })}
                         
                         </div>
                     ))}
