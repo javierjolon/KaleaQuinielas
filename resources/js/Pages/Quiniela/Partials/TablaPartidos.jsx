@@ -86,7 +86,7 @@ export default function TablaPartidos(props) {
                                         </div>
                             
                                         <div className='flex items-center'>
-                                            {soloLectura || juego.estatusJuego.nombre === "En juego" ? (
+                                            {soloLectura || juego.estatusJuego.nombre === "En juego" || juego.estatusJuego.nombre === "Medio tiempo" ? (
                                                 <div className='flex flex-col items-center gap-1'>
                                                     <div className='flex flex-row items-center text-lg font-bold'>
                                                         <span>{juego.resultadoEquipo1 ?? '-'}</span>

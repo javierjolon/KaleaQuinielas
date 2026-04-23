@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('quiniela:marcar-invalidas')->everyMinute();
-        $schedule->command('quiniela:auto-sync')->everyMinute()->withoutOverlapping();
+        $schedule->command('quiniela:sincronizarApi')->everyMinute()->withoutOverlapping();
     }
 
     /**

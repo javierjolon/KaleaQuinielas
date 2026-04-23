@@ -105,12 +105,11 @@ class apiFotballService
                 'body'        => $response->body(),
             ]);
 
-            Log::error('API Error', [
-                'status_code' => $response->status(),
-                'body'        => $response->body(),
-            ]);
-
-            abort(500, 'Error al sincronizar');
+            return [
+                'success' => false,
+                'message' => 'Error al sincronizar: HTTP ' . $response->status(),
+                'data'    => null,
+            ];
         }
     }
 

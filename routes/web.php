@@ -4,6 +4,7 @@ use App\Http\Controllers\GamesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuinielaController;
 use App\Http\Controllers\VarController;
+use App\Services\apiFotballService;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,11 @@ use Inertia\Inertia;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/admin/sync-api', function (apiFotballService $service) {
+    $result = $service->sincronizarJugos('PD');
+    return response()->json($result);
+});
 
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin', function () {
