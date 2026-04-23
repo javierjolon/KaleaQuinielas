@@ -15,10 +15,10 @@ export default function TablaPartidos(props) {
 
    
 
-    const actualizarResultado = (juegoId) => {
+    const actualizarResultado = (juegoId, juego) => {
         const data = resultados[juegoId];
-        const raw1 = data?.equipo1;
-        const raw2 = data?.equipo2;
+        const raw1 = data?.equipo1 !== undefined ? data.equipo1 : juego.quinielaEquipo1;
+        const raw2 = data?.equipo2 !== undefined ? data.equipo2 : juego.quinielaEquipo2;
 
         if (raw1 === undefined || raw1 === null || raw1 === '' || raw2 === undefined || raw2 === null || raw2 === '') {
             alertify.error("Debes ingresar ambos resultados");
@@ -200,7 +200,7 @@ export default function TablaPartidos(props) {
                                         : (
                                             <div 
                                                 className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 text-sm cursor-pointer' 
-                                                onClick={() => actualizarResultado(juego.id)}>
+                                                onClick={() => actualizarResultado(juego.id, juego)}>
                                                 {props.textoBoton}
                                             </div>
                                         )}
