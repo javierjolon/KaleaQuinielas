@@ -18,7 +18,7 @@ export default function Dashboard(props) {
 
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-5 p-6">
                         <div className="font-semibold text-xl text-gray-800 leading-tight mb-5 text-center">

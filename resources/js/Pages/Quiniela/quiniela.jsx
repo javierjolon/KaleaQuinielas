@@ -30,7 +30,7 @@ export default function Quiniela(props) {
             {quinielaActiva.id === 0 
                 ? <div>{quinielaActiva.nombre}</div>
                 : <div className="pb-12">
-                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
                         <div className="flex border-b border-gray-200 mt-5">
                             {tabs.map(tab => (
                                 <button

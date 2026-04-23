@@ -33,19 +33,16 @@ export default function Authenticated({ auth, header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
+                                    Tabla de posiciones
                                 </NavLink>
                                 <NavLink href={route('quiniela.index')} active={route().current('quiniela.index')}>
-                                    Mi quiniela
-                                </NavLink>
-                                <NavLink href={route('juegos.index')} active={route().current('juegos.index')}>
-                                    Juegos
-                                </NavLink>
-                                <NavLink href={route('quiniela.create')} active={route().current('quiniela.create')}>
-                                    Crear quiniela
+                                    Quiniela
                                 </NavLink>
                                 <NavLink href={route('var.index')} active={route().current('var.index')}>
                                     VAR
+                                </NavLink>
+                                <NavLink href={route('quiniela.create')} active={route().current('quiniela.create')}>
+                                    Crear quiniela
                                 </NavLink>
                             </div>
                         </div>
@@ -133,47 +130,42 @@ export default function Authenticated({ auth, header, children }) {
                     </div>
                 </div>
 
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
+                <div className={(showingNavigationDropdown ? 'fixed top-16 left-0 right-0 bottom-0 z-50 bg-white overflow-y-auto' : 'hidden') + ' sm:hidden'}>
+                    {quinielasHeader.length > 0 && (
+                        <div className="px-4 pt-4 pb-3 border-b border-gray-200">
+                            <label className="block text-base font-bold text-gray-800 mb-2">Quiniela activa</label>
+                            <select
+                                value={quinielaActivaId ?? ''}
+                                onChange={handleChangeQuiniela}
+                                className="w-full border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                {quinielasHeader.map((quiniela) => (
+                                    <option key={quiniela.id} value={quiniela.id}>
+                                        {quiniela.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
+                            Tabla de posiciones
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('quiniela.index')} active={route().current('quiniela.index')}>
-                            Mi quiniela
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('juegos.index')} active={route().current('juegos.index')}>
-                            Juegos
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('quiniela.create')} active={route().current('quiniela.create')}>
-                            Crear quiniela
+                            Quiniela
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('var.index')} active={route().current('var.index')}>
                             VAR
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('quiniela.create')} active={route().current('quiniela.create')}>
+                            Crear quiniela
+                        </ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
-                        {quinielasHeader.length > 0 && (
-                            <div className="px-4 mb-3">
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Quiniela activa</label>
-                                <select
-                                    value={quinielaActivaId ?? ''}
-                                    onChange={handleChangeQuiniela}
-                                    className="w-full border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    {quinielasHeader.map((quiniela) => (
-                                        <option key={quiniela.id} value={quiniela.id}>
-                                            {quiniela.nombre}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-
                         <div className="px-4">
-                            <div className="font-medium text-base text-gray-800">
-                                {auth.user.name}
-                            </div>
+                            <div className="font-medium text-base text-gray-800">{auth.user.name}</div>
                             <div className="font-medium text-sm text-gray-500">{auth.user.telefono}</div>
                         </div>
 
