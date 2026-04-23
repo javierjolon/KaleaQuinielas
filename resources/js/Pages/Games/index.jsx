@@ -39,11 +39,11 @@ function BloquePartidos({ fecha, juegos, estatusColors }) {
                                     className='w-10 h-10'
                                 />
                             </div>
-                            <div>{juego.equipo1 ?? 'Pendiente'}</div>
+                            <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
                         </div>
 
                         <div className='flex flex-col items-center'>
-                            <div>{juego.horaJuego}</div>
+                            <div className='text-center'>{juego.horaJuego}</div>
                             <div className='flex flex-row items-center'>
                                 <div>{juego.resultadoEquipo1 ?? 'Pendiente'}</div>
                                 <div className='mx-1'>:</div>
@@ -59,7 +59,7 @@ function BloquePartidos({ fecha, juegos, estatusColors }) {
                                     className='w-10 h-10'
                                 />
                             </div>
-                            <div>{juego.equipo2 ?? 'Pendiente'}</div>
+                            <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
                         </div>
 
                     </div>

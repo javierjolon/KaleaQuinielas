@@ -26,7 +26,7 @@ export default function Dashboard(props) {
                             <p className="text-sm text-gray-600 mt-2">Quiniela: {nombreQuiniela}</p>
                         </div>
                         <table className="w-full">
-                            <thead className='text-left'>
+                            <thead className='text-center'>
                                 <tr>
                                 <th> </th>
                                 <th>#</th>
@@ -56,9 +56,9 @@ export default function Dashboard(props) {
                                                     <span className="material-symbols-outlined text-gray-500">block</span>
                                                 )}
                                             </td>
-                                            <td>{index + 1}</td>
-                                            <td>{usuario.name}</td>
-                                            <td>{usuario.puntosAcumulados ?? 0}</td>
+                                            <td className='text-center'>{index + 1}</td>
+                                            <td className='text-center'>{usuario.name}</td>
+                                            <td className='text-center'>{usuario.puntosAcumulados ?? 0}</td>
                                         </tr>
                                     ))
                                 )}
