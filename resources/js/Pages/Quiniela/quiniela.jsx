@@ -7,10 +7,17 @@ import TablaPartidos from '@/Pages/Quiniela/Partials/TablaPartidos';
 export default function Quiniela(props) {
 
     const tabs = [
-        { id: "pendientes", label: "Pendientes" },
-        { id: "ingresadas", label: "Ingresadas" },
+        { id: "ingresar", label: "Ingresar" },
         { id: "finalizados", label: "Finalizados" }
-      ];
+    ];
+
+    const juegosIngresar = (() => {
+        const result = { ...props.juegosPendientes };
+        for (const [fecha, juegos] of Object.entries(props.juegosIngresados)) {
+            result[fecha] = [...(result[fecha] ?? []), ...juegos];
+        }
+        return result;
+    })();
 
     const [activeTab, setActiveTab] = useState(tabs[0].id);
     const { quinielaActiva } = usePage().props;
@@ -40,17 +47,10 @@ export default function Quiniela(props) {
                             ))}
                         </div>
 
-                        {/* Tab 1 */}
-                        {activeTab === "pendientes" && (
-                            <TablaPartidos listadoJuegos={props.juegosPendientes} textoBoton="Ingresar resultado"/>
+                        {activeTab === "ingresar" && (
+                            <TablaPartidos listadoJuegos={juegosIngresar}/>
                         )}
-                       
-                        {/* Tab 2 */}
-                        {activeTab === "ingresadas" && (
-                            <TablaPartidos listadoJuegos={props.juegosIngresados} textoBoton="Actualizar resultado"/>
-                        )}
-                        
-                        {/* Tab 3 */}
+
                         {activeTab === "finalizados" && (
                             <TablaPartidos listadoJuegos={props.juegosFinalizados} soloLectura={true}/>
                         )}

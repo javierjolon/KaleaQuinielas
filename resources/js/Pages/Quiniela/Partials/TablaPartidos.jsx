@@ -198,10 +198,10 @@ export default function TablaPartidos(props) {
                                             </div>
                                         ) 
                                         : (
-                                            <div 
-                                                className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 text-sm cursor-pointer' 
+                                            <div
+                                                className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 text-sm cursor-pointer'
                                                 onClick={() => actualizarResultado(juego.id, juego)}>
-                                                {props.textoBoton}
+                                                {juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null ? "Actualizar resultado" : "Ingresar resultado"}
                                             </div>
                                         )}
                                     </div>

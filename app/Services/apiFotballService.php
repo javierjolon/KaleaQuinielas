@@ -110,11 +110,7 @@ class apiFotballService
                 'body'        => $response->body(),
             ]);
 
-            abort(500, [
-                'success' => false,
-                'message' => 'Error al sincronizar',
-                'data' => null
-            ]);
+            abort(500, 'Error al sincronizar');
         }
     }
 
