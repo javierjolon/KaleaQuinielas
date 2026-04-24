@@ -17,7 +17,7 @@ export default function Dashboard(props) {
             <Head title="Home" />
 
 
-            <div className="py-12">
+            <div className="m-3 sm:m-0">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-5 p-6">
@@ -30,7 +30,7 @@ export default function Dashboard(props) {
                                 <tr>
                                 <th> </th>
                                 <th>#</th>
-                                <th>Nombre</th>
+                                <th className="text-left">Nombre</th>
                                 <th>Puntos</th>
                                 </tr>
                             </thead>
@@ -57,7 +57,7 @@ export default function Dashboard(props) {
                                                 )}
                                             </td>
                                             <td className='text-center'>{index + 1}</td>
-                                            <td className='text-center'>{usuario.name}</td>
+                                            <td className='text-left'>{usuario.name}</td>
                                             <td className='text-center'>{usuario.puntosAcumulados ?? 0}</td>
                                         </tr>
                                     ))
