@@ -66,17 +66,21 @@ export default function TablaPartidos(props) {
                                     <div key={juego.id}>
                                         {(soloLectura || esEnCurso) ? (
                                             /* ── DISEÑO FINALIZADOS / EN CURSO ── */
-                                            <div className='flex flex-row mt-4 justify-center rounded-xl bg-white p-2'>
-                                                <div className='flex flex-col items-center w-2/5 justify-center'>
-                                                    <img
-                                                        src={juego.imagenEquipo1 ?? 'img/static/pendiente.jpeg'}
-                                                        alt="imagen"
-                                                        className='w-10 h-10'
-                                                    />
-                                                    <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
+                                            <div className='flex flex-row mt-4 items-center rounded-xl bg-white p-3 gap-2'>
+                                                {/* Equipo 1 */}
+                                                <div className='flex flex-col items-center justify-center w-2/5 gap-1'>
+                                                    <div className='bg-gray-100 rounded-2xl p-2 flex items-center justify-center'>
+                                                        <img
+                                                            src={juego.imagenEquipo1 ?? 'img/static/pendiente.jpeg'}
+                                                            alt="imagen"
+                                                            className='w-10 h-10'
+                                                        />
+                                                    </div>
+                                                    <div className='text-center text-xs leading-tight'>{juego.equipo1 ?? 'Pendiente'}</div>
                                                 </div>
 
-                                                <div className='flex flex-col items-center gap-1'>
+                                                {/* Centro */}
+                                                <div className='flex flex-col items-center gap-1 flex-1'>
                                                     <div className='flex flex-row items-center text-lg font-bold'>
                                                         <span>{juego.resultadoEquipo1 ?? '-'}</span>
                                                         <span className='mx-2'>:</span>
@@ -113,13 +117,16 @@ export default function TablaPartidos(props) {
                                                     )}
                                                 </div>
 
-                                                <div className='flex flex-col items-center w-2/5 justify-center'>
-                                                    <img
-                                                        src={juego.imagenEquipo2 ?? 'img/static/pendiente.jpeg'}
-                                                        alt="imagen"
-                                                        className='w-10 h-10'
-                                                    />
-                                                    <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
+                                                {/* Equipo 2 */}
+                                                <div className='flex flex-col items-center justify-center w-2/5 gap-1'>
+                                                    <div className='bg-gray-100 rounded-2xl p-2 flex items-center justify-center'>
+                                                        <img
+                                                            src={juego.imagenEquipo2 ?? 'img/static/pendiente.jpeg'}
+                                                            alt="imagen"
+                                                            className='w-10 h-10'
+                                                        />
+                                                    </div>
+                                                    <div className='text-center text-xs leading-tight'>{juego.equipo2 ?? 'Pendiente'}</div>
                                                 </div>
                                             </div>
                                         ) : (

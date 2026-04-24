@@ -57,7 +57,9 @@ function CabeceraContenido({ juego }) {
             <div className="flex items-center justify-between gap-4 mt-3">
                 <div className="flex flex-col items-center flex-1">
                     {juego.imagenEquipo1 && (
-                        <img src={juego.imagenEquipo1} alt={juego.equipo1} className="h-12 w-12 object-contain mb-1" />
+                        <div className="bg-gray-100 rounded-2xl p-2 flex items-center justify-center mb-1">
+                            <img src={juego.imagenEquipo1} alt={juego.equipo1} className="h-12 w-12 object-contain" />
+                        </div>
                     )}
                     <span className="text-sm font-medium text-center">{juego.equipo1}</span>
                 </div>
@@ -70,7 +72,9 @@ function CabeceraContenido({ juego }) {
                 </div>
                 <div className="flex flex-col items-center flex-1">
                     {juego.imagenEquipo2 && (
-                        <img src={juego.imagenEquipo2} alt={juego.equipo2} className="h-12 w-12 object-contain mb-1" />
+                        <div className="bg-gray-100 rounded-2xl p-2 flex items-center justify-center mb-1">
+                            <img src={juego.imagenEquipo2} alt={juego.equipo2} className="h-12 w-12 object-contain" />
+                        </div>
                     )}
                     <span className="text-sm font-medium text-center">{juego.equipo2}</span>
                 </div>
