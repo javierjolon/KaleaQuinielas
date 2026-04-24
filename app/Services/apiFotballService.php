@@ -66,11 +66,11 @@ class apiFotballService
                 );
 
                 $estatusNuevo = $partido['status'];
-                $enJuegoOFinalizado = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED', 'FINISHED']);
+                $enJuego = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED']);
                 $cambioDeEstatus = $estatusAntes !== $estatusNuevo;
+                $acabaDeTerminar = $cambioDeEstatus && $estatusNuevo === 'FINISHED';
 
-                if ($enJuegoOFinalizado) {
-                    $acabaDeTerminar = $cambioDeEstatus && $estatusNuevo === 'FINISHED';
+                if ($enJuego || $acabaDeTerminar) {
                     $gamesController->ApiActualizarPuntaje($juego->id, $acabaDeTerminar);
                     $cambios++;
 
