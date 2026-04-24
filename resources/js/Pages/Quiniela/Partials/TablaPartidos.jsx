@@ -87,7 +87,7 @@ export default function TablaPartidos(props) {
                                         </div>
                             
                                         <div className='flex flex-col items-center gap-1'>
-                                            {juego.horaJuego && (
+                                            {juego.horaJuego && !soloLectura && (
                                                 <div className='flex items-center gap-1 text-xs text-gray-400'>
                                                     <img src='/img/static/clock.svg' alt='hora' className='w-3 h-3' />
                                                     {juego.horaJuego.slice(0, 5)}
@@ -117,18 +117,18 @@ export default function TablaPartidos(props) {
                                                                     </span>
                                                                 </div>
                                                                 {ganadorPredicho && (
-                                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold inline-block text-center ${acertoGanador ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                                                    <span className={`text-xs px-2 py-0.5 rounded-lg font-semibold inline-block text-center ${acertoGanador ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                                                                         {etiquetas[ganadorPredicho]}
                                                                     </span>
                                                                 )}
                                                             </>
                                                         );
-                                                    })() : (
-                                                        <span className='text-red-600 text-sm font-semibold'>No válido</span>
-                                                    )}
+                                                    })() : null}
+                                                    {tieneMarcador && (
                                                     <div className={`text-xs font-semibold ${(juego.puntosXjuego ?? 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
                                                         {juego.puntosXjuego ?? 0} pts
                                                     </div>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className='flex flex-row items-center'>
