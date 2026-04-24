@@ -13,8 +13,6 @@ export default function TablaPartidos(props) {
     const [resultados, setResultados] = useState({});
     const soloLectura = props.soloLectura === true;
 
-   
-
     const actualizarResultado = (juegoId, juego) => {
         const data = resultados[juegoId];
         const raw1 = data?.equipo1 !== undefined ? data.equipo1 : juego.quinielaEquipo1;
@@ -32,68 +30,52 @@ export default function TablaPartidos(props) {
             alertify.error("Los resultados deben ser números válidos");
             return;
         }
-    
+
         router.patch(`/quiniela/${juegoId}`, {
             quinielaEquipo1,
             quinielaEquipo2,
         }, {
-            onSuccess: () => {
-                alertify.success("Actualizado correctamente");
-            },
-            onError: (e) => {
-                alertify.error(e.error);
-            }
+            onSuccess: () => alertify.success("Actualizado correctamente"),
+            onError: (e) => alertify.error(e.error),
         });
     };
 
-    return(
+    return (
         <div>
-            { Object.keys(props.listadoJuegos).length > 0 && 
+            {Object.keys(props.listadoJuegos).length > 0 &&
                 <div className='mx-3'>
                     {Object.entries(props.listadoJuegos).map(([fecha, juegos]) => (
                         <div key={fecha} className="mt-6">
 
                             {/* FECHA */}
                             <div className="bg-azul text-white p-2 text-center font-bold flex flex-row justify-between">
-                                <div>
-                                    {juegos[0].tipoJuego}
-                                </div>
+                                <div>{juegos[0].tipoJuego}</div>
                                 <div className='flex items-center gap-1'>
-                                    <img src='/img/static/calendar.svg' alt='fecha' className='w-4 h-4' style={{filter: 'brightness(0) invert(1)'}} />
+                                    <img src='/img/static/calendar.svg' alt='fecha' className='w-4 h-4' style={{ filter: 'brightness(0) invert(1)' }} />
                                     {fecha}
                                 </div>
                             </div>
-                            
+
                             {juegos.map((juego) => {
                                 const estatusBloquea = ["Bloqueado", "Finalizado", "En juego", "Medio tiempo"];
                                 const mostrarInputs = !soloLectura && !estatusBloquea.includes(juego.estatusQuiniela.nombre) && !estatusBloquea.includes(juego.estatusJuego.nombre);
-                                return (
-                                <div key={juego.id}>
-                                    {(() => {
-                                        const tieneMarcador = juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null;
+                                const tieneMarcador = juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null;
+                                const esEnCurso = juego.estatusJuego.nombre === "En juego" || juego.estatusJuego.nombre === "Medio tiempo";
 
-                                        return (
-                                    <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
-                            
-                                        <div className='flex flex-col items-center w-2/5 justify-center'> 
-                                            <div>
-                                                <img 
-                                                    src={juego.imagenEquipo1 == null ? 'img/static/pendiente.jpeg' : juego.imagenEquipo1} 
-                                                    alt="imagen" 
-                                                    className='w-10 h-10'
-                                                />
-                                            </div>
-                                            <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
-                                        </div>
-                            
-                                        <div className='flex flex-col items-center gap-1'>
-                                            {juego.horaJuego && !soloLectura && (
-                                                <div className='flex items-center gap-1 text-xs text-gray-400'>
-                                                    <img src='/img/static/clock.svg' alt='hora' className='w-3 h-3' />
-                                                    {juego.horaJuego.slice(0, 5)}
+                                return (
+                                    <div key={juego.id}>
+                                        {(soloLectura || esEnCurso) ? (
+                                            /* ── DISEÑO FINALIZADOS / EN CURSO ── */
+                                            <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
+                                                <div className='flex flex-col items-center w-2/5 justify-center'>
+                                                    <img
+                                                        src={juego.imagenEquipo1 ?? 'img/static/pendiente.jpeg'}
+                                                        alt="imagen"
+                                                        className='w-10 h-10'
+                                                    />
+                                                    <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
                                                 </div>
-                                            )}
-                                            {soloLectura || juego.estatusJuego.nombre === "En juego" || juego.estatusJuego.nombre === "Medio tiempo" ? (
+
                                                 <div className='flex flex-col items-center gap-1'>
                                                     <div className='flex flex-row items-center text-lg font-bold'>
                                                         <span>{juego.resultadoEquipo1 ?? '-'}</span>
@@ -101,10 +83,10 @@ export default function TablaPartidos(props) {
                                                         <span>{juego.resultadoEquipo2 ?? '-'}</span>
                                                     </div>
                                                     {tieneMarcador ? (() => {
-                                                        const ganadorReal      = resultadoGanador(juego.resultadoEquipo1, juego.resultadoEquipo2);
-                                                        const ganadorPredicho  = resultadoGanador(juego.quinielaEquipo1, juego.quinielaEquipo2);
-                                                        const acertoGanador    = ganadorReal !== null && ganadorReal === ganadorPredicho;
-                                                        const etiquetas        = { L: juego.equipo1, V: juego.equipo2, E: 'Empate' };
+                                                        const ganadorReal     = resultadoGanador(juego.resultadoEquipo1, juego.resultadoEquipo2);
+                                                        const ganadorPredicho = resultadoGanador(juego.quinielaEquipo1, juego.quinielaEquipo2);
+                                                        const acertoGanador   = ganadorReal !== null && ganadorReal === ganadorPredicho;
+                                                        const etiquetas       = { L: juego.equipo1, V: juego.equipo2, E: 'Empate' };
                                                         return (
                                                             <>
                                                                 <div className='flex flex-row items-center text-sm'>
@@ -125,102 +107,128 @@ export default function TablaPartidos(props) {
                                                         );
                                                     })() : null}
                                                     {tieneMarcador && (
-                                                    <div className={`text-xs font-semibold ${(juego.puntosXjuego ?? 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                                                        {juego.puntosXjuego ?? 0} pts
-                                                    </div>
+                                                        <div className={`text-xs font-semibold ${(juego.puntosXjuego ?? 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                                                            {juego.puntosXjuego ?? 0} pts
+                                                        </div>
                                                     )}
                                                 </div>
+
+                                                <div className='flex flex-col items-center w-2/5 justify-center'>
+                                                    <img
+                                                        src={juego.imagenEquipo2 ?? 'img/static/pendiente.jpeg'}
+                                                        alt="imagen"
+                                                        className='w-10 h-10'
+                                                    />
+                                                    <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* ── DISEÑO INGRESAR ── */
+                                            <div className='mt-4 rounded-xl bg-white mx-3 p-3'>
+                                                {juego.horaJuego && (
+                                                    <div className='flex items-center justify-center gap-1 text-xs text-gray-400 mb-2'>
+                                                        <img src='/img/static/clock.svg' alt='hora' className='w-3 h-3' />
+                                                        {juego.horaJuego.slice(0, 5)}
+                                                    </div>
+                                                )}
+                                                <div className='flex flex-row items-center justify-between gap-2'>
+                                                    {/* Equipo 1 */}
+                                                    <div className='flex flex-col items-center flex-1'>
+                                                        <div className='bg-gray-100 rounded-2xl p-2 flex items-center justify-center'>
+                                                            <img
+                                                                src={juego.imagenEquipo1 ?? 'img/static/pendiente.jpeg'}
+                                                                alt="imagen"
+                                                                className='w-14 h-14 object-contain'
+                                                            />
+                                                        </div>
+                                                        <div className='text-center text-xs mt-1 font-medium'>{juego.equipo1 ?? 'Pendiente'}</div>
+                                                    </div>
+
+                                                    {/* Score equipo 1 */}
+                                                    {mostrarInputs ? (
+                                                        <input
+                                                            type='number'
+                                                            min={0}
+                                                            required
+                                                            className='w-16 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl bg-gray-50'
+                                                            value={resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ""}
+                                                            onChange={(e) => setResultados({
+                                                                ...resultados,
+                                                                [juego.id]: { ...resultados[juego.id], equipo1: e.target.value }
+                                                            })}
+                                                        />
+                                                    ) : (
+                                                        <span className='text-2xl font-bold text-gray-700 w-12 text-center'>
+                                                            {resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? '-'}
+                                                        </span>
+                                                    )}
+
+                                                    {/* vs */}
+                                                    <span className='text-gray-400 text-sm font-semibold'>vs</span>
+
+                                                    {/* Score equipo 2 */}
+                                                    {mostrarInputs ? (
+                                                        <input
+                                                            type='number'
+                                                            min={0}
+                                                            required
+                                                            className='w-16 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl bg-gray-50'
+                                                            value={resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ""}
+                                                            onChange={(e) => setResultados({
+                                                                ...resultados,
+                                                                [juego.id]: { ...resultados[juego.id], equipo2: e.target.value }
+                                                            })}
+                                                        />
+                                                    ) : (
+                                                        <span className='text-2xl font-bold text-gray-700 w-12 text-center'>
+                                                            {resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? '-'}
+                                                        </span>
+                                                    )}
+
+                                                    {/* Equipo 2 */}
+                                                    <div className='flex flex-col items-center flex-1'>
+                                                        <div className='bg-gray-100 rounded-2xl p-2 flex items-center justify-center'>
+                                                            <img
+                                                                src={juego.imagenEquipo2 ?? 'img/static/pendiente.jpeg'}
+                                                                alt="imagen"
+                                                                className='w-14 h-14 object-contain'
+                                                            />
+                                                        </div>
+                                                        <div className='text-center text-xs mt-1 font-medium'>{juego.equipo2 ?? 'Pendiente'}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Badge / botón acción */}
+                                        <div className='mt-[-0.5rem] flex flex-row justify-center'>
+                                            {soloLectura ? (
+                                                <div style={{ backgroundColor: juego.estatusQuiniela.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
+                                                    {juego.estatusQuiniela.nombre}
+                                                </div>
+                                            ) : estatusBloquea.includes(juego.estatusJuego.nombre) ? (
+                                                <div style={{ backgroundColor: juego.estatusJuego.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm flex items-center gap-2">
+                                                    {(juego.estatusJuego.nombre === "En juego" || juego.estatusJuego.nombre === "Medio tiempo") && (
+                                                        <span className="w-2 h-2 rounded-full bg-white animate-pulse inline-block" style={{animationDuration:'0.75s'}}></span>
+                                                    )}
+                                                    {juego.estatusJuego.nombre}
+                                                </div>
                                             ) : (
-                                                <div className='flex flex-row items-center'>
-                                                    <div>
-                                                        {mostrarInputs ? (
-                                                            <input
-                                                                type='number'
-                                                                min={0}
-                                                                required
-                                                                className='w-20 h-[2rem]'
-                                                                value={resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ""}
-                                                                onChange={(e) => setResultados({
-                                                                    ...resultados,
-                                                                    [juego.id]: {
-                                                                        ...resultados[juego.id],
-                                                                        equipo1: e.target.value
-                                                                    }
-                                                                })}
-                                                            />
-                                                        ) : (
-                                                            <span>{resultados[juego.id]?.equipo1 ?? juego.quinielaEquipo1 ?? ''}</span>
-                                                        )}
-                                                    </div>
-                                                    <div className='mx-2'>:</div>
-                                                    <div>
-                                                        {mostrarInputs ? (
-                                                            <input
-                                                                type='number'
-                                                                min={0}
-                                                                required
-                                                                className='w-20 h-[2rem]'
-                                                                value={resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ""}
-                                                                onChange={(e) => setResultados({
-                                                                    ...resultados,
-                                                                    [juego.id]: {
-                                                                        ...resultados[juego.id],
-                                                                        equipo2: e.target.value
-                                                                    }
-                                                                })}
-                                                            />
-                                                        ) : (
-                                                            <span>{resultados[juego.id]?.equipo2 ?? juego.quinielaEquipo2 ?? ''}</span>
-                                                        )}
-                                                    </div>
+                                                <div
+                                                    className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 text-sm cursor-pointer'
+                                                    onClick={() => actualizarResultado(juego.id, juego)}
+                                                >
+                                                    {tieneMarcador ? "Actualizar resultado" : "Ingresar resultado"}
                                                 </div>
                                             )}
                                         </div>
-                            
-                                        <div className='flex flex-col items-center w-2/5 justify-center'> 
-                                            <div>
-                                                <img 
-                                                    src={juego.imagenEquipo2 == null ? 'img/static/pendiente.jpeg' : juego.imagenEquipo2} 
-                                                    alt="imagen" 
-                                                    className='w-10 h-10'
-                                                />
-                                            </div>
-                                            <div className='text-center'>{juego.equipo2 ?? 'Pendiente'}</div>
-                                        </div>
-                            
                                     </div>
-                                        );
-                                    })()}
-                                    <div className='mt-[-0.5rem] flex flex-row justify-center'> 
-                                        {soloLectura ? (
-                                            <div style={{ backgroundColor: juego.estatusQuiniela.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
-                                                {juego.estatusQuiniela.nombre}
-                                            </div>
-                                        ) : estatusBloquea.includes(juego.estatusJuego.nombre)
-                                        ? (
-                                            <div style={{ backgroundColor: juego.estatusJuego.color }} className="text-white w-fit rounded-lg py-1 px-3 text-sm">
-                                                {/* spinner */}
-                                                {/* <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>                                                     */}
-                                                {juego.estatusJuego.nombre}
-                                            </div>
-                                        ) 
-                                        : (
-                                            <div
-                                                className='border-2 border-verde text-black bg-white w-fit rounded-lg py-1 px-3 text-sm cursor-pointer'
-                                                onClick={() => actualizarResultado(juego.id, juego)}>
-                                                {juego.quinielaEquipo1 !== null && juego.quinielaEquipo2 !== null ? "Actualizar resultado" : "Ingresar resultado"}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
                                 );
                             })}
-                        
                         </div>
                     ))}
                 </div>
             }
         </div>
     );
-
 }
