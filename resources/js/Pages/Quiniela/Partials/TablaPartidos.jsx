@@ -43,7 +43,7 @@ export default function TablaPartidos(props) {
     return (
         <div>
             {Object.keys(props.listadoJuegos).length > 0 &&
-                <div className='mx-3'>
+                <div>
                     {Object.entries(props.listadoJuegos).map(([fecha, juegos]) => (
                         <div key={fecha} className="mt-6">
 
@@ -66,7 +66,7 @@ export default function TablaPartidos(props) {
                                     <div key={juego.id}>
                                         {(soloLectura || esEnCurso) ? (
                                             /* ── DISEÑO FINALIZADOS / EN CURSO ── */
-                                            <div className='flex flex-row mt-4 justify-center rounded-xl bg-white mx-3 p-2'>
+                                            <div className='flex flex-row mt-4 justify-center rounded-xl bg-white p-2'>
                                                 <div className='flex flex-col items-center w-2/5 justify-center'>
                                                     <img
                                                         src={juego.imagenEquipo1 ?? 'img/static/pendiente.jpeg'}
@@ -124,7 +124,7 @@ export default function TablaPartidos(props) {
                                             </div>
                                         ) : (
                                             /* ── DISEÑO INGRESAR ── */
-                                            <div className='mt-4 rounded-xl bg-white mx-3 p-3'>
+                                            <div className='mt-4 rounded-xl bg-white p-3'>
                                                 {juego.horaJuego && (
                                                     <div className='flex items-center justify-center gap-1 text-xs text-gray-400 mb-2'>
                                                         <img src='/img/static/clock.svg' alt='hora' className='w-3 h-3' />
