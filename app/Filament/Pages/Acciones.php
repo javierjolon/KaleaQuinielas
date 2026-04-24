@@ -20,7 +20,7 @@ class Acciones extends Page
 
     public function syncApi(): void
     {
-        app(apiFotballService::class)->sincronizarJugos('PD');
+        app(apiFotballService::class)->sincronizarTodos();
         Notification::make()->title('Sincronización completada')->success()->send();
     }
 

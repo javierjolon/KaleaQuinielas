@@ -29,8 +29,7 @@ class SincronizarApi extends Command
     public function handle(apiFotballService $service)
     {
         $this->info('Iniciando sincronización...');
-        $respuesta = $service->sincronizarJugos('PD');
-        $this->info($respuesta['message']);
+        $service->sincronizarTodos();
         $this->info('Fin sincronización...');
     }
 }

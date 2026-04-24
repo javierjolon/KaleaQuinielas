@@ -49,7 +49,7 @@ class AutoSyncApi extends Command
         if ($minutesPassed >= self::ACTIVE_INTERVAL_MINUTES) {
             $this->info('Juego en curso — sincronizando...');
             Log::channel('sync')->info('[auto-sync] Sync activo — juego en curso');
-            $service->sincronizarJugos('PD');
+            $service->sincronizarTodos();
             Cache::put('auto_sync_last_at', now()->timestamp, self::CACHE_TTL);
         }
     }
@@ -80,13 +80,13 @@ class AutoSyncApi extends Command
         if ($midSyncsDone === 0 && $now >= $mid1) {
             $this->info('Sync intermedio 1/2 — verificando cambios de horario...');
             Log::channel('sync')->info('[auto-sync] Sync intermedio 1/2 durante espera');
-            $service->sincronizarJugos('PD');
+            $service->sincronizarTodos();
             Cache::put('auto_sync_mid_syncs_done', 1, self::CACHE_TTL);
             $this->refreshNextGameTime();
         } elseif ($midSyncsDone === 1 && $now >= $mid2) {
             $this->info('Sync intermedio 2/2 — verificando cambios de horario...');
             Log::channel('sync')->info('[auto-sync] Sync intermedio 2/2 durante espera');
-            $service->sincronizarJugos('PD');
+            $service->sincronizarTodos();
             Cache::put('auto_sync_mid_syncs_done', 2, self::CACHE_TTL);
             $this->refreshNextGameTime();
         }

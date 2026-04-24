@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Controllers\GamesController;
 use App\Models\Juegos;
 use App\Models\Partidos;
+use App\Models\Torneo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -14,19 +15,23 @@ class apiFotballService
 {
     
     
+    public function sincronizarTodos(): void
+    {
+        $codigos = Torneo::activos();
+
+        if ($codigos->isEmpty()) {
+            Log::channel('sync')->info('[sync] Sin torneos activos configurados');
+            return;
+        }
+
+        foreach ($codigos as $codigo) {
+            $this->sincronizarJugos($codigo);
+        }
+    }
+
     public function sincronizarJugos($torneo)
     {
-        switch ($torneo) {
-            case 'CL':
-                $url = 'https://api.football-data.org/v4/competitions/CL/matches';
-                break;
-            case 'PD':
-                $url = 'https://api.football-data.org/v4/competitions/PD/matches';
-                break;
-            case 'WC':
-                $url = 'https://api.football-data.org/v4/competitions/WC/matches';
-                break;
-        }
+        $url = "https://api.football-data.org/v4/competitions/{$torneo}/matches";
         
         Log::channel('sync')->info("[$torneo] Iniciando sincronización");
 
