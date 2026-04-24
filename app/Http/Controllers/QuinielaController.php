@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Configuracion;
+use App\Services\apiFotballService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\apiFotballService;
-use Carbon\Carbon;
 use Inertia\Inertia;
 
 use function PHPSTORM_META\map;
@@ -456,7 +457,8 @@ class QuinielaController extends Controller
             return back()->withErrors(['error' => 'El partido ya no esta programado. No se puede ingresar quiniela.']);
         }
 
-        $cierreCaptura = Carbon::parse($datosJuego->fechaJuego . ' ' . $datosJuego->horaJuego)->subMinutes(10);
+        $minutesCierre = (int) Configuracion::get('minutos_cierre_quiniela', 10);
+        $cierreCaptura = Carbon::parse($datosJuego->fechaJuego . ' ' . $datosJuego->horaJuego)->subMinutes($minutesCierre);
         $fueraDeHorario = Carbon::now()->greaterThanOrEqualTo($cierreCaptura);
 
         if ($fueraDeHorario) {
