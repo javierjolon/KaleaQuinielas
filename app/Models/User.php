@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -17,6 +18,7 @@ class User extends \Illuminate\Database\Eloquent\Model implements
     AuthenticatableContract,
     \Illuminate\Contracts\Auth\Access\Authorizable,
     CanResetPasswordContract,
+    FilamentUser,
     MustVerifyEmail
 {
     use Authenticatable, Authorizable, CanResetPassword, HasFactory, HasRoles, MustVerifyEmailTrait, Notifiable;
@@ -53,6 +55,16 @@ class User extends \Illuminate\Database\Eloquent\Model implements
     /**
      * Valor usado en enlaces de verificación (históricamente “email” en Laravel).
      */
+    public function canAccessFilament(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function getEmailAttribute(): string
+    {
+        return $this->telefono ?? '';
+    }
+
     public function getEmailForVerification(): string
     {
         return $this->telefono;

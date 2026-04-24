@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\UserResource\Pages;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Spatie\Permission\Models\Role;
+
+class UserResource extends Resource
+{
+    protected static ?string $model = User::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    protected static ?string $navigationLabel = 'Usuarios';
+
+    protected static ?int $navigationSort = 3;
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Forms\Components\TextInput::make('name')->required()->label('Nombre'),
+            Forms\Components\TextInput::make('telefono')->required()->label('Teléfono'),
+            Forms\Components\CheckboxList::make('roles')
+                ->relationship('roles', 'name')
+                ->label('Roles'),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('id')->sortable(),
+                Tables\Columns\TextColumn::make('name')->label('Nombre')->searchable(),
+                Tables\Columns\TextColumn::make('telefono')->searchable(),
+                Tables\Columns\TagsColumn::make('roles.name')->label('Roles'),
+            ])
+            ->filters([])
+            ->defaultSort('id', 'desc')
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([]);
+    }
+    
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+    
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }    
+}
