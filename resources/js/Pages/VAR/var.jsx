@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 function PrediccionBadge({ valor, referencia, mostrar }) {
     if (!mostrar) {
@@ -18,9 +18,9 @@ function ganador(equipo1, equipo2) {
     const e1 = parseInt(equipo1);
     const e2 = parseInt(equipo2);
     if (isNaN(e1) || isNaN(e2)) return null;
-    if (e1 > e2) return 'L';   // Local
-    if (e1 < e2) return 'V';   // Visitante
-    return 'E';                 // Empate
+    if (e1 > e2) return 'L';
+    if (e1 < e2) return 'V';
+    return 'E';
 }
 
 function GanadorBadge({ quinielaEquipo1, quinielaEquipo2, resultadoEquipo1, resultadoEquipo2, mostrar, equipo1Nombre, equipo2Nombre }) {
@@ -42,54 +42,50 @@ function GanadorBadge({ quinielaEquipo1, quinielaEquipo2, resultadoEquipo1, resu
     );
 }
 
-function TarjetaJuego({ juego }) {
+function CabeceraContenido({ juego }) {
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-            {/* Cabecera del partido */}
-            <div className="px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-500">{juego.tipoJuego}</span>
-                    <span
-                        className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: juego.estatusColor + '20', color: juego.estatusColor }}
-                    >
-                        {juego.estatusNombre}
-                    </span>
+        <>
+            <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-gray-500">{juego.tipoJuego}</span>
+                <span
+                    className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: juego.estatusColor + '20', color: juego.estatusColor }}
+                >
+                    {juego.estatusNombre}
+                </span>
+            </div>
+            <div className="flex items-center justify-between gap-4 mt-3">
+                <div className="flex flex-col items-center flex-1">
+                    {juego.imagenEquipo1 && (
+                        <img src={juego.imagenEquipo1} alt={juego.equipo1} className="h-12 w-12 object-contain mb-1" />
+                    )}
+                    <span className="text-sm font-medium text-center">{juego.equipo1}</span>
                 </div>
-
-                <div className="flex items-center justify-between gap-4 mt-3">
-                    {/* Equipo 1 */}
-                    <div className="flex flex-col items-center flex-1">
-                        {juego.imagenEquipo1 && (
-                            <img src={juego.imagenEquipo1} alt={juego.equipo1} className="h-12 w-12 object-contain mb-1" />
-                        )}
-                        <span className="text-sm font-medium text-center">{juego.equipo1}</span>
+                <div className="flex flex-col items-center">
+                    <div className="flex items-center gap-2">
+                        <span className="text-3xl font-bold text-gray-900">{juego.resultadoEquipo1 ?? '-'}</span>
+                        <span className="text-2xl text-gray-400">:</span>
+                        <span className="text-3xl font-bold text-gray-900">{juego.resultadoEquipo2 ?? '-'}</span>
                     </div>
-
-                    {/* Marcador */}
-                    <div className="flex flex-col items-center">
-                        <div className="flex items-center gap-2">
-                            <span className="text-3xl font-bold text-gray-900">
-                                {juego.resultadoEquipo1 ?? '-'}
-                            </span>
-                            <span className="text-2xl text-gray-400">:</span>
-                            <span className="text-3xl font-bold text-gray-900">
-                                {juego.resultadoEquipo2 ?? '-'}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Equipo 2 */}
-                    <div className="flex flex-col items-center flex-1">
-                        {juego.imagenEquipo2 && (
-                            <img src={juego.imagenEquipo2} alt={juego.equipo2} className="h-12 w-12 object-contain mb-1" />
-                        )}
-                        <span className="text-sm font-medium text-center">{juego.equipo2}</span>
-                    </div>
+                </div>
+                <div className="flex flex-col items-center flex-1">
+                    {juego.imagenEquipo2 && (
+                        <img src={juego.imagenEquipo2} alt={juego.equipo2} className="h-12 w-12 object-contain mb-1" />
+                    )}
+                    <span className="text-sm font-medium text-center">{juego.equipo2}</span>
                 </div>
             </div>
+        </>
+    );
+}
 
-            {/* Tabla de predicciones */}
+function TarjetaJuego({ juego, cardRef }) {
+    return (
+        <div ref={cardRef} className="bg-white rounded-xl shadow-sm mb-6">
+            <div className="px-6 py-4 border-b border-gray-100 rounded-t-xl">
+                <CabeceraContenido juego={juego} />
+            </div>
+
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
@@ -115,18 +111,10 @@ function TarjetaJuego({ juego }) {
                                     <tr key={p.usuarioId} className="border-t border-gray-50 hover:bg-gray-50">
                                         <td className="px-4 py-3 font-medium text-gray-800">{p.name}</td>
                                         <td className="px-4 py-3 text-center">
-                                            <PrediccionBadge
-                                                valor={p.quinielaEquipo1}
-                                                referencia={juego.resultadoEquipo1}
-                                                mostrar={tieneQuiniela}
-                                            />
+                                            <PrediccionBadge valor={p.quinielaEquipo1} referencia={juego.resultadoEquipo1} mostrar={tieneQuiniela} />
                                         </td>
                                         <td className="px-4 py-3 text-center">
-                                            <PrediccionBadge
-                                                valor={p.quinielaEquipo2}
-                                                referencia={juego.resultadoEquipo2}
-                                                mostrar={tieneQuiniela}
-                                            />
+                                            <PrediccionBadge valor={p.quinielaEquipo2} referencia={juego.resultadoEquipo2} mostrar={tieneQuiniela} />
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <GanadorBadge
@@ -161,6 +149,28 @@ export default function Var(props) {
     const juegosFinalizados = props.juegosFinalizados ?? [];
     const nombreQuiniela    = quinielaActiva?.nombre ?? 'Sin quiniela activa';
     const [tab, setTab]     = useState('enCurso');
+    const [activeJuego, setActiveJuego] = useState(null);
+    const cardRefs = useRef({});
+
+    const currentList = tab === 'enCurso' ? juegosEnCurso : juegosFinalizados;
+
+    const handleScroll = useCallback(() => {
+        let current = null;
+        for (const juego of currentList) {
+            const el = cardRefs.current[juego.id];
+            if (!el) continue;
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= 0) current = juego;
+        }
+        setActiveJuego(current);
+    }, [currentList]);
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [handleScroll]);
+
+    useEffect(() => { setActiveJuego(null); }, [tab]);
 
     return (
         <AuthenticatedLayout
@@ -170,13 +180,18 @@ export default function Var(props) {
         >
             <Head title="VAR" />
 
+            {activeJuego && (
+                <div className="fixed top-0 left-3 right-3 z-20 bg-white border border-gray-200 shadow-md rounded-xl px-6 py-4 max-w-3xl mx-auto">
+                    <CabeceraContenido juego={activeJuego} />
+                </div>
+            )}
+
             <div className="py-8 m-3 sm:m-0">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
                     <p className="text-sm text-gray-500 mb-4 text-center">
                         Quiniela: <span className="font-medium text-gray-700">{nombreQuiniela}</span>
                     </p>
 
-                    {/* Tabs principales */}
                     <div className="flex border-b border-gray-200 mb-6">
                         <button
                             onClick={() => setTab('enCurso')}
@@ -205,7 +220,11 @@ export default function Var(props) {
                             </div>
                         ) : (
                             juegosEnCurso.map((juego) => (
-                                <TarjetaJuego key={juego.id} juego={juego} />
+                                <TarjetaJuego
+                                    key={juego.id}
+                                    juego={juego}
+                                    cardRef={el => cardRefs.current[juego.id] = el}
+                                />
                             ))
                         )
                     )}
@@ -218,7 +237,11 @@ export default function Var(props) {
                             </div>
                         ) : (
                             juegosFinalizados.map((juego) => (
-                                <TarjetaJuego key={juego.id} juego={juego} />
+                                <TarjetaJuego
+                                    key={juego.id}
+                                    juego={juego}
+                                    cardRef={el => cardRefs.current[juego.id] = el}
+                                />
                             ))
                         )
                     )}
