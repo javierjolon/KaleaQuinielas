@@ -58,7 +58,8 @@ export default function TablaPartidos(props) {
                                 <div>
                                     {juegos[0].tipoJuego}
                                 </div>
-                                <div>
+                                <div className='flex items-center gap-1'>
+                                    <img src='/img/static/calendar.svg' alt='fecha' className='w-4 h-4' style={{filter: 'brightness(0) invert(1)'}} />
                                     {fecha}
                                 </div>
                             </div>
@@ -85,7 +86,13 @@ export default function TablaPartidos(props) {
                                             <div className='text-center'>{juego.equipo1 ?? 'Pendiente'}</div>
                                         </div>
                             
-                                        <div className='flex items-center'>
+                                        <div className='flex flex-col items-center gap-1'>
+                                            {juego.horaJuego && (
+                                                <div className='flex items-center gap-1 text-xs text-gray-400'>
+                                                    <img src='/img/static/clock.svg' alt='hora' className='w-3 h-3' />
+                                                    {juego.horaJuego.slice(0, 5)}
+                                                </div>
+                                            )}
                                             {soloLectura || juego.estatusJuego.nombre === "En juego" || juego.estatusJuego.nombre === "Medio tiempo" ? (
                                                 <div className='flex flex-col items-center gap-1'>
                                                     <div className='flex flex-row items-center text-lg font-bold'>

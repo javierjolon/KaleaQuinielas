@@ -36,15 +36,13 @@ function GanadorBadge({ quinielaEquipo1, quinielaEquipo2, resultadoEquipo1, resu
     const correcto = real !== null && predicho === real;
 
     return (
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${correcto ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+        <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-md text-center leading-tight ${correcto ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
             {texto}
         </span>
     );
 }
 
 function TarjetaJuego({ juego }) {
-    const [tab, setTab] = useState('var');
-
     return (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
             {/* Cabecera del partido */}
@@ -89,16 +87,6 @@ function TarjetaJuego({ juego }) {
                         <span className="text-sm font-medium text-center">{juego.equipo2}</span>
                     </div>
                 </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex border-b border-gray-100">
-                <button
-                    onClick={() => setTab('var')}
-                    className={`flex-1 py-2 text-sm font-medium ${tab === 'var' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
-                >
-                    VAR
-                </button>
             </div>
 
             {/* Tabla de predicciones */}
@@ -182,7 +170,7 @@ export default function Var(props) {
         >
             <Head title="VAR" />
 
-            <div className="py-8">
+            <div className="py-8 m-3 sm:m-0">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
                     <p className="text-sm text-gray-500 mb-4 text-center">
                         Quiniela: <span className="font-medium text-gray-700">{nombreQuiniela}</span>
