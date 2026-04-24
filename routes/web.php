@@ -110,7 +110,7 @@ Route::get('/dashboard', function () {
             ->join('users as u', 'u.id', '=', 'uq.usuarioId')
             ->select(
                 'u.id', 'u.name', 'u.telefono', 'uq.subeBaja',
-                DB::raw("(SELECT COALESCE(SUM(puntosXjuego), 0) FROM quinielasJuegos WHERE quinielaId = $qid AND usuarioId = u.id AND status = 'FINISHED') as puntosAcumulados")
+                DB::raw("(SELECT COALESCE(SUM(qj.puntosXjuego), 0) FROM quinielasJuegos qj INNER JOIN juegos j ON j.id = qj.juegoId WHERE qj.quinielaId = $qid AND qj.usuarioId = u.id AND qj.status = 'FINISHED' AND j.estatus = 'FINISHED') as puntosAcumulados")
             )
             ->where('uq.quinielaId', '=', $qid)
             ->orderByDesc('puntosAcumulados')

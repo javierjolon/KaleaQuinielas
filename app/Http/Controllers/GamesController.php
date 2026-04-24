@@ -132,7 +132,7 @@ class GamesController extends Controller
     public function ApiActualizarPuntaje($juegoId, bool $actualizarPosiciones = false){
         
         $juego = DB::table('juegos')
-            ->select('resultadoEquipo1', 'resultadoEquipo2')
+            ->select('resultadoEquipo1', 'resultadoEquipo2', 'estatus')
             ->where('id', '=', $juegoId)
             ->first();
         // dd($juego->resultadoEquipo1);
@@ -168,7 +168,7 @@ class GamesController extends Controller
 
             DB::table('quinielasJuegos')
                 ->where('id', '=', $quiniela->id)
-                ->update([ 'puntosXjuego' => $puntosXjuego, 'status' => 'FINISHED' ]);
+                ->update([ 'puntosXjuego' => $puntosXjuego, 'status' => $juego->estatus === 'FINISHED' ? 'FINISHED' : 'IN_PLAY' ]);
 
             $quinielasAfectadas->push($quiniela->quinielaId);
             }
@@ -185,9 +185,10 @@ class GamesController extends Controller
     }
 
     private function updateQuinielaPositions($quinielaId){
+        $qid = intval($quinielaId);
         $usuarios = DB::table('usuariosQuinielas as uq')
             ->join('users as u', 'u.id', '=', 'uq.usuarioId')
-            ->leftJoin(DB::raw('(SELECT usuarioId, SUM(puntosXjuego) as total FROM quinielasJuegos WHERE quinielaId = ' . intval($quinielaId) . ' GROUP BY usuarioId) as pts'), 'pts.usuarioId', '=', 'uq.usuarioId')
+            ->leftJoin(DB::raw("(SELECT qj.usuarioId, SUM(qj.puntosXjuego) as total FROM quinielasJuegos qj INNER JOIN juegos j ON j.id = qj.juegoId WHERE qj.quinielaId = $qid AND qj.status = 'FINISHED' AND j.estatus = 'FINISHED' GROUP BY qj.usuarioId) as pts"), 'pts.usuarioId', '=', 'uq.usuarioId')
             ->select('uq.id', 'uq.posicion', DB::raw('COALESCE(pts.total, 0) as puntosAcumulados'))
             ->where('uq.quinielaId', '=', $quinielaId)
             ->orderByDesc('puntosAcumulados')
