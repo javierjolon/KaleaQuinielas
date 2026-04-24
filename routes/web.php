@@ -22,54 +22,54 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/admin/sync-api', function (apiFotballService $service) {
-    $result = $service->sincronizarJugos('PD');
-    return response()->json($result);
-});
-
-Route::get('/admin/recalcular-invalidos', function (GamesController $gamesController) {
-    $juegoIds = DB::table('quinielasJuegos as qj')
-        ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
-        ->where('qj.status', 'INVALID')
-        ->whereNotNull('qj.quinielaEquipo1')
-        ->whereNotNull('qj.quinielaEquipo2')
-        ->whereIn('j.estatus', ['FINISHED', 'AWARDED'])
-        ->select('qj.juegoId')
-        ->distinct()
-        ->pluck('juegoId');
-
-    foreach ($juegoIds as $juegoId) {
-        $gamesController->ApiActualizarPuntaje($juegoId, true);
-    }
-
-    return response()->json([
-        'juegos_recalculados' => $juegoIds->count(),
-        'ids' => $juegoIds,
-    ]);
-});
-
-Route::get('/admin/recalcular-puntajes', function (GamesController $gamesController) {
-    $juegoIds = DB::table('quinielasJuegos as qj')
-        ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
-        ->whereIn('j.estatus', ['FINISHED', 'AWARDED'])
-        ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
-        ->select('qj.juegoId')
-        ->distinct()
-        ->pluck('juegoId');
-
-    foreach ($juegoIds as $juegoId) {
-        $gamesController->ApiActualizarPuntaje($juegoId, true);
-    }
-
-    return response()->json([
-        'juegos_recalculados' => $juegoIds->count(),
-        'ids' => $juegoIds,
-    ]);
-});
-
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('Admin/Dashboard');
+    });
+
+    Route::get('/admin/sync-api', function (apiFotballService $service) {
+        $result = $service->sincronizarJugos('PD');
+        return response()->json($result);
+    });
+
+    Route::get('/admin/recalcular-invalidos', function (GamesController $gamesController) {
+        $juegoIds = DB::table('quinielasJuegos as qj')
+            ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+            ->where('qj.status', 'INVALID')
+            ->whereNotNull('qj.quinielaEquipo1')
+            ->whereNotNull('qj.quinielaEquipo2')
+            ->whereIn('j.estatus', ['FINISHED', 'AWARDED'])
+            ->select('qj.juegoId')
+            ->distinct()
+            ->pluck('juegoId');
+
+        foreach ($juegoIds as $juegoId) {
+            $gamesController->ApiActualizarPuntaje($juegoId, true);
+        }
+
+        return response()->json([
+            'juegos_recalculados' => $juegoIds->count(),
+            'ids' => $juegoIds,
+        ]);
+    });
+
+    Route::get('/admin/recalcular-puntajes', function (GamesController $gamesController) {
+        $juegoIds = DB::table('quinielasJuegos as qj')
+            ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+            ->whereIn('j.estatus', ['FINISHED', 'AWARDED'])
+            ->whereNotIn('qj.status', ['FINISHED', 'INVALID'])
+            ->select('qj.juegoId')
+            ->distinct()
+            ->pluck('juegoId');
+
+        foreach ($juegoIds as $juegoId) {
+            $gamesController->ApiActualizarPuntaje($juegoId, true);
+        }
+
+        return response()->json([
+            'juegos_recalculados' => $juegoIds->count(),
+            'ids' => $juegoIds,
+        ]);
     });
 });
 
