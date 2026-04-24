@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm } from "@inertiajs/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function FormQuiniela(props) {
     const {
@@ -23,6 +23,8 @@ export default function FormQuiniela(props) {
         telefono: "",
         quinielaId: "",
     });
+
+    const [activeTab, setActiveTab] = useState("crear");
 
     const quinielasActivas = props.quinielasActivas ?? [];
     const competicionesDisponibles = props.competicionesDisponibles ?? [];
@@ -49,110 +51,129 @@ export default function FormQuiniela(props) {
 
     return (
         <AuthenticatedLayout auth={props.auth} errors={props.errors} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Crear Quiniela</h2>}>
-            <div className="max-w-md mx-auto mt-10 space-y-6">
+            <div className="max-w-md mx-auto mt-10">
 
-                <div className="bg-white p-6 rounded-xl shadow-md">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                        Crear Quiniela
-                    </h2>
-
-                    <form onSubmit={handleSubmitCrear} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Nombre de la quiniela
-                            </label>
-
-                            <input
-                                type="text"
-                                value={dataCrear.nombre}
-                                onChange={(e) => setDataCrear("nombre", e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Competicion
-                            </label>
-                            <select
-                                value={`${dataCrear.competicion}|${dataCrear.season}`}
-                                onChange={(e) => {
-                                    const [competicion, season] = e.target.value.split("|");
-                                    setDataCrear("competicion", competicion ?? "");
-                                    setDataCrear("season", season ?? "");
-                                }}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="|">Selecciona una competicion</option>
-                                {competicionesDisponibles.map((item) => (
-                                    <option
-                                        key={`${item.competicion}-${item.season}`}
-                                        value={`${item.competicion}|${item.season}`}
-                                    >
-                                        {item.nombre} - {item.season}
-                                    </option>
-                                ))}
-                            </select>
-
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={processingCrear}
-                            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-                        >
-                            Crear
-                        </button>
-                    </form>
+                <div className="flex border-b border-gray-200 mb-6">
+                    <button
+                        onClick={() => setActiveTab("crear")}
+                        className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+                            activeTab === "crear"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
+                        }`}
+                    >
+                        Nueva quiniela
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("agregar")}
+                        className={`px-4 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+                            activeTab === "agregar"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
+                        }`}
+                    >
+                        Agregar participante
+                    </button>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-md">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                        Agregar usuario a quiniela
-                    </h2>
+                {activeTab === "crear" && (
+                    <div className="bg-white p-6 rounded-xl shadow-md">
+                        <form onSubmit={handleSubmitCrear} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Nombre de la quiniela
+                                </label>
+                                <input
+                                    type="text"
+                                    value={dataCrear.nombre}
+                                    onChange={(e) => setDataCrear("nombre", e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
 
-                    <form onSubmit={handleSubmitInvitar} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Telefono del usuario
-                            </label>
-                            <input
-                                type="tel"
-                                value={dataInvitar.telefono}
-                                onChange={(e) => setDataInvitar("telefono", e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Competicion
+                                </label>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                    {competicionesDisponibles.map((item) => {
+                                        const val = `${item.competicion}|${item.season}`;
+                                        const selected = `${dataCrear.competicion}|${dataCrear.season}` === val;
+                                        return (
+                                            <button
+                                                key={val}
+                                                type="button"
+                                                onClick={() => {
+                                                    setDataCrear("competicion", item.competicion);
+                                                    setDataCrear("season", item.season);
+                                                }}
+                                                className={`px-4 py-2 rounded-full border text-sm font-semibold uppercase tracking-wide transition ${
+                                                    selected
+                                                        ? "border-green-500 text-green-600 bg-transparent"
+                                                        : "border-gray-300 text-gray-600 bg-transparent hover:border-gray-400"
+                                                }`}
+                                            >
+                                                {item.nombre}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Quiniela activa
-                            </label>
-                            <select
-                                value={dataInvitar.quinielaId}
-                                onChange={(e) => setDataInvitar("quinielaId", e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            <button
+                                type="submit"
+                                disabled={processingCrear}
+                                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                             >
-                                <option value="">Selecciona una quiniela</option>
-                                {quinielasActivas.map((quiniela) => (
-                                    <option key={quiniela.id} value={quiniela.id}>
-                                        {quiniela.nombre}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                                Crear
+                            </button>
+                        </form>
+                    </div>
+                )}
 
+                {activeTab === "agregar" && (
+                    <div className="bg-white p-6 rounded-xl shadow-md">
+                        <form onSubmit={handleSubmitInvitar} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Telefono del usuario
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={dataInvitar.telefono}
+                                    onChange={(e) => setDataInvitar("telefono", e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
 
-                        <button
-                            type="submit"
-                            disabled={processingInvitar}
-                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                        >
-                            Agregar usuario
-                        </button>
-                    </form>
-                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Quiniela activa
+                                </label>
+                                <select
+                                    value={dataInvitar.quinielaId}
+                                    onChange={(e) => setDataInvitar("quinielaId", e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Selecciona una quiniela</option>
+                                    {quinielasActivas.map((quiniela) => (
+                                        <option key={quiniela.id} value={quiniela.id}>
+                                            {quiniela.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={processingInvitar}
+                                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                            >
+                                Agregar usuario
+                            </button>
+                        </form>
+                    </div>
+                )}
             </div>
         </AuthenticatedLayout>
     );
