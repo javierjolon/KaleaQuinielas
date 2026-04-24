@@ -44,6 +44,9 @@ export default function Authenticated({ auth, header, children }) {
                                 <NavLink href={route('quiniela.create')} active={route().current('quiniela.create')}>
                                     Crear quiniela
                                 </NavLink>
+                                <NavLink href={route('reglas.index')} active={route().current('reglas.index')}>
+                                    Reglas
+                                </NavLink>
                             </div>
                         </div>
 
@@ -160,6 +163,9 @@ export default function Authenticated({ auth, header, children }) {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('quiniela.create')} active={route().current('quiniela.create')}>
                             Crear quiniela
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('reglas.index')} active={route().current('reglas.index')}>
+                            Reglas
                         </ResponsiveNavLink>
                     </div>
 

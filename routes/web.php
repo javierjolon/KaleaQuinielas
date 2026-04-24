@@ -141,6 +141,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/reglas', function () {
+        return Inertia::render('Reglas/index');
+    })->name('reglas.index');
+});
+
+Route::middleware('auth')->group(function () {
     Route::get('/quiniela', [QuinielaController::class, 'index'])->name('quiniela.index');
     Route::get('/quiniela/create', [QuinielaController::class, 'create'])->name('quiniela.create');
     Route::post('/quiniela', [QuinielaController::class, 'store'])->name('quiniela.store');
