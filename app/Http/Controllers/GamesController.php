@@ -144,7 +144,7 @@ class GamesController extends Controller
         $quinielasAfectadas = collect();
 
         foreach($quinielas as $quiniela){
-            if ($quiniela->quinielaEquipo1 == null && $quiniela->quinielaEquipo2 == null) {
+            if ($quiniela->quinielaEquipo1 === null && $quiniela->quinielaEquipo2 === null) {
                 DB::table('quinielasJuegos')
                 ->where('id', '=', $quiniela->id)
                 ->update([ 'status' => 'INVALID' ]);
