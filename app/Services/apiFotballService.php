@@ -40,10 +40,17 @@ class apiFotballService
         ])->get($url);
 
         if ($response->successful()) {
+            $data = $response->json();
+
+            if (empty($data['matches'])) {
+                Log::channel('sync')->warning("[$torneo] Respuesta sin 'matches'", ['body' => $response->body()]);
+                return ['success' => false, 'message' => 'Sin partidos en la respuesta', 'data' => null];
+            }
+
             $gamesController = new GamesController();
             $cambios = 0;
 
-            foreach ($response['matches'] as $key => $partido) {
+            foreach ($data['matches'] as $key => $partido) {
                 $juegoAntes = Juegos::where('api_id', $partido['id'])->first();
                 $estatusAntes = $juegoAntes?->estatus;
 
@@ -91,7 +98,7 @@ class apiFotballService
             }
 
             Log::channel('sync')->info("[$torneo] Sincronización completada", [
-                'partidos_procesados' => count($response['matches']),
+                'partidos_procesados' => count($data['matches']),
                 'puntajes_actualizados' => $cambios,
             ]);
 
