@@ -20,8 +20,16 @@ class Acciones extends Page
 
     public function syncApi(): void
     {
-        app(apiFotballService::class)->sincronizarTodos();
-        Notification::make()->title('Sincronización completada')->success()->send();
+        try {
+            app(apiFotballService::class)->sincronizarTodos();
+            Notification::make()->title('Sincronización completada')->success()->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Error al sincronizar')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public function recalcularInvalidos(): void
