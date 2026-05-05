@@ -1,57 +1,12 @@
 import { Link, Head } from '@inertiajs/react';
+import Navbar from '@/Components/Navbar';
 
 export default function Welcome({ auth }) {
     return (
         <>
-            <Head title="Kalea Quinielas" />
+            <Head title="Kingol" />
             <div className="min-h-screen bg-[#f0f0f0] font-sans">
-                {/* Navbar */}
-                <nav className="flex items-center justify-between px-8 py-4 bg-[#f0f0f0]">
-                    <div className="flex items-center gap-2">
-                        <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="#22c55e" strokeWidth="2"/>
-                            <path d="M12 2C12 2 8 6 8 12C8 18 12 22 12 22" stroke="#22c55e" strokeWidth="1.5"/>
-                            <path d="M12 2C12 2 16 6 16 12C16 18 12 22 12 22" stroke="#22c55e" strokeWidth="1.5"/>
-                            <path d="M2 12H22" stroke="#22c55e" strokeWidth="1.5"/>
-                            <path d="M3.5 7H20.5" stroke="#22c55e" strokeWidth="1.5"/>
-                            <path d="M3.5 17H20.5" stroke="#22c55e" strokeWidth="1.5"/>
-                        </svg>
-                        <span className="font-bold text-gray-900 text-lg tracking-wide">KALEA Q</span>
-                    </div>
-
-                    <div className="hidden md:flex items-center gap-8">
-                        <a href="#" className="text-gray-700 font-medium border-b-2 border-green-500 pb-0.5">Home</a>
-                        <a href="#" className="text-gray-500 hover:text-gray-700 font-medium">Ligas</a>
-                        <Link href={route('reglas.index')} className="text-gray-500 hover:text-gray-700 font-medium">Reglas</Link>
-                        <a href="#" className="text-gray-500 hover:text-gray-700 font-medium">Premios</a>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        {auth?.user ? (
-                            <Link
-                                href={route('dashboard')}
-                                className="bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
-                            >
-                                Mi Dashboard
-                            </Link>
-                        ) : (
-                            <>
-                                <Link
-                                    href={route('login')}
-                                    className="text-gray-700 hover:text-gray-900 font-semibold px-4 py-2.5 rounded-lg transition-colors"
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    href={route('register')}
-                                    className="bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
-                                >
-                                    Registrarse
-                                </Link>
-                            </>
-                        )}
-                    </div>
-                </nav>
+                <Navbar auth={auth} />
 
                 {/* Hero */}
                 <div className="relative flex flex-col md:flex-row items-center justify-between px-8 md:px-16 pt-12 pb-20 max-w-7xl mx-auto min-h-[calc(100vh-80px)]">

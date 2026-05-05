@@ -4,6 +4,7 @@ use App\Http\Controllers\GamesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuinielaController;
 use App\Http\Controllers\VarController;
+use App\Models\ReglaGrupo;
 use App\Services\apiFotballService;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -162,11 +163,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/var', [VarController::class, 'index'])->name('var.index');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/reglas', function () {
-        return Inertia::render('Reglas/index');
-    })->name('reglas.index');
-});
+Route::get('/reglas', function () {
+    $reglas = ReglaGrupo::where('activo', true)->orderBy('orden')->with(['items' => fn($q) => $q->orderBy('orden')])->get(['id', 'titulo']);
+    return Inertia::render('Reglas/index', ['reglas' => $reglas]);
+})->name('reglas.index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/quiniela', [QuinielaController::class, 'index'])->name('quiniela.index');

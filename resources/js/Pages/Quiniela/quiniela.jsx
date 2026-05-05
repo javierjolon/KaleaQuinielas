@@ -27,8 +27,8 @@ export default function Quiniela(props) {
             
             <Head title="Mi quiniela"/>
 
-            {quinielaActiva.id === 0 
-                ? <div>{quinielaActiva.nombre}</div>
+            {(!quinielaActiva || quinielaActiva.id === 0)
+                ? <div>{quinielaActiva?.nombre ?? 'No tienes una quiniela activa'}</div>
                 : <div className="pb-12 m-3 sm:m-0">
                     <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
                         <div className="flex border-b border-gray-200 mt-5">

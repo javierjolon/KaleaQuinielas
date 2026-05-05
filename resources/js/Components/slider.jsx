@@ -31,7 +31,7 @@ export default function Slider() {
         <div className="bg-[url(img/static/mundial6.png)] bg-cover bg-no-repeat h-48 rounded-2xl border-4 border-green-400">
           <div className="flex flex-col justify-between h-full p-6">
             <span className="text-white text-4xl">
-              Mundial <br /> Kalea
+              Mundial <br /> Kingol
             </span>
             <span className="text-white text-xs">Creado por:</span>
           </div>
@@ -42,7 +42,7 @@ export default function Slider() {
       <SwiperSlide>
         <div className="bg-[url(img/static/eurocopa.jpg)] bg-cover bg-no-repeat h-48 rounded-2xl">
           <div className="flex flex-col justify-between h-full p-6">
-            <span className="text-white text-5xl">Kalea</span>
+            <span className="text-white text-5xl">Kingol</span>
             <span className="text-white">Creado por:</span>
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function Slider() {
       <SwiperSlide>
         <div className="bg-[url(img/static/eurocopa.jpg)] bg-cover bg-no-repeat h-48 rounded-2xl">
           <div className="flex flex-col justify-between h-full p-6">
-            <span className="text-white text-5xl">Kalea</span>
+            <span className="text-white text-5xl">Kingol</span>
             <span className="text-white">Creado por:</span>
           </div>
         </div>
