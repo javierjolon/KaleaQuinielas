@@ -40,6 +40,7 @@ class JuegosResource extends Resource
                     'SUSPENDED' => 'Suspendido',
                 ])
                 ->required(),
+            Forms\Components\TextInput::make('ronda')->label('Ronda'),
             Forms\Components\TextInput::make('competicion'),
             Forms\Components\DatePicker::make('fechaJuego'),
         ]);
@@ -61,6 +62,7 @@ class JuegosResource extends Resource
                         'secondary' => fn ($state) => in_array($state, ['TIMED', 'SCHEDULED']),
                         'danger' => fn ($state) => in_array($state, ['CANCELLED', 'POSTPONED', 'SUSPENDED']),
                     ]),
+                Tables\Columns\TextColumn::make('ronda')->label('Ronda')->sortable(),
                 Tables\Columns\TextColumn::make('competicion'),
                 Tables\Columns\TextColumn::make('fechaJuego')->date()->sortable(),
             ])

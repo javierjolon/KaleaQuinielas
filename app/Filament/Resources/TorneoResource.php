@@ -28,7 +28,9 @@ class TorneoResource extends Resource
                 ->helperText('Ej: PD, CL, WC, BL1, SA — código de football-data.org')
                 ->required()
                 ->maxLength(10)
-                ->uppercase(),
+                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                ->reactive()
+                ->afterStateUpdated(fn ($set, $state) => $set('codigo', strtoupper($state))),
             Forms\Components\TextInput::make('nombre')
                 ->label('Nombre')
                 ->required(),

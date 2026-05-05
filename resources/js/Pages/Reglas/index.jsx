@@ -3,7 +3,7 @@ import GuestLayout from '@/Layouts/GuestLayout';
 
 export default function Reglas({ auth, errors, reglas = [] }) {
     const content = (
-        <div className="max-w-2xl mx-auto mt-10 px-4 pb-10">
+        <div className="max-w-[55rem] mx-auto mt-10 px-4 pb-10">
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Reglas de la quiniela</h2>
                 {reglas.length === 0 ? (

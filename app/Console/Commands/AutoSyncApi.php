@@ -14,7 +14,7 @@ class AutoSyncApi extends Command
     protected $signature = 'quiniela:auto-sync {--reset : Reinicia el estado del scheduler}';
     protected $description = 'Sincronización inteligente: activa durante juegos, espera hasta el próximo partido';
 
-    private const ACTIVE_INTERVAL_MINUTES = 5;
+    private const ACTIVE_INTERVAL_MINUTES = 1;
     private const PRE_GAME_SECONDS        = 600; // 10 min antes activar modo activo
     private const CACHE_TTL               = 86400;
 

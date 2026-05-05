@@ -85,7 +85,7 @@ return [
     */
 
     'auth' => [
-        'guard' => env('FILAMENT_AUTH_GUARD', 'web'),
+        'guard' => env('FILAMENT_AUTH_GUARD', 'admin'),
         'pages' => [
             'login' => \App\Filament\Pages\Auth\Login::class,
         ],

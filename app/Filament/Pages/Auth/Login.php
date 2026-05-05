@@ -16,7 +16,8 @@ class Login extends BaseLogin
     {
         return [
             TextInput::make('email')
-                ->label('Teléfono')
+                ->label('Correo')
+                ->email()
                 ->required()
                 ->autocomplete(),
             TextInput::make('password')
@@ -44,7 +45,7 @@ class Login extends BaseLogin
         $data = $this->form->getState();
 
         if (! Filament::auth()->attempt([
-            'telefono' => $data['email'],
+            'email'    => $data['email'],
             'password' => $data['password'],
         ], $data['remember'])) {
             throw ValidationException::withMessages([
