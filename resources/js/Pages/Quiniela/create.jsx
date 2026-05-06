@@ -195,18 +195,28 @@ export default function FormQuiniela(props) {
                                         <p className="text-xs text-gray-400">Sin participantes aún.</p>
                                     ) : (
                                         <ul className="space-y-1">
-                                            {(usuariosPorQuiniela[dataInvitar.quinielaId] ?? []).map((u) => (
+                                            {(usuariosPorQuiniela[dataInvitar.quinielaId] ?? []).map((u) => {
+                                                const esAdmin = u.id === props.auth.user.id;
+                                                return (
                                                 <li key={u.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                                                    <span className="text-sm text-gray-700">{u.name} <span className="text-gray-400 text-xs">({u.telefono})</span></span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => eliminarUsuario(parseInt(dataInvitar.quinielaId), u.id)}
-                                                        className="text-red-500 hover:text-red-700 text-xs font-semibold ml-3"
-                                                    >
-                                                        Eliminar
-                                                    </button>
+                                                    <span className="text-sm text-gray-700">
+                                                        {u.name} <span className="text-gray-400 text-xs">({u.telefono})</span>
+                                                        {esAdmin && (
+                                                            <span className="ml-2 inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">Admin</span>
+                                                        )}
+                                                    </span>
+                                                    {!esAdmin && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => eliminarUsuario(parseInt(dataInvitar.quinielaId), u.id)}
+                                                            className="text-red-500 hover:text-red-700 text-xs font-semibold ml-3"
+                                                        >
+                                                            Eliminar
+                                                        </button>
+                                                    )}
                                                 </li>
-                                            ))}
+                                                );
+                                            })}
                                         </ul>
                                     )}
                                 </div>

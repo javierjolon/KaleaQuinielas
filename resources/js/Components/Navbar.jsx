@@ -13,7 +13,7 @@ export default function Navbar({ auth, quinielasHeader = [], quinielaActivaId, m
             {/* Logo */}
             <div className="flex items-center">
                 <Link href="/">
-                    <img src="/images/kingol-logo.png" alt="Kingol" className="h-28 w-auto" />
+                    <img src="/images/kingol-logo.png" alt="Kingol" className="h-20 w-auto sm:h-32 object-contain" />
                 </Link>
             </div>
 
@@ -86,6 +86,9 @@ export default function Navbar({ auth, quinielasHeader = [], quinielaActivaId, m
                     </>
                 ) : (
                     <>
+                        <Link href={route('reglas.index')} className="md:hidden text-gray-700 hover:text-gray-900 font-semibold px-4 py-2.5 rounded-lg transition-colors">
+                            Reglas
+                        </Link>
                         <Link href={route('login')} className="text-gray-700 hover:text-gray-900 font-semibold px-4 py-2.5 rounded-lg transition-colors">
                             Login
                         </Link>

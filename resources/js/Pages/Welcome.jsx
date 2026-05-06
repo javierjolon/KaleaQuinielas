@@ -27,18 +27,24 @@ export default function Welcome({ auth }) {
                             disfrutan juntos la emoción de cada partido.
                         </p>
 
-                        <div className="flex items-center gap-4 mb-10">
+                        <div className="flex items-center gap-2 mb-10">
                             <Link
                                 href={route('register')}
-                                className="bg-green-500 hover:bg-green-600 text-white font-bold px-7 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-green-200"
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2.5 md:px-7 md:py-3.5 rounded-xl text-sm md:text-base transition-colors shadow-lg shadow-green-200"
                             >
                                 Registrarse
                             </Link>
                             <Link
                                 href={route('login')}
-                                className="bg-white hover:bg-gray-50 text-gray-800 font-semibold px-7 py-3.5 rounded-xl text-base border border-gray-200 transition-colors"
+                                className="bg-white hover:bg-gray-50 text-gray-800 font-semibold px-4 py-2.5 md:px-7 md:py-3.5 rounded-xl text-sm md:text-base border border-gray-200 transition-colors"
                             >
                                 Login
+                            </Link>
+                            <Link
+                                href={route('reglas.index')}
+                                className="bg-white hover:bg-gray-50 text-gray-800 font-semibold px-4 py-2.5 md:px-7 md:py-3.5 rounded-xl text-sm md:text-base border border-gray-200 transition-colors"
+                            >
+                                Reglas
                             </Link>
                         </div>
 
