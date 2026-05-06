@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import GuestLayout from '@/Layouts/GuestLayout';
+import PublicLayout from '@/Layouts/PublicLayout';
 
 export default function Reglas({ auth, errors, reglas = [] }) {
     const content = (
@@ -45,5 +45,5 @@ export default function Reglas({ auth, errors, reglas = [] }) {
         );
     }
 
-    return <GuestLayout>{content}</GuestLayout>;
+    return <PublicLayout auth={auth}>{content}</PublicLayout>;
 }
