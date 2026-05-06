@@ -40,10 +40,19 @@ class QuinielaController extends Controller
                 ];
             });
 
+        $usuariosPorQuiniela = DB::table('usuariosQuinielas as uq')
+            ->join('users as u', 'u.id', '=', 'uq.usuarioId')
+            ->whereIn('uq.quinielaId', $quinielasActivas->pluck('id'))
+            ->select('uq.quinielaId', 'u.id', 'u.name', 'u.telefono')
+            ->get()
+            ->groupBy('quinielaId')
+            ->map(fn($grupo) => $grupo->values());
+
         return Inertia::render("Quiniela/create", [
-            'quinielasActivas' => $quinielasActivas,
+            'quinielasActivas'    => $quinielasActivas,
             'competicionesDisponibles' => $competicionesDisponibles,
-            'estatus' => session('estatus'),
+            'usuariosPorQuiniela' => $usuariosPorQuiniela,
+            'estatus'             => session('estatus'),
         ]);
     }
 
@@ -186,6 +195,39 @@ class QuinielaController extends Controller
         }
 
         return back()->with('estatus', 'Usuario agregado correctamente a la quiniela.');
+    }
+
+    public function eliminarUsuario(Request $request)
+    {
+        $data = $request->validate([
+            'quinielaId' => ['required', 'integer'],
+            'usuarioId'  => ['required', 'integer'],
+        ]);
+
+        $quiniela = DB::table('quinielas')
+            ->where('id', $data['quinielaId'])
+            ->where('usuarioId', Auth::id())
+            ->first();
+
+        if (! $quiniela) {
+            return back()->withErrors(['eliminar' => 'No tienes permiso para modificar esta quiniela.']);
+        }
+
+        if ($data['usuarioId'] === Auth::id()) {
+            return back()->withErrors(['eliminar' => 'No puedes eliminarte a ti mismo de la quiniela.']);
+        }
+
+        DB::table('usuariosQuinielas')
+            ->where('quinielaId', $data['quinielaId'])
+            ->where('usuarioId', $data['usuarioId'])
+            ->delete();
+
+        DB::table('quinielasJuegos')
+            ->where('quinielaId', $data['quinielaId'])
+            ->where('usuarioId', $data['usuarioId'])
+            ->delete();
+
+        return back()->with('estatus', 'Usuario eliminado de la quiniela.');
     }
 
     public function seleccionarActiva(Request $request)

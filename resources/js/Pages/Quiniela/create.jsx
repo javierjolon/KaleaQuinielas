@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { useForm } from "@inertiajs/react";
+import { useForm, router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
 export default function FormQuiniela(props) {
@@ -28,6 +28,15 @@ export default function FormQuiniela(props) {
 
     const quinielasActivas = props.quinielasActivas ?? [];
     const competicionesDisponibles = props.competicionesDisponibles ?? [];
+    const usuariosPorQuiniela = props.usuariosPorQuiniela ?? {};
+
+    const eliminarUsuario = (quinielaId, usuarioId) => {
+        if (!confirm('¿Eliminar este usuario de la quiniela?')) return;
+        router.delete(route('quiniela.eliminar-usuario'), {
+            data: { quinielaId, usuarioId },
+            preserveScroll: true,
+        });
+    };
 
     useEffect(() => {
         if (props.estatus) alertify.success(props.estatus);
@@ -143,19 +152,7 @@ export default function FormQuiniela(props) {
                         <form onSubmit={handleSubmitInvitar} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Telefono del usuario
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={dataInvitar.telefono}
-                                    onChange={(e) => setDataInvitar("telefono", e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Quiniela activa
+                                    Selecciona quiniela
                                 </label>
                                 <select
                                     value={dataInvitar.quinielaId}
@@ -171,6 +168,18 @@ export default function FormQuiniela(props) {
                                 </select>
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Teléfono del usuario
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={dataInvitar.telefono}
+                                    onChange={(e) => setDataInvitar("telefono", e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
                             <button
                                 type="submit"
                                 disabled={processingInvitar}
@@ -178,6 +187,30 @@ export default function FormQuiniela(props) {
                             >
                                 Agregar usuario
                             </button>
+
+                            {dataInvitar.quinielaId && (
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Participantes</p>
+                                    {(usuariosPorQuiniela[dataInvitar.quinielaId] ?? []).length === 0 ? (
+                                        <p className="text-xs text-gray-400">Sin participantes aún.</p>
+                                    ) : (
+                                        <ul className="space-y-1">
+                                            {(usuariosPorQuiniela[dataInvitar.quinielaId] ?? []).map((u) => (
+                                                <li key={u.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                                                    <span className="text-sm text-gray-700">{u.name} <span className="text-gray-400 text-xs">({u.telefono})</span></span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => eliminarUsuario(parseInt(dataInvitar.quinielaId), u.id)}
+                                                        className="text-red-500 hover:text-red-700 text-xs font-semibold ml-3"
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
                         </form>
                     </div>
                 )}
