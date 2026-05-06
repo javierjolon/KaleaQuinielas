@@ -41,6 +41,10 @@ export default function FormQuiniela(props) {
 
     const handleSubmitCrear = (e) => {
         e.preventDefault();
+        if (!dataCrear.competicion) {
+            alertify.error('Debes seleccionar una competición.');
+            return;
+        }
         postCrear(route("quiniela.store"));
     };
 
@@ -93,8 +97,11 @@ export default function FormQuiniela(props) {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Competicion
+                                    Competición
                                 </label>
+                                {!dataCrear.competicion && (
+                                    <p className="text-xs text-gray-400 mb-2">Seleccione una competición</p>
+                                )}
                                 <div className="flex flex-wrap gap-2 mt-1">
                                     {competicionesDisponibles.map((item) => {
                                         const val = `${item.competicion}|${item.season}`;
