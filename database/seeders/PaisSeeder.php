@@ -92,7 +92,7 @@ class PaisSeeder extends Seeder
             ['code' => 'GH', 'name' => 'Ghana',                         'dial' => '+233',  'orden' => 73],
             ['code' => 'GD', 'name' => 'Granada',                       'dial' => '+1473', 'orden' => 74],
             ['code' => 'GR', 'name' => 'Grecia',                        'dial' => '+30',   'orden' => 75],
-            ['code' => 'GT', 'name' => 'Guatemala',                     'dial' => '+502',  'orden' => 76],
+            ['code' => 'GT', 'name' => 'Guatemala',                     'dial' => '+502',  'orden' => 0],
             ['code' => 'GN', 'name' => 'Guinea',                        'dial' => '+224',  'orden' => 77],
             ['code' => 'GQ', 'name' => 'Guinea Ecuatorial',             'dial' => '+240',  'orden' => 78],
             ['code' => 'GW', 'name' => 'Guinea-Bisáu',                  'dial' => '+245',  'orden' => 79],
