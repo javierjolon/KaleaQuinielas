@@ -3,12 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\Quiniela;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
@@ -39,9 +41,15 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('name')->label('Nombre')->searchable(),
                 Tables\Columns\TextColumn::make('telefono')->searchable(),
-                Tables\Columns\TagsColumn::make('roles.name')->label('Roles'),
+                Tables\Columns\TagsColumn::make('quinielas.nombre')->label('Quiniela'),
             ])
-            ->filters([])
+            ->filters([
+                SelectFilter::make('quinielas')
+                    ->label('Quiniela')
+                    ->relationship('quinielas', 'nombre')
+                    ->multiple()
+                    ->placeholder('Todas las quinielas'),
+            ])
             ->defaultSort('id', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),

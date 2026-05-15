@@ -55,6 +55,11 @@ class User extends \Illuminate\Database\Eloquent\Model implements
     /**
      * Valor usado en enlaces de verificación (históricamente “email” en Laravel).
      */
+    public function quinielas()
+    {
+        return $this->belongsToMany(Quiniela::class, 'usuariosQuinielas', 'usuarioId', 'quinielaId');
+    }
+
     public function canAccessFilament(): bool
     {
         return $this->hasRole('admin');
