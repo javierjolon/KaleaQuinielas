@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\Pais;
 use App\Models\Quiniela;
 use App\Models\User;
 use Filament\Forms;
@@ -25,9 +26,22 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $paisOptions = Pais::activos()
+            ->get(['code', 'name', 'dial'])
+            ->mapWithKeys(fn($p) => [$p->code => "{$p->name} ({$p->dial})"])
+            ->toArray();
+
         return $form->schema([
             Forms\Components\TextInput::make('name')->required()->label('Nombre'),
-            Forms\Components\TextInput::make('telefono')->required()->label('Teléfono'),
+            Forms\Components\Select::make('pais')
+                ->label('País / Código de área')
+                ->options($paisOptions)
+                ->searchable()
+                ->placeholder('Selecciona un país'),
+            Forms\Components\TextInput::make('telefono')
+                ->required()
+                ->label('Teléfono (con código de área, ej: +50212345678)')
+                ->helperText('Selecciona el país arriba para ver el código, luego escribe el número completo.'),
             Forms\Components\CheckboxList::make('roles')
                 ->relationship('roles', 'name')
                 ->label('Roles'),
