@@ -1,15 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import PhoneCountryInput from '@/Components/PhoneCountryInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Register() {
+export default function Register({ paises = [] }) {
+    const defaultCountry = paises[0] ?? { code: '', dial: '' };
+
+    const [localPhone, setLocalPhone] = useState('');
+    const [pais, setPais] = useState(defaultCountry.code);
+    const [dialCode, setDialCode] = useState(defaultCountry.dial);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        telefono: '',
+        telefono: defaultCountry.dial,
+        pais: defaultCountry.code,
         password: '',
         password_confirmation: '',
     });
@@ -20,23 +28,33 @@ export default function Register() {
         };
     }, []);
 
+    function handleCountryChange(countryCode, dial) {
+        setPais(countryCode);
+        setDialCode(dial);
+        setData(prev => ({ ...prev, pais: countryCode, telefono: dial + localPhone }));
+    }
+
+    function handlePhoneChange(value) {
+        setLocalPhone(value);
+        setData('telefono', dialCode + value);
+    }
+
     const handleOnChange = (event) => {
         setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value);
     };
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('register'));
     };
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Registrarse" />
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="name" value="Nombre" />
 
                     <TextInput
                         id="name"
@@ -55,22 +73,21 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel htmlFor="telefono" value="Teléfono" />
 
-                    <TextInput
-                        id="telefono"
-                        type="tel"
-                        name="telefono"
-                        value={data.telefono}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={handleOnChange}
-                        required
+                    <PhoneCountryInput
+                        countries={paises}
+                        telefono={localPhone}
+                        pais={pais}
+                        onTelefonoChange={handlePhoneChange}
+                        onPaisChange={handleCountryChange}
+                        error={errors.telefono}
+                        disabled={processing}
                     />
 
                     <InputError message={errors.telefono} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Contraseña" />
 
                     <TextInput
                         id="password"
@@ -87,7 +104,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
+                    <InputLabel htmlFor="password_confirmation" value="Confirmar Contraseña" />
 
                     <TextInput
                         id="password_confirmation"
@@ -108,11 +125,11 @@ export default function Register() {
                         href={route('login')}
                         className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                        Already registered?
+                        ¿Ya tienes cuenta?
                     </Link>
 
                     <PrimaryButton className="ml-4" disabled={processing}>
-                        Register
+                        Registrarse
                     </PrimaryButton>
                 </div>
             </form>

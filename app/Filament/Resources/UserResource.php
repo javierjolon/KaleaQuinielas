@@ -41,6 +41,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('name')->label('Nombre')->searchable(),
                 Tables\Columns\TextColumn::make('telefono')->searchable(),
+                Tables\Columns\TextColumn::make('pais')->label('País')->sortable()->searchable(),
                 Tables\Columns\TagsColumn::make('quinielas.nombre')->label('Quiniela'),
             ])
             ->filters([

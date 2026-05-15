@@ -1,15 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import PhoneCountryInput from '@/Components/PhoneCountryInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Login({ estatus, canResetPassword }) {
+export default function Login({ estatus, canResetPassword, paises = [] }) {
+    const defaultCountry = paises[0] ?? { code: '', dial: '' };
+
+    const [localPhone, setLocalPhone] = useState('');
+    const [pais, setPais] = useState(defaultCountry.code);
+    const [dialCode, setDialCode] = useState(defaultCountry.dial);
+
     const { data, setData, post, processing, errors, reset } = useForm({
-        telefono: '',
+        telefono: defaultCountry.dial,
         password: '',
         remember: '',
     });
@@ -20,19 +26,29 @@ export default function Login({ estatus, canResetPassword }) {
         };
     }, []);
 
+    function handleCountryChange(countryCode, dial) {
+        setPais(countryCode);
+        setDialCode(dial);
+        setData('telefono', dial + localPhone);
+    }
+
+    function handlePhoneChange(value) {
+        setLocalPhone(value);
+        setData('telefono', dialCode + value);
+    }
+
     const handleOnChange = (event) => {
         setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value);
     };
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('login'));
     };
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Iniciar sesión" />
 
             {estatus && <div className="mb-4 font-medium text-sm text-green-600">{estatus}</div>}
 
@@ -40,29 +56,28 @@ export default function Login({ estatus, canResetPassword }) {
                 <div>
                     <InputLabel htmlFor="telefono" value="Teléfono" />
 
-                    <TextInput
-                        id="telefono"
-                        type="tel"
-                        name="telefono"
-                        value={data.telefono}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={handleOnChange}
+                    <PhoneCountryInput
+                        countries={paises}
+                        telefono={localPhone}
+                        pais={pais}
+                        onTelefonoChange={handlePhoneChange}
+                        onPaisChange={handleCountryChange}
+                        error={errors.telefono}
+                        disabled={processing}
                     />
 
                     <InputError message={errors.telefono} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Contraseña" />
 
-                    <TextInput
+                    <input
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
                         autoComplete="current-password"
                         onChange={handleOnChange}
                     />
@@ -73,7 +88,7 @@ export default function Login({ estatus, canResetPassword }) {
                 <div className="block mt-4">
                     <label className="flex items-center">
                         <Checkbox name="remember" value={data.remember} onChange={handleOnChange} />
-                        <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                        <span className="ml-2 text-sm text-gray-600">Recordarme</span>
                     </label>
                 </div>
 
@@ -83,12 +98,12 @@ export default function Login({ estatus, canResetPassword }) {
                             href={route('password.request')}
                             className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
-                            Forgot your password?
+                            ¿Olvidaste tu contraseña?
                         </Link>
                     )}
 
                     <PrimaryButton className="ml-4" disabled={processing}>
-                        Log in
+                        Ingresar
                     </PrimaryButton>
                 </div>
             </form>

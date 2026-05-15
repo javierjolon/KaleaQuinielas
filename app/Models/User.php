@@ -31,7 +31,7 @@ class User extends \Illuminate\Database\Eloquent\Model implements
      * @var array
      */
     protected $fillable = [
-        'name', 'telefono', 'password',
+        'name', 'telefono', 'pais', 'password',
     ];
 
     /**

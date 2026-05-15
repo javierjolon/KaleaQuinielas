@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pais;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -21,7 +22,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'paises' => Pais::activos()->get(['code', 'name', 'dial']),
+        ]);
     }
 
     /**
@@ -34,12 +37,14 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'telefono' => 'required|string|regex:/^[0-9+\s\-]{8,20}$/|unique:'.User::class,
+            'pais' => 'nullable|string|max:10',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'telefono' => $request->telefono,
+            'pais' => $request->pais,
             'password' => Hash::make($request->password),
         ]);
 
