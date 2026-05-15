@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import PhoneCountryInput from '@/Components/PhoneCountryInput';
 import { useForm, router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
@@ -14,13 +15,20 @@ export default function FormQuiniela(props) {
         season: "",
     });
 
+    const paises = props.paises ?? [];
+    const defaultCountry = paises[0] ?? { code: '', dial: '' };
+
+    const [localPhone, setLocalPhone] = useState('');
+    const [paisCode, setPaisCode] = useState(defaultCountry.code);
+    const [dialCode, setDialCode] = useState(defaultCountry.dial);
+
     const {
         data: dataInvitar,
         setData: setDataInvitar,
         post: postInvitar,
         processing: processingInvitar,
     } = useForm({
-        telefono: "",
+        telefono: defaultCountry.dial,
         quinielaId: "",
     });
 
@@ -61,6 +69,17 @@ export default function FormQuiniela(props) {
         e.preventDefault();
         postInvitar(route("quiniela.agregar-usuario"));
     };
+
+    function handleCountryChange(countryCode, dial) {
+        setPaisCode(countryCode);
+        setDialCode(dial);
+        setDataInvitar('telefono', dial + localPhone);
+    }
+
+    function handlePhoneChange(value) {
+        setLocalPhone(value);
+        setDataInvitar('telefono', dialCode + value);
+    }
 
     return (
         <AuthenticatedLayout auth={props.auth} errors={props.errors} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Crear Quiniela</h2>}>
@@ -172,11 +191,14 @@ export default function FormQuiniela(props) {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Teléfono del usuario
                                 </label>
-                                <input
-                                    type="tel"
-                                    value={dataInvitar.telefono}
-                                    onChange={(e) => setDataInvitar("telefono", e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                <PhoneCountryInput
+                                    countries={paises}
+                                    telefono={localPhone}
+                                    pais={paisCode}
+                                    onTelefonoChange={handlePhoneChange}
+                                    onPaisChange={handleCountryChange}
+                                    error={props.errors?.telefonoInvitado}
+                                    disabled={processingInvitar}
                                 />
                             </div>
 

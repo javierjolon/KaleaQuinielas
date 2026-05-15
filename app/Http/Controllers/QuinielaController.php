@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Configuracion;
+use App\Models\Pais;
 use App\Services\apiFotballService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -49,10 +50,11 @@ class QuinielaController extends Controller
             ->map(fn($grupo) => $grupo->values());
 
         return Inertia::render("Quiniela/create", [
-            'quinielasActivas'    => $quinielasActivas,
+            'quinielasActivas'         => $quinielasActivas,
             'competicionesDisponibles' => $competicionesDisponibles,
-            'usuariosPorQuiniela' => $usuariosPorQuiniela,
-            'estatus'             => session('estatus'),
+            'usuariosPorQuiniela'      => $usuariosPorQuiniela,
+            'paises'                   => Pais::activos()->get(['code', 'name', 'dial']),
+            'estatus'                  => session('estatus'),
         ]);
     }
 
