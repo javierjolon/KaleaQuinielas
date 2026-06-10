@@ -19,6 +19,7 @@
         "tailwindcss": "^3.2.1"
     },
     "dependencies": {
+        "@marsidev/react-turnstile": "^1.5.3",
         "alertifyjs": "^1.14.0",
         "bootstrap-icons": "^1.9.1",
         "swiper": "^12.1.0"
