@@ -13,6 +13,11 @@ class Quiniela extends Model
 
     protected $fillable = ['usuarioId', 'codigo', 'nombre', 'status'];
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'usuarioId');
+    }
+
     public function juegos()
     {
         return $this->hasMany(QuinielaJuego::class, 'quinielaId');
