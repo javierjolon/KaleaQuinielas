@@ -24,6 +24,7 @@ class AuthenticatedSessionController extends Controller
             'canResetPassword' => Route::has('password.request'),
             'estatus'          => session('estatus'),
             'paises'           => Pais::activos()->get(['code', 'name', 'dial']),
+            'turnstileSiteKey' => config('services.turnstile.site_key'),
         ]);
     }
 

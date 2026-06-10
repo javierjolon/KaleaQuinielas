@@ -5,6 +5,7 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -27,8 +28,9 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'telefono' => ['required', 'string', 'regex:/^[0-9+\s\-]{8,20}$/'],
-            'password' => ['required', 'string'],
+            'telefono'             => ['required', 'string', 'regex:/^[0-9+\s\-]{8,20}$/'],
+            'password'             => ['required', 'string'],
+            'cf_turnstile_response' => ['required', 'string'],
         ];
     }
 
@@ -40,6 +42,18 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+
+        $turnstileVerify = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret'   => config('services.turnstile.secret_key'),
+            'response' => $this->input('cf_turnstile_response'),
+            'remoteip' => $this->ip(),
+        ]);
+
+        if (! ($turnstileVerify->json('success') === true)) {
+            throw ValidationException::withMessages([
+                'cf_turnstile_response' => 'La verificación de seguridad falló. Intenta de nuevo.',
+            ]);
+        }
 
         if (! Auth::attempt($this->only('telefono', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
