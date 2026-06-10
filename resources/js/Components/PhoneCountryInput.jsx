@@ -83,10 +83,20 @@ export default function PhoneCountryInput({ countries = [], telefono, pais, onTe
             <input
                 id="telefono"
                 type="tel"
+                inputMode="numeric"
                 name="telefono"
                 value={telefono}
                 disabled={disabled}
-                onChange={e => onTelefonoChange(e.target.value)}
+                onKeyDown={e => {
+                    const allowed = ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+                    if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault();
+                }}
+                onChange={e => onTelefonoChange(e.target.value.replace(/\D/g, ''))}
+                onPaste={e => {
+                    e.preventDefault();
+                    const digits = e.clipboardData.getData('text').replace(/\D/g, '');
+                    onTelefonoChange(telefono + digits);
+                }}
                 placeholder="12345678"
                 className={`flex-1 border border-gray-300 rounded-md shadow-sm text-sm px-3 focus:ring-indigo-500 focus:border-indigo-500 ${
                     error ? 'border-red-500' : ''
