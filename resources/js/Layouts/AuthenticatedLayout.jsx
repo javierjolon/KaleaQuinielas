@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Navbar from '@/Components/Navbar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import Footer from '@/Components/Footer';
 import { usePage } from '@inertiajs/react';
 
 export default function Authenticated({ auth, header, children }) {
@@ -8,7 +9,7 @@ export default function Authenticated({ auth, header, children }) {
     const { quinielasHeader = [], quinielaActivaId } = usePage().props;
 
     return (
-        <div className="min-h-screen bg-[#f0f0f0] font-sans">
+        <div className="min-h-screen bg-[#f0f0f0] font-sans flex flex-col">
             <Navbar
                 auth={auth}
                 quinielasHeader={quinielasHeader}
@@ -75,7 +76,8 @@ export default function Authenticated({ auth, header, children }) {
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="flex-1">{children}</main>
+            <Footer />
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 function PrediccionBadge({ valor, referencia, mostrar }) {
@@ -175,6 +175,13 @@ export default function Var(props) {
     }, [handleScroll]);
 
     useEffect(() => { setActiveJuego(null); }, [tab]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({ only: ['juegosEnCurso', 'juegosFinalizados'] });
+        }, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <AuthenticatedLayout

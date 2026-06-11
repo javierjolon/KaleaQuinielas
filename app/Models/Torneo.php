@@ -11,12 +11,12 @@ class Torneo extends Model
 
     protected $table = 'torneos';
 
-    protected $fillable = ['codigo', 'nombre', 'activo'];
+    protected $fillable = ['codigo', 'nombre', 'activo', 'season'];
 
     protected $casts = ['activo' => 'boolean'];
 
     public static function activos()
     {
-        return static::where('activo', true)->pluck('codigo');
+        return static::where('activo', true)->get(['codigo', 'season', 'nombre']);
     }
 }

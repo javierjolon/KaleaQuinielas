@@ -1,15 +1,16 @@
 import { Link, Head } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
 
 export default function Welcome({ auth }) {
     return (
         <>
             <Head title="Kingol" />
-            <div className="min-h-screen bg-[#f0f0f0] font-sans">
+            <div className="min-h-screen bg-[#f0f0f0] font-sans flex flex-col">
                 <Navbar auth={auth} />
 
                 {/* Hero */}
-                <div className="relative flex flex-col md:flex-row items-center justify-between px-8 md:px-16 pt-12 pb-20 max-w-7xl mx-auto min-h-[calc(100vh-80px)]">
+                <div className="relative flex flex-col md:flex-row items-center justify-between px-8 md:px-16 pt-12 pb-20 max-w-7xl mx-auto flex-1">
                     {/* Green gradient top-right background */}
                     <div className="absolute top-0 right-0 w-1/2 h-80 bg-gradient-to-bl from-green-100 to-transparent rounded-bl-[200px] pointer-events-none" />
 
@@ -99,6 +100,7 @@ export default function Welcome({ auth }) {
                         </div>
                     </div>
                 </div>
+                <Footer />
             </div>
         </>
     );

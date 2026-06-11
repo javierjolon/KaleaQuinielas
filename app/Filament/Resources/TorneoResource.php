@@ -24,15 +24,17 @@ class TorneoResource extends Resource
     {
         return $form->schema([
             Forms\Components\TextInput::make('codigo')
-                ->label('Código API')
-                ->helperText('Ej: PD, CL, WC, BL1, SA — código de football-data.org')
+                ->label('League ID (api-sports.io)')
+                ->helperText('Ej: 1 = Mundial, 2 = Champions, 140 = La Liga — ID numérico de api-sports.io')
                 ->required()
-                ->maxLength(10)
-                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                ->reactive()
-                ->afterStateUpdated(fn ($set, $state) => $set('codigo', strtoupper($state))),
+                ->maxLength(10),
             Forms\Components\TextInput::make('nombre')
                 ->label('Nombre')
+                ->required(),
+            Forms\Components\TextInput::make('season')
+                ->label('Temporada')
+                ->helperText('Año de la temporada, ej: 2026')
+                ->numeric()
                 ->required(),
             Forms\Components\Toggle::make('activo')
                 ->label('Sincronizar activamente')
@@ -44,8 +46,9 @@ class TorneoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('codigo')->label('Código')->sortable(),
+                Tables\Columns\TextColumn::make('codigo')->label('League ID')->sortable(),
                 Tables\Columns\TextColumn::make('nombre')->searchable(),
+                Tables\Columns\TextColumn::make('season')->label('Temporada')->sortable(),
                 Tables\Columns\IconColumn::make('activo')->boolean()->label('Activo'),
                 Tables\Columns\TextColumn::make('updated_at')->label('Actualizado')->dateTime()->sortable(),
             ])

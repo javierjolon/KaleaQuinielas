@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Http\Controllers\GamesController;
 use App\Models\Juegos;
-use App\Models\Partidos;
 use App\Models\Torneo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -13,84 +12,92 @@ use Illuminate\Support\Facades\Log;
 
 class apiFotballService
 {
-    
-    
     public function sincronizarTodos(): void
     {
-        $codigos = Torneo::activos();
+        $torneos = Torneo::activos();
 
-        if ($codigos->isEmpty()) {
+        if ($torneos->isEmpty()) {
             Log::channel('sync')->info('[sync] Sin torneos activos configurados');
             return;
         }
 
-        foreach ($codigos as $codigo) {
-            $this->sincronizarJugos($codigo);
+        foreach ($torneos as $torneo) {
+            $this->sincronizarJugos($torneo);
         }
     }
 
     public function sincronizarJugos($torneo)
     {
-        $url = "https://api.football-data.org/v4/competitions/{$torneo}/matches";
-        
-        Log::channel('sync')->info("[$torneo] Iniciando sincronización");
+        $leagueId = $torneo->codigo;
+        $season   = $torneo->season;
+        $label    = "{$torneo->nombre} [{$leagueId}/{$season}]";
+
+        $url = "https://v3.football.api-sports.io/fixtures?league={$leagueId}&season={$season}";
+
+        Log::channel('sync')->info("[{$label}] Iniciando sincronización");
 
         $response = Http::withHeaders([
-            'X-Auth-Token' => env('FOOTBALL_API_KEY'),
+            'x-apisports-key' => env('FOOTBALL_API_KEY'),
         ])->get($url);
 
         if ($response->successful()) {
             $data = $response->json();
 
-            if (empty($data['matches'])) {
-                Log::channel('sync')->warning("[$torneo] Respuesta sin 'matches'", ['body' => $response->body()]);
+            if (empty($data['response'])) {
+                Log::channel('sync')->warning("[{$label}] Respuesta sin 'response'", ['body' => $response->body()]);
                 return ['success' => false, 'message' => 'Sin partidos en la respuesta', 'data' => null];
             }
 
             $gamesController = new GamesController();
             $cambios = 0;
 
-            foreach ($data['matches'] as $key => $partido) {
-                $juegoAntes = Juegos::where('api_id', $partido['id'])->first();
+            foreach ($data['response'] as $fixture) {
+                $juegoAntes  = Juegos::where('api_id', $fixture['fixture']['id'])->first();
                 $estatusAntes = $juegoAntes?->estatus;
 
-                $scoreHome = $partido['score']['fullTime']['home'];
-                $scoreAway = $partido['score']['fullTime']['away'];
+                $statusShort = $fixture['fixture']['status']['short'] ?? 'NS';
+                $statusApi   = $this->mapearEstatus($statusShort);
 
-                $statusApi = $partido['status'];
+                $scoreHome = $fixture['goals']['home'];
+                $scoreAway = $fixture['goals']['away'];
 
-                // No regresar de IN_PLAY/PAUSED/FINISHED a TIMED — el API free tier puede fluctuar
+                // Free tier puede no enviar IN_PLAY — misma protección que antes
                 $statusNoRegresa = ['IN_PLAY', 'PAUSED', 'FINISHED'];
-                $statusEfectivo = (in_array($estatusAntes, $statusNoRegresa) && $statusApi === 'TIMED')
-                    ? $estatusAntes
-                    : $statusApi;
+                $fechaJuego      = Carbon::parse($fixture['fixture']['date']);
+                $juegoYaEmpezó   = $fechaJuego->isPast();
+
+                if (in_array($estatusAntes, $statusNoRegresa) && $statusApi === 'TIMED') {
+                    $statusEfectivo = $estatusAntes;
+                } elseif ($statusApi === 'TIMED' && $juegoYaEmpezó) {
+                    $statusEfectivo = 'IN_PLAY';
+                } else {
+                    $statusEfectivo = $statusApi;
+                }
 
                 $campos = [
-                    'equipo1' => $partido['homeTeam']['name'],
-                    'equipo2' => $partido['awayTeam']['name'],
-                    'imagenEquipo1' => $partido['homeTeam']['crest'],
-                    'imagenEquipo2' => $partido['awayTeam']['crest'],
-                    'estatus' => $statusEfectivo,
-                    'ronda' => $partido['stage'],
-                    'competicion' => $partido['competition']['code'],
-                    'season' => isset($partido['season']['startDate'])
-                        ? Carbon::parse($partido['season']['startDate'])->year
-                        : null,
-                    'nombreCompeticion' => $partido['competition']['name'] ?? null,
-                    'fechaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
-                    'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
+                    'equipo1'          => $fixture['teams']['home']['name'],
+                    'equipo2'          => $fixture['teams']['away']['name'],
+                    'imagenEquipo1'    => $fixture['teams']['home']['logo'],
+                    'imagenEquipo2'    => $fixture['teams']['away']['logo'],
+                    'estatus'          => $statusEfectivo,
+                    'ronda'            => $fixture['league']['round'] ?? null,
+                    'competicion'      => (string) $fixture['league']['id'],
+                    'season'           => $fixture['league']['season'],
+                    'nombreCompeticion' => $fixture['league']['name'] ?? null,
+                    'fechaJuego'       => Carbon::parse($fixture['fixture']['date'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
+                    'horaJuego'        => Carbon::parse($fixture['fixture']['date'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
                 ];
 
-                // Solo actualizar marcador cuando el partido termina — fullTime solo es confiable en FINISHED
+                // Solo actualizar marcador al finalizar
                 if ($statusApi === 'FINISHED' && $scoreHome !== null && $scoreAway !== null) {
                     $campos['resultadoEquipo1'] = $scoreHome;
                     $campos['resultadoEquipo2'] = $scoreAway;
                 }
 
-                $juego = Juegos::updateOrCreate(['api_id' => $partido['id']], $campos);
+                $juego = Juegos::updateOrCreate(['api_id' => $fixture['fixture']['id']], $campos);
 
-                $estatusNuevo = $statusEfectivo;
-                $enJuego = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED']);
+                $estatusNuevo    = $statusEfectivo;
+                $enJuego         = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED']);
                 $cambioDeEstatus = $estatusAntes !== $estatusNuevo;
                 $acabaDeTerminar = $cambioDeEstatus && $statusApi === 'FINISHED';
 
@@ -99,30 +106,30 @@ class apiFotballService
                     $cambios++;
 
                     if ($cambioDeEstatus) {
-                        Log::channel('sync')->info("[$torneo] Cambio de estatus", [
-                            'partido' => $partido['homeTeam']['name'] . ' vs ' . $partido['awayTeam']['name'],
+                        Log::channel('sync')->info("[{$label}] Cambio de estatus", [
+                            'partido' => $fixture['teams']['home']['name'] . ' vs ' . $fixture['teams']['away']['name'],
                             'antes'   => $estatusAntes,
                             'ahora'   => $estatusNuevo,
-                            'marcador' => ($partido['score']['fullTime']['home'] ?? 0) . '-' . ($partido['score']['fullTime']['away'] ?? 0),
+                            'marcador' => ($scoreHome ?? 0) . '-' . ($scoreAway ?? 0),
                         ]);
                     }
                 }
             }
 
-            Log::channel('sync')->info("[$torneo] Sincronización completada", [
-                'partidos_procesados' => count($data['matches']),
+            Log::channel('sync')->info("[{$label}] Sincronización completada", [
+                'partidos_procesados'  => count($data['response']),
                 'puntajes_actualizados' => $cambios,
             ]);
 
             return [
                 'success' => true,
                 'message' => 'Sincronizado correctamente',
-                'data' => null
+                'data'    => null,
             ];
         }
 
         if ($response->failed()) {
-            Log::channel('sync')->error("[$torneo] Error al sincronizar", [
+            Log::channel('sync')->error("[{$label}] Error al sincronizar", [
                 'status_code' => $response->status(),
                 'body'        => $response->body(),
             ]);
@@ -135,9 +142,24 @@ class apiFotballService
         }
     }
 
-    public function iniciarPartido(GamesController $juegos){
-        $respuesta = $juegos->iniciarPartido(222, "IN_PLAY");
+    private function mapearEstatus(string $short): string
+    {
+        return match($short) {
+            'NS', 'TBD'              => 'TIMED',
+            '1H', '2H', 'ET', 'P',
+            'INT', 'LIVE'            => 'IN_PLAY',
+            'HT', 'BT'               => 'PAUSED',
+            'FT', 'AET', 'PEN'       => 'FINISHED',
+            'SUSP'                   => 'SUSPENDED',
+            'PST'                    => 'POSTPONED',
+            'CANC', 'ABD'            => 'CANCELLED',
+            'AWD', 'WO'              => 'AWARDED',
+            default                  => $short,
+        };
+    }
 
-        // Log::alert($respuesta);
+    public function iniciarPartido(GamesController $juegos)
+    {
+        $respuesta = $juegos->iniciarPartido(222, 'IN_PLAY');
     }
 }

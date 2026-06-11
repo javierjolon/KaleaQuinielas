@@ -75,7 +75,7 @@ class JuegosResource extends Resource
                         'TIMED'    => 'Programado',
                     ]),
                 Tables\Filters\SelectFilter::make('competicion')
-                    ->options(['PD' => 'La Liga', 'CL' => 'Champions', 'WC' => 'Mundial']),
+                    ->options(['140' => 'La Liga', '2' => 'Champions', '1' => 'Mundial']),
             ])
             ->defaultSort('fechaJuego', 'desc')
             ->actions([
