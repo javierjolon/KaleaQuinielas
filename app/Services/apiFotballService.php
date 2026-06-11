@@ -54,33 +54,45 @@ class apiFotballService
                 $juegoAntes = Juegos::where('api_id', $partido['id'])->first();
                 $estatusAntes = $juegoAntes?->estatus;
 
-                $juego = Juegos::updateOrCreate(
-                    [
-                        'api_id' => $partido['id']
-                    ],
-                    [
-                        'equipo1' => $partido['homeTeam']['name'],
-                        'equipo2' => $partido['awayTeam']['name'],
-                        'resultadoEquipo1' => $partido['score']['fullTime']['home'] ?? 0,
-                        'resultadoEquipo2' => $partido['score']['fullTime']['away'] ?? 0,
-                        'imagenEquipo1' => $partido['homeTeam']['crest'],
-                        'imagenEquipo2' => $partido['awayTeam']['crest'],
-                        'estatus' => $partido['status'],
-                        'ronda' => $partido['stage'],
-                        'competicion' => $partido['competition']['code'],
-                        'season' => isset($partido['season']['startDate'])
-                            ? Carbon::parse($partido['season']['startDate'])->year
-                            : null,
-                        'nombreCompeticion' => $partido['competition']['name'] ?? null,
-                        'fechaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
-                        'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s')
-                    ]
-                );
+                $scoreHome = $partido['score']['fullTime']['home'];
+                $scoreAway = $partido['score']['fullTime']['away'];
 
-                $estatusNuevo = $partido['status'];
+                $statusApi = $partido['status'];
+
+                // No regresar de IN_PLAY/PAUSED/FINISHED a TIMED — el API free tier puede fluctuar
+                $statusNoRegresa = ['IN_PLAY', 'PAUSED', 'FINISHED'];
+                $statusEfectivo = (in_array($estatusAntes, $statusNoRegresa) && $statusApi === 'TIMED')
+                    ? $estatusAntes
+                    : $statusApi;
+
+                $campos = [
+                    'equipo1' => $partido['homeTeam']['name'],
+                    'equipo2' => $partido['awayTeam']['name'],
+                    'imagenEquipo1' => $partido['homeTeam']['crest'],
+                    'imagenEquipo2' => $partido['awayTeam']['crest'],
+                    'estatus' => $statusEfectivo,
+                    'ronda' => $partido['stage'],
+                    'competicion' => $partido['competition']['code'],
+                    'season' => isset($partido['season']['startDate'])
+                        ? Carbon::parse($partido['season']['startDate'])->year
+                        : null,
+                    'nombreCompeticion' => $partido['competition']['name'] ?? null,
+                    'fechaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
+                    'horaJuego' => Carbon::parse($partido['utcDate'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
+                ];
+
+                // Solo actualizar marcador cuando el partido termina — fullTime solo es confiable en FINISHED
+                if ($statusApi === 'FINISHED' && $scoreHome !== null && $scoreAway !== null) {
+                    $campos['resultadoEquipo1'] = $scoreHome;
+                    $campos['resultadoEquipo2'] = $scoreAway;
+                }
+
+                $juego = Juegos::updateOrCreate(['api_id' => $partido['id']], $campos);
+
+                $estatusNuevo = $statusEfectivo;
                 $enJuego = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED']);
                 $cambioDeEstatus = $estatusAntes !== $estatusNuevo;
-                $acabaDeTerminar = $cambioDeEstatus && $estatusNuevo === 'FINISHED';
+                $acabaDeTerminar = $cambioDeEstatus && $statusApi === 'FINISHED';
 
                 if ($enJuego || $acabaDeTerminar) {
                     $gamesController->ApiActualizarPuntaje($juego->id, $acabaDeTerminar);
