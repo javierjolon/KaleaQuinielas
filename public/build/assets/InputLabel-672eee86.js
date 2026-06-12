@@ -1,0 +1,1 @@
+import{a as n}from"./app-f675f04c.js";function o({message:t,className:r="",...e}){return t?n("p",{...e,className:"text-sm text-red-600 "+r,children:t}):null}function s({value:t,className:r="",children:e,...a}){return n("label",{...a,className:"block font-medium text-sm text-gray-700 "+r,children:t||e})}export{s as I,o as a};

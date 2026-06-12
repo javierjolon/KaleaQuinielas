@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\QuinielaJuegoResource\Pages;
 use App\Http\Controllers\GamesController;
+use App\Models\Juegos;
 use App\Models\QuinielaJuego;
 use Filament\Forms;
 use Filament\Resources\Form;
@@ -58,6 +59,13 @@ class QuinielaJuegoResource extends Resource
                     ]),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('juegoId')
+                    ->label('Juego')
+                    ->options(
+                        Juegos::orderBy('fechaJuego')->get()
+                            ->mapWithKeys(fn ($j) => [$j->id => "{$j->equipo1} vs {$j->equipo2}"])
+                    )
+                    ->searchable(),
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'INVALID'  => 'No válido',

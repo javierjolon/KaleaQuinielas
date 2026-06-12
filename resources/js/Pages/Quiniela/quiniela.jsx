@@ -16,7 +16,19 @@ export default function Quiniela(props) {
         for (const [fecha, juegos] of Object.entries(props.juegosIngresados)) {
             result[fecha] = [...(result[fecha] ?? []), ...juegos];
         }
-        return result;
+        const parseFecha = (k) => {
+            const [d, m, y] = k.split('-');
+            return new Date(`${y}-${m}-${d}`);
+        };
+        const sorted = {};
+        Object.keys(result)
+            .sort((a, b) => parseFecha(a) - parseFecha(b))
+            .forEach(k => {
+                sorted[k] = result[k].sort((a, b) =>
+                    (a.horaJuego ?? '').localeCompare(b.horaJuego ?? '')
+                );
+            });
+        return sorted;
     })();
 
     const [activeTab, setActiveTab] = useState(tabs[0].id);

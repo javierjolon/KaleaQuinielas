@@ -52,7 +52,11 @@ class apiFotballService
             $cambios = 0;
 
             foreach ($data['response'] as $fixture) {
-                $juegoAntes  = Juegos::where('api_id', $fixture['fixture']['id'])->first();
+                $apiId       = $fixture['fixture']['id'];
+
+                // Priorizar registro legacy (football-data.org) sobre registro huérfano nuevo
+                $legacyJuego = $this->buscarJuegoPorFecha($fixture);
+                $juegoAntes  = $legacyJuego ?? Juegos::where('api_id', $apiId)->first();
                 $estatusAntes = $juegoAntes?->estatus;
 
                 $statusShort = $fixture['fixture']['status']['short'] ?? 'NS';
@@ -88,29 +92,62 @@ class apiFotballService
                     'horaJuego'        => Carbon::parse($fixture['fixture']['date'])->setTimezone('America/Guatemala')->format('Y-m-d H:i:s'),
                 ];
 
-                // Solo actualizar marcador al finalizar
-                if ($statusApi === 'FINISHED' && $scoreHome !== null && $scoreAway !== null) {
+                if (in_array($statusApi, ['FINISHED', 'IN_PLAY', 'PAUSED']) && $scoreHome !== null && $scoreAway !== null) {
                     $campos['resultadoEquipo1'] = $scoreHome;
                     $campos['resultadoEquipo2'] = $scoreAway;
                 }
 
-                $juego = Juegos::updateOrCreate(['api_id' => $fixture['fixture']['id']], $campos);
+                // Si encontramos un registro legacy (api_id distinto), actualizar en lugar de crear
+                if ($juegoAntes && $juegoAntes->api_id !== $apiId) {
+                    // Eliminar registro huérfano creado por sync previo con nuevo api_id
+                    Juegos::where('api_id', $apiId)->where('id', '!=', $juegoAntes->id)->delete();
+                    $juegoAntes->update(array_merge($campos, ['api_id' => $apiId]));
+                    $juego = $juegoAntes->fresh();
+                } else {
+                    $juego = Juegos::updateOrCreate(['api_id' => $apiId], $campos);
+                }
+
+                if ($juego->wasRecentlyCreated) {
+                    Log::channel('sync')->info("[{$label}] Juego nuevo registrado", [
+                        'partido' => $campos['equipo1'] . ' vs ' . $campos['equipo2'],
+                        'estatus' => $statusEfectivo,
+                        'fecha'   => Carbon::parse($campos['fechaJuego'])->format('d/m H:i'),
+                    ]);
+                }
 
                 $estatusNuevo    = $statusEfectivo;
                 $enJuego         = in_array($estatusNuevo, ['IN_PLAY', 'PAUSED']);
                 $cambioDeEstatus = $estatusAntes !== $estatusNuevo;
                 $acabaDeTerminar = $cambioDeEstatus && $statusApi === 'FINISHED';
 
-                if ($enJuego || $acabaDeTerminar) {
-                    $gamesController->ApiActualizarPuntaje($juego->id, $acabaDeTerminar);
+                // Recalcular si el marcador cambió en partido ya finalizado (e.g. sync llegó tarde)
+                $scoreChanged = $statusApi === 'FINISHED'
+                    && $scoreHome !== null && $scoreAway !== null
+                    && ((int) ($juegoAntes?->resultadoEquipo1) !== $scoreHome
+                        || (int) ($juegoAntes?->resultadoEquipo2) !== $scoreAway);
+
+                // Marcador cambia durante partido en juego
+                $scoreMidgameChanged = $enJuego
+                    && $scoreHome !== null && $scoreAway !== null
+                    && ((int) ($juegoAntes?->resultadoEquipo1) !== $scoreHome
+                        || (int) ($juegoAntes?->resultadoEquipo2) !== $scoreAway);
+
+                if ($enJuego || $acabaDeTerminar || $scoreChanged) {
+                    $gamesController->ApiActualizarPuntaje($juego->id, $acabaDeTerminar || $scoreChanged);
                     $cambios++;
 
-                    if ($cambioDeEstatus) {
-                        Log::channel('sync')->info("[{$label}] Cambio de estatus", [
-                            'partido' => $fixture['teams']['home']['name'] . ' vs ' . $fixture['teams']['away']['name'],
-                            'antes'   => $estatusAntes,
-                            'ahora'   => $estatusNuevo,
+                    if ($cambioDeEstatus || $scoreChanged) {
+                        Log::channel('sync')->info("[{$label}] " . ($cambioDeEstatus ? 'Cambio de estatus' : 'Marcador corregido'), [
+                            'partido'  => $fixture['teams']['home']['name'] . ' vs ' . $fixture['teams']['away']['name'],
+                            'antes'    => $estatusAntes,
+                            'ahora'    => $estatusNuevo,
                             'marcador' => ($scoreHome ?? 0) . '-' . ($scoreAway ?? 0),
+                        ]);
+                    } elseif ($scoreMidgameChanged) {
+                        Log::channel('sync')->info("[{$label}] Marcador en juego actualizado", [
+                            'partido'  => $fixture['teams']['home']['name'] . ' vs ' . $fixture['teams']['away']['name'],
+                            'marcador' => $scoreHome . '-' . $scoreAway,
+                            'estatus'  => $estatusNuevo,
                         ]);
                     }
                 }
@@ -161,5 +198,40 @@ class apiFotballService
     public function iniciarPartido(GamesController $juegos)
     {
         $respuesta = $juegos->iniciarPartido(222, 'IN_PLAY');
+    }
+
+    /**
+     * Busca un juego legacy por fecha+hora+equipo cuando el api_id cambió de proveedor.
+     * Mapeo: api-sports.io ID → código viejo (football-data.org).
+     */
+    private function buscarJuegoPorFecha(array $fixture): ?Juegos
+    {
+        $codigosLegacy = ['1' => 'WC', '140' => 'PD', '2' => 'CL'];
+        $leagueId      = (string) $fixture['league']['id'];
+
+        if (!isset($codigosLegacy[$leagueId])) {
+            return null;
+        }
+
+        $codigoViejo = $codigosLegacy[$leagueId];
+        $fechaLocal  = Carbon::parse($fixture['fixture']['date'])->setTimezone('America/Guatemala');
+        $fecha       = $fechaLocal->format('Y-m-d');
+        $hora        = $fechaLocal->format('H:i:s');
+        $primeraWord = explode(' ', $fixture['teams']['home']['name'])[0];
+
+        // Buscar por fecha+hora+primer_palabra_del_equipo_local dentro del código legacy
+        $candidatos = Juegos::where('competicion', $codigoViejo)
+            ->whereDate('fechaJuego', $fecha)
+            ->whereTime('horaJuego', $hora)
+            ->get();
+
+        if ($candidatos->count() === 1) {
+            return $candidatos->first();
+        }
+
+        // Hay varios partidos a la misma hora: desambiguar por primera palabra del equipo local
+        return $candidatos->first(function ($j) use ($primeraWord) {
+            return stripos($j->equipo1, $primeraWord) !== false;
+        });
     }
 }

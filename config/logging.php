@@ -106,6 +106,13 @@ return [
             'level'  => 'debug',
             'days'   => 30,
         ],
+
+        'inserciones' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/inserciones.log'),
+            'level'  => 'info',
+            'days'   => 60,
+        ],
     ],
 
 ];

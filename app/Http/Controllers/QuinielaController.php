@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 use function PHPSTORM_META\map;
@@ -60,9 +62,14 @@ class QuinielaController extends Controller
 
     public function store(Request $request){
         $data = $request->validate([
-            'nombre' => ['required', 'string', 'max:120'],
+            'nombre'      => [
+                'required', 'string', 'max:120',
+                Rule::unique('quinielas')->where('usuarioId', Auth::id()),
+            ],
             'competicion' => ['required', 'string'],
-            'season' => ['required', 'integer'],
+            'season'      => ['required', 'integer'],
+        ], [
+            'nombre.unique' => 'Ya existe una quiniela con ese nombre.',
         ]);
 
         // Registra la quiniela en la base de datos
@@ -307,7 +314,10 @@ class QuinielaController extends Controller
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("quinielaId", "=", $quinielaActivaId)
-        ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+        ->where(function($q) {
+            $q->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+              ->orWhereIn('juegos.estatus', ['IN_PLAY', 'LIVE', 'PAUSED']);
+        })
         ->whereNull('qj.quinielaEquipo1')
         ->whereNull('qj.quinielaEquipo2')
         ->whereNotIn('juegos.estatus', ['FINISHED', 'AWARDED', 'CANCELLED', 'POSTPONED', 'SUSPENDED'])
@@ -338,7 +348,10 @@ class QuinielaController extends Controller
         ->leftJoin('juegos', 'qj.juegoId', 'juegos.id')
         ->where('usuarioId', "=", $usuarioId)
         ->where("qj.quinielaId", "=", $quinielaActivaId)
-        ->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+        ->where(function($q) {
+            $q->whereDate('juegos.fechaJuego', '>=', Carbon::today()->toDateString())
+              ->orWhereIn('juegos.estatus', ['IN_PLAY', 'LIVE', 'PAUSED']);
+        })
         ->whereNotNull('qj.quinielaEquipo1')
         ->whereNotNull('qj.quinielaEquipo2')
         ->where(function($q) {
@@ -450,7 +463,7 @@ class QuinielaController extends Controller
     //     }
     // }
 
-    public function patch($juegoId){
+    public function patch(Request $request, $juegoId){
         $quinielaEquipo1 = request()->get("quinielaEquipo1");
         $quinielaEquipo2 = request()->get("quinielaEquipo2");
         $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
@@ -523,12 +536,14 @@ class QuinielaController extends Controller
         if(Carbon::today()->lt($datosJuego->fechaJuego)){
             $data['status'] = 'TIMED';
             $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActivaId, $data);
+            $this->registrarLog($juegoId, $quinielaActivaId, $data, $registroQuiniela, $request);
             return back();
-            
+
         }elseif (Carbon::today()->eq($datosJuego->fechaJuego)){
             if (! $fueraDeHorario){
                 $data['status'] = 'TIMED';
                 $this->actualizarDB('quinielasJuegos', $juegoId, $quinielaActivaId, $data);
+                $this->registrarLog($juegoId, $quinielaActivaId, $data, $registroQuiniela, $request);
                 return back();
             }else{
                 return back()->withErrors(['error' => 'Fuera de horario.']);
@@ -544,13 +559,29 @@ class QuinielaController extends Controller
         DB::table($tabla)
         ->updateOrInsert(
             [
-                'usuarioId'=> Auth::user()->id, 
+                'usuarioId'=> Auth::user()->id,
                 'juegoId' => $juegoId,
                 'quinielaId' => $quinielaId,
             ],
             $arrayCampos
         );
         return;
+    }
+
+    private function registrarLog($juegoId, $quinielaId, $data, $registroAnterior, Request $request){
+        $esNuevo = is_null($registroAnterior?->quinielaEquipo1) && is_null($registroAnterior?->quinielaEquipo2);
+
+        Log::channel('inserciones')->info('insercion', [
+            'usuarioId'               => Auth::id(),
+            'quinielaId'              => $quinielaId,
+            'juegoId'                 => $juegoId,
+            'quinielaEquipo1'         => $data['quinielaEquipo1'] ?? null,
+            'quinielaEquipo2'         => $data['quinielaEquipo2'] ?? null,
+            'quinielaEquipo1Anterior' => $registroAnterior?->quinielaEquipo1,
+            'quinielaEquipo2Anterior' => $registroAnterior?->quinielaEquipo2,
+            'accion'                  => $esNuevo ? 'INSERT' : 'UPDATE',
+            'ip'                      => $request->ip(),
+        ]);
     }
 
     public function puntosXjuego(){

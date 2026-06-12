@@ -63,13 +63,16 @@ class LogsSync extends Page
             }
 
             $tipo = match (true) {
-                str_contains($mensaje, 'Iniciando')           => 'inicio',
-                str_contains($mensaje, 'completada')          => 'completada',
-                str_contains($mensaje, 'Cambio de estatus')   => 'cambio',
-                str_contains($mensaje, 'Modo espera')         => 'espera',
-                str_contains($mensaje, 'Modo activo')         => 'activo',
-                str_contains($mensaje, 'auto-sync')           => 'auto',
-                default                                        => 'info',
+                str_contains($mensaje, 'Iniciando')                  => 'inicio',
+                str_contains($mensaje, 'completada')                 => 'completada',
+                str_contains($mensaje, 'Cambio de estatus')          => 'cambio',
+                str_contains($mensaje, 'Marcador corregido')         => 'cambio',
+                str_contains($mensaje, 'Juego nuevo registrado')     => 'creado',
+                str_contains($mensaje, 'Marcador en juego actualizado') => 'marcador',
+                str_contains($mensaje, 'Modo espera')                => 'espera',
+                str_contains($mensaje, 'Modo activo')                => 'activo',
+                str_contains($mensaje, 'auto-sync')                  => 'auto',
+                default                                               => 'info',
             };
 
             $entries[] = [
