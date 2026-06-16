@@ -52,7 +52,11 @@ export default function TablaPartidos(props) {
                                 <div>{juegos[0].tipoJuego}</div>
                                 <div className='flex items-center gap-1'>
                                     <img src='/img/static/calendar.svg' alt='fecha' className='w-4 h-4' style={{ filter: 'brightness(0) invert(1)' }} />
-                                    {fecha}
+                                    {(() => {
+                                        const [d, m, y] = fecha.split('-');
+                                        const dia = new Date(`${y}-${m}-${d}`).toLocaleDateString('es-MX', { weekday: 'long' });
+                                        return `${dia.charAt(0).toUpperCase() + dia.slice(1)}, ${fecha}`;
+                                    })()}
                                 </div>
                             </div>
 

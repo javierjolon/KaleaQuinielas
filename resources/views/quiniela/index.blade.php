@@ -28,7 +28,7 @@
                                     <tr>
                                         <td class="">
                                             <div class="row justify-content-center">
-                                                <span style="font-size: 10px;">{{date_format(date_create($game->fechaJuego), 'd-m-Y')}} - {{date_format(date_create($game->horaJuego), 'H:i')}}</span>
+                                                <span style="font-size: 10px;">{{\Carbon\Carbon::parse($game->fechaJuego)->locale('es')->isoFormat('dddd')}} {{date_format(date_create($game->fechaJuego), 'd-m-Y')}} - {{date_format(date_create($game->horaJuego), 'H:i')}}</span>
                                             </div>
                                             <div class="row align-items-center">
                                                 <div class="col-6">
