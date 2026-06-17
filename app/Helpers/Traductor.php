@@ -44,6 +44,10 @@
             'Norway' => 'Noruega',
             'Jordan' => 'Jordania',
             'Algeria' => 'Argelia',
+            'Congo DR' => 'Rep. Congo',
+            'Czechia' => 'Chequia',
+            'Türkiye' => 'Turquía',
+            'Sweden' => 'Suecia',
         ];
 
         return $translations[$teamName] ?? $teamName;
@@ -89,9 +93,17 @@
 
     function traducir_rondas($stage)
     {
-        return match($stage) {
+        // Separar sufijo numérico (ej: "Group Stage - 1" → base="Group Stage", sufijo=" - 1")
+        $sufijo = '';
+        $base = $stage;
+        if (preg_match('/^(.+?)(\s*-\s*\d+)$/', $stage, $m)) {
+            $base   = trim($m[1]);
+            $sufijo = $m[2];
+        }
+
+        $traducido = match($base) {
             'REGULAR_SEASON' => 'Temporada Regular',
-            'GROUP_STAGE' => 'Fase de Grupos',
+            'Group Stage' => 'Fase de Grupos',
 
             'QUALIFICATION' => 'Fase de Clasificación',
             'QUALIFICATION_ROUND_1' => 'Clasificación - Ronda 1',
@@ -109,6 +121,8 @@
             'THIRD_PLACE' => 'Tercer Lugar',
             'FINAL' => 'Final',
 
-            default => $stage
+            default => $base
         };
+
+        return $traducido . $sufijo;
     }

@@ -49,8 +49,8 @@
                                     </span>
                                 </td>
                                 <td class="py-1.5 pr-4 text-gray-800">{{ $e['usuario'] }}</td>
-                                <td class="py-1.5 pr-4 text-gray-600">#{{ $e['quinielaId'] }}</td>
-                                <td class="py-1.5 pr-4 text-gray-600">#{{ $e['juegoId'] }}</td>
+                                <td class="py-1.5 pr-4 text-gray-600">{{ $e['quiniela'] }}</td>
+                                <td class="py-1.5 pr-4 text-gray-600">{{ $e['juego'] }}</td>
                                 <td class="py-1.5 pr-4 font-semibold text-gray-800">{{ $e['nuevo'] }}</td>
                                 <td class="py-1.5 pr-4 text-gray-400">{{ $e['anterior'] ?? '—' }}</td>
                                 <td class="py-1.5 text-gray-400">{{ $e['ip'] }}</td>

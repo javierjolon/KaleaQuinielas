@@ -67,23 +67,37 @@ class LogsInserciones extends Page
             $userIds[] = $json['usuarioId'];
         }
 
+        $quinielaIds = array_unique(array_column(array_column($parsed, 'datos'), 'quinielaId'));
+        $juegoIds    = array_unique(array_column(array_column($parsed, 'datos'), 'juegoId'));
+
         $usuarios = DB::table('users')
             ->whereIn('id', array_unique($userIds))
             ->pluck('name', 'id');
 
+        $quinielas = DB::table('quinielas')
+            ->whereIn('id', $quinielaIds)
+            ->pluck('nombre', 'id');
+
+        $juegos = DB::table('juegos')
+            ->whereIn('id', $juegoIds)
+            ->select('id', 'equipo1', 'equipo2')
+            ->get()
+            ->keyBy('id');
+
         foreach ($parsed as $p) {
-            $d = $p['datos'];
+            $d      = $p['datos'];
+            $juego  = $juegos[$d['juegoId']] ?? null;
             $entries[] = [
-                'hora'      => $p['hora'],
-                'accion'    => $d['accion'] ?? 'INSERT',
-                'usuario'   => $usuarios[$d['usuarioId']] ?? "ID {$d['usuarioId']}",
-                'quinielaId'=> $d['quinielaId'],
-                'juegoId'   => $d['juegoId'],
-                'nuevo'     => ($d['quinielaEquipo1'] ?? '-') . ' - ' . ($d['quinielaEquipo2'] ?? '-'),
-                'anterior'  => is_null($d['quinielaEquipo1Anterior'] ?? null) && is_null($d['quinielaEquipo2Anterior'] ?? null)
+                'hora'     => $p['hora'],
+                'accion'   => $d['accion'] ?? 'INSERT',
+                'usuario'  => $usuarios[$d['usuarioId']] ?? "ID {$d['usuarioId']}",
+                'quiniela' => $quinielas[$d['quinielaId']] ?? "#{$d['quinielaId']}",
+                'juego'    => $juego ? "{$juego->equipo1} vs {$juego->equipo2}" : "#{$d['juegoId']}",
+                'nuevo'    => ($d['quinielaEquipo1'] ?? '-') . ' - ' . ($d['quinielaEquipo2'] ?? '-'),
+                'anterior' => is_null($d['quinielaEquipo1Anterior'] ?? null) && is_null($d['quinielaEquipo2Anterior'] ?? null)
                                 ? null
                                 : ($d['quinielaEquipo1Anterior'] ?? '-') . ' - ' . ($d['quinielaEquipo2Anterior'] ?? '-'),
-                'ip'        => $d['ip'] ?? '',
+                'ip'       => $d['ip'] ?? '',
             ];
         }
 
