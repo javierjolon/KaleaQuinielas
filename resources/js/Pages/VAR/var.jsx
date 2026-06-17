@@ -48,9 +48,12 @@ function CabeceraContenido({ juego }) {
             <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-gray-500">{juego.tipoJuego}</span>
                 <span
-                    className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                    className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
                     style={{ backgroundColor: juego.estatusColor + '20', color: juego.estatusColor }}
                 >
+                    {(juego.estatusNombre === 'En juego' || juego.estatusNombre === 'Medio tiempo') && (
+                        <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ backgroundColor: juego.estatusColor, animationDuration: '0.75s' }} />
+                    )}
                     {juego.estatusNombre}
                 </span>
             </div>
