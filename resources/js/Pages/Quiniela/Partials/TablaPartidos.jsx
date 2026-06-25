@@ -54,7 +54,7 @@ export default function TablaPartidos(props) {
                                     <img src='/img/static/calendar.svg' alt='fecha' className='w-4 h-4' style={{ filter: 'brightness(0) invert(1)' }} />
                                     {(() => {
                                         const [d, m, y] = fecha.split('-');
-                                        const dia = new Date(`${y}-${m}-${d}`).toLocaleDateString('es-MX', { weekday: 'long' });
+                                        const dia = new Date(`${y}-${m}-${d}T12:00:00`).toLocaleDateString('es-MX', { weekday: 'long' });
                                         return `${dia.charAt(0).toUpperCase() + dia.slice(1)}, ${fecha}`;
                                     })()}
                                 </div>
