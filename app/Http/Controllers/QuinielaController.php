@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -507,6 +508,67 @@ class QuinielaController extends Controller
                 'ronda'      => traducir_rondas($p->ronda ?? ''),
             ];
         }));
+    }
+
+    public function tablaLiga()
+    {
+        $quinielaActiva = collect(session('quinielas', []))->firstWhere('activo', true);
+        $quinielaActivaId = (int) ($quinielaActiva['id'] ?? 0);
+
+        if ($quinielaActivaId <= 0) {
+            return response()->json([]);
+        }
+
+        $competicion = DB::table('quinielasJuegos as qj')
+            ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+            ->where('qj.quinielaId', $quinielaActivaId)
+            ->whereNotNull('j.competicion')
+            ->select('j.competicion', 'j.season')
+            ->first();
+
+        if (! $competicion) {
+            return response()->json([]);
+        }
+
+        $response = Http::withHeaders([
+            'x-apisports-key' => env('FOOTBALL_API_KEY'),
+        ])->get("https://v3.football.api-sports.io/standings?league={$competicion->competicion}&season={$competicion->season}");
+
+        if (! $response->successful()) {
+            return response()->json([], 502);
+        }
+
+        $data      = $response->json();
+        $leagueRaw = $data['response'][0]['league'] ?? null;
+
+        if (! $leagueRaw) {
+            return response()->json([]);
+        }
+
+        $grupos = collect($leagueRaw['standings'] ?? [])->map(function ($grupo) {
+            return collect($grupo)->map(function ($item) {
+                return [
+                    'rank'        => $item['rank'],
+                    'team'        => ['name' => traducir_equipos($item['team']['name']), 'logo' => $item['team']['logo']],
+                    'points'      => $item['points'],
+                    'played'      => $item['all']['played'],
+                    'win'         => $item['all']['win'],
+                    'draw'        => $item['all']['draw'],
+                    'lose'        => $item['all']['lose'],
+                    'gf'          => $item['all']['goals']['for'],
+                    'ga'          => $item['all']['goals']['against'],
+                    'gd'          => $item['goalsDiff'],
+                    'form'        => $item['form'] ?? '',
+                    'description' => $item['description'] ?? '',
+                    'grupo'       => preg_replace('/^World Cup\s*[-,]\s*/i', '', $item['group'] ?? ''),
+                ];
+            })->values();
+        })->values();
+
+        return response()->json([
+            'league'  => ['nombre' => $leagueRaw['name'], 'logo' => $leagueRaw['logo']],
+            'grupos'  => $grupos,
+        ]);
     }
 
     public function patch(Request $request, $juegoId){

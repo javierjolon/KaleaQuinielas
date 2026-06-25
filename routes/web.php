@@ -176,6 +176,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/quiniela/agregar-usuario', [QuinielaController::class, 'agregarUsuario'])->name('quiniela.agregar-usuario');
     Route::delete('/quiniela/eliminar-usuario', [QuinielaController::class, 'eliminarUsuario'])->name('quiniela.eliminar-usuario');
     Route::post('/partidos-equipo', [QuinielaController::class, 'equipoPartidos'])->name('quiniela.equipo-partidos');
+    Route::get('/tabla-liga', [QuinielaController::class, 'tablaLiga'])->name('quiniela.tabla-liga');
     Route::patch('/quiniela/{juegoId}', [QuinielaController::class, 'patch'])->name('quiniela.patch');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

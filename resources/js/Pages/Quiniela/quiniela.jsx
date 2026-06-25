@@ -2,13 +2,15 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from "react";
 import TablaPartidos from '@/Pages/Quiniela/Partials/TablaPartidos';
+import TablaLiga from '@/Pages/Quiniela/Partials/TablaLiga';
 
 
 export default function Quiniela(props) {
 
     const tabs = [
         { id: "ingresar", label: "Ingresar" },
-        { id: "finalizados", label: "Finalizados" }
+        { id: "finalizados", label: "Finalizados" },
+        { id: "tabla", label: "Tabla posiciones" },
     ];
 
     const juegosIngresar = (() => {
@@ -72,6 +74,10 @@ export default function Quiniela(props) {
 
                         {activeTab === "finalizados" && (
                             <TablaPartidos listadoJuegos={props.juegosFinalizados} soloLectura={true} quinielaId={quinielaActiva?.id}/>
+                        )}
+
+                        {activeTab === "tabla" && (
+                            <TablaLiga />
                         )}
                     </div>
                 </div>
