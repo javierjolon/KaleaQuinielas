@@ -62,8 +62,9 @@ class apiFotballService
                 $statusShort = $fixture['fixture']['status']['short'] ?? 'NS';
                 $statusApi   = $this->mapearEstatus($statusShort);
 
-                $scoreHome = $fixture['goals']['home'];
-                $scoreAway = $fixture['goals']['away'];
+                // score.fulltime = solo 90 min (goals incluye ET, no cuenta penales)
+                $scoreHome = $fixture['score']['fulltime']['home'] ?? $fixture['goals']['home'];
+                $scoreAway = $fixture['score']['fulltime']['away'] ?? $fixture['goals']['away'];
 
                 // Free tier puede no enviar IN_PLAY — misma protección que antes
                 $statusNoRegresa = ['IN_PLAY', 'PAUSED', 'FINISHED'];
