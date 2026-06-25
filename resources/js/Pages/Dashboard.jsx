@@ -39,7 +39,7 @@ export default function Dashboard(props) {
         <AuthenticatedLayout
             auth={props.auth}
             errors={props.errors}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Mi posicion: {posicionActual > 0 ? `${posicionActual} lugar` : "-"}</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight text-center w-full">Mi posicion: {posicionActual > 0 ? `${posicionActual} lugar` : "-"}</h2>}
         >
             <Head title="Home" />
 
