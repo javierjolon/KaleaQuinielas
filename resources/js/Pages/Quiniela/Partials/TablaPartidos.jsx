@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import Modal from '@/Components/Modal';
+import axios from 'axios';
 
 function resultadoGanador(e1, e2) {
     const a = parseInt(e1), b = parseInt(e2);
@@ -120,13 +121,8 @@ export default function TablaPartidos(props) {
 
     const abrirModalEquipo = (nombre, imagen) => {
         setModalEquipo({ nombre, imagen, partidos: [], loading: true });
-        const params = new URLSearchParams({ imagen });
-        if (props.quinielaId) params.append('quinielaId', props.quinielaId);
-        fetch(`/quiniela/equipo/partidos?${params.toString()}`, {
-                headers: { 'Accept': 'application/json' },
-            })
-            .then((r) => r.json())
-            .then((data) => setModalEquipo((prev) => prev ? { ...prev, partidos: data, loading: false } : null))
+        axios.post('/partidos-equipo', { imagen, quinielaId: props.quinielaId })
+            .then((r) => setModalEquipo((prev) => prev ? { ...prev, partidos: r.data, loading: false } : null))
             .catch(() => setModalEquipo((prev) => prev ? { ...prev, partidos: [], loading: false } : null));
     };
 

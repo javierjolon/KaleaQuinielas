@@ -175,7 +175,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/quiniela/seleccionar-activa', [QuinielaController::class, 'seleccionarActiva'])->name('quiniela.seleccionar-activa');
     Route::post('/quiniela/agregar-usuario', [QuinielaController::class, 'agregarUsuario'])->name('quiniela.agregar-usuario');
     Route::delete('/quiniela/eliminar-usuario', [QuinielaController::class, 'eliminarUsuario'])->name('quiniela.eliminar-usuario');
-    Route::get('/quiniela/equipo/partidos', [QuinielaController::class, 'equipoPartidos'])->name('quiniela.equipo-partidos');
+    Route::post('/partidos-equipo', [QuinielaController::class, 'equipoPartidos'])->name('quiniela.equipo-partidos');
     Route::patch('/quiniela/{juegoId}', [QuinielaController::class, 'patch'])->name('quiniela.patch');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

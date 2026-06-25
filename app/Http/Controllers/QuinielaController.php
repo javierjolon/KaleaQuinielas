@@ -465,7 +465,7 @@ class QuinielaController extends Controller
 
     public function equipoPartidos(Request $request)
     {
-        $imagen = $request->query('imagen');
+        $imagen = $request->input('imagen') ?? $request->query('imagen');
 
         if (! $imagen) {
             return response()->json([]);
