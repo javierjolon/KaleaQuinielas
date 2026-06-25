@@ -67,11 +67,11 @@ export default function Quiniela(props) {
                         </div>
 
                         {activeTab === "ingresar" && (
-                            <TablaPartidos listadoJuegos={juegosIngresar}/>
+                            <TablaPartidos listadoJuegos={juegosIngresar} quinielaId={quinielaActiva?.id}/>
                         )}
 
                         {activeTab === "finalizados" && (
-                            <TablaPartidos listadoJuegos={props.juegosFinalizados} soloLectura={true}/>
+                            <TablaPartidos listadoJuegos={props.juegosFinalizados} soloLectura={true} quinielaId={quinielaActiva?.id}/>
                         )}
                     </div>
                 </div>

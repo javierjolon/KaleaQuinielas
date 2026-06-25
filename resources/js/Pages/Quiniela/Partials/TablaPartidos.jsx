@@ -120,7 +120,11 @@ export default function TablaPartidos(props) {
 
     const abrirModalEquipo = (nombre, imagen) => {
         setModalEquipo({ nombre, imagen, partidos: [], loading: true });
-        fetch(`/quiniela/equipo/partidos?imagen=${encodeURIComponent(imagen)}`)
+        const params = new URLSearchParams({ imagen });
+        if (props.quinielaId) params.append('quinielaId', props.quinielaId);
+        fetch(`/quiniela/equipo/partidos?${params.toString()}`, {
+                headers: { 'Accept': 'application/json' },
+            })
             .then((r) => r.json())
             .then((data) => setModalEquipo((prev) => prev ? { ...prev, partidos: data, loading: false } : null))
             .catch(() => setModalEquipo((prev) => prev ? { ...prev, partidos: [], loading: false } : null));

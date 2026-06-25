@@ -471,16 +471,11 @@ class QuinielaController extends Controller
             return response()->json([]);
         }
 
-        $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
-        $quinielaActivaId = (int) ($quinielaActiva['id'] ?? 0);
-
-        if ($quinielaActivaId <= 0) {
-            return response()->json([]);
-        }
-
+        // Obtiene competicion/season desde cualquier juego del usuario — evita problemas de tipo con quinielaId
         $competicion = DB::table('quinielasJuegos as qj')
             ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
-            ->where('qj.quinielaId', $quinielaActivaId)
+            ->where('qj.usuarioId', Auth::id())
+            ->whereNotNull('j.competicion')
             ->select('j.competicion', 'j.season')
             ->first();
 
