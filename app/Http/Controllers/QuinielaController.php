@@ -463,6 +463,57 @@ class QuinielaController extends Controller
     //     }
     // }
 
+    public function equipoPartidos(Request $request)
+    {
+        $imagen = $request->query('imagen');
+
+        if (! $imagen) {
+            return response()->json([]);
+        }
+
+        $quinielaActiva = collect(session('quinielas'))->firstWhere('activo', true);
+        $quinielaActivaId = (int) ($quinielaActiva['id'] ?? 0);
+
+        if ($quinielaActivaId <= 0) {
+            return response()->json([]);
+        }
+
+        $competicion = DB::table('quinielasJuegos as qj')
+            ->join('juegos as j', 'j.id', '=', 'qj.juegoId')
+            ->where('qj.quinielaId', $quinielaActivaId)
+            ->select('j.competicion', 'j.season')
+            ->first();
+
+        if (! $competicion) {
+            return response()->json([]);
+        }
+
+        $partidos = DB::table('juegos')
+            ->where('competicion', $competicion->competicion)
+            ->where('season', $competicion->season)
+            ->where(function ($q) use ($imagen) {
+                $q->where('imagenEquipo1', $imagen)->orWhere('imagenEquipo2', $imagen);
+            })
+            ->orderBy('fechaJuego')
+            ->orderBy('horaJuego')
+            ->get();
+
+        return response()->json($partidos->map(function ($p) use ($imagen) {
+            $esLocal = $p->imagenEquipo1 === $imagen;
+            return [
+                'id'         => $p->id,
+                'fecha'      => Carbon::parse($p->fechaJuego)->format('d/m/Y'),
+                'hora'       => substr($p->horaJuego ?? '', 0, 5),
+                'rival'      => traducir_equipos($esLocal ? ($p->equipo2 ?? 'Pendiente') : ($p->equipo1 ?? 'Pendiente')),
+                'imagenRival'=> $esLocal ? $p->imagenEquipo2 : $p->imagenEquipo1,
+                'esLocal'    => $esLocal,
+                'goles'      => $p->resultadoEquipo1 !== null ? ($esLocal ? $p->resultadoEquipo1 . '-' . $p->resultadoEquipo2 : $p->resultadoEquipo2 . '-' . $p->resultadoEquipo1) : null,
+                'estatus'    => $p->estatus,
+                'ronda'      => traducir_rondas($p->ronda ?? ''),
+            ];
+        }));
+    }
+
     public function patch(Request $request, $juegoId){
         $quinielaEquipo1 = request()->get("quinielaEquipo1");
         $quinielaEquipo2 = request()->get("quinielaEquipo2");

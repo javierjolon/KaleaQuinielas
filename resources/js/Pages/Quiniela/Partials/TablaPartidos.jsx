@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import Modal from '@/Components/Modal';
 
 function resultadoGanador(e1, e2) {
     const a = parseInt(e1), b = parseInt(e2);
@@ -9,8 +10,85 @@ function resultadoGanador(e1, e2) {
     return 'E';
 }
 
+function IconoEstadistica() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M8 17V13M12 17V7M16 17V11"/>
+        </svg>
+    );
+}
+
+function diaNombre(fechaDMY) {
+    const [d, m, y] = fechaDMY.split('/');
+    const dia = new Date(`${y}-${m}-${d}T12:00:00`).toLocaleDateString('es-MX', { weekday: 'long' });
+    return dia.charAt(0).toUpperCase() + dia.slice(1);
+}
+
+function ModalEquipo({ equipo, onClose }) {
+    const esTerminado = (est) => ['FINISHED', 'AWARDED'].includes(est);
+
+    return (
+        <Modal show={!!equipo} onClose={onClose} maxWidth="sm">
+            <div className="p-4">
+                <div className="flex items-center gap-3 mb-4 border-b pb-3">
+                    {equipo?.imagen && (
+                        <img src={equipo.imagen} alt={equipo.nombre} className="w-10 h-10 object-contain" />
+                    )}
+                    <h3 className="font-bold text-base text-gray-800">{equipo?.nombre}</h3>
+                    <button onClick={onClose} className="ml-auto text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+                </div>
+
+                {equipo?.loading ? (
+                    <div className="text-center py-6 text-gray-400 text-sm">Cargando...</div>
+                ) : equipo?.partidos?.length === 0 ? (
+                    <div className="text-center py-6 text-gray-400 text-sm">Sin partidos disponibles</div>
+                ) : (
+                    <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                        {equipo?.partidos?.map((p) => (
+                            <div key={p.id} className="rounded-lg bg-gray-50 p-2">
+                                {/* Fila superior: día, fecha, hora, tag local/visitante */}
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-xs font-semibold text-gray-600">{diaNombre(p.fecha)}</span>
+                                    <span className="text-xs text-gray-400">{p.fecha}</span>
+                                    {p.hora && <span className="text-xs text-gray-400">{p.hora}</span>}
+                                    <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${p.esLocal ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                                        {p.esLocal ? 'Local' : 'Visitante'}
+                                    </span>
+                                </div>
+                                {/* Fila inferior: rival y marcador */}
+                                <div className="flex items-center gap-2">
+                                    {p.imagenRival && (
+                                        <img src={p.imagenRival} alt={p.rival} className="w-5 h-5 object-contain shrink-0" />
+                                    )}
+                                    <span className="text-xs text-gray-700 flex-1 truncate">{p.rival}</span>
+                                    {esTerminado(p.estatus) && p.goles !== null ? (() => {
+                                        const [mine, theirs] = p.goles.split('-').map(Number);
+                                        const tag = mine > theirs ? { label: 'G', cls: 'bg-green-100 text-green-700' }
+                                                  : mine < theirs ? { label: 'P', cls: 'bg-red-100 text-red-700' }
+                                                  : { label: 'E', cls: 'bg-gray-200 text-gray-600' };
+                                        return (
+                                            <div className="flex items-center gap-1 shrink-0">
+                                                <span className="text-xs font-bold text-gray-800">{p.goles}</span>
+                                                <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${tag.cls}`}>{tag.label}</span>
+                                            </div>
+                                        );
+                                    })() : (
+                                        <span className="text-xs text-gray-400 shrink-0">Pendiente</span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </Modal>
+    );
+}
+
 export default function TablaPartidos(props) {
     const [resultados, setResultados] = useState({});
+    const [modalEquipo, setModalEquipo] = useState(null);
     const soloLectura = props.soloLectura === true;
 
     const actualizarResultado = (juegoId, juego) => {
@@ -40,8 +118,29 @@ export default function TablaPartidos(props) {
         });
     };
 
+    const abrirModalEquipo = (nombre, imagen) => {
+        setModalEquipo({ nombre, imagen, partidos: [], loading: true });
+        fetch(`/quiniela/equipo/partidos?imagen=${encodeURIComponent(imagen)}`)
+            .then((r) => r.json())
+            .then((data) => setModalEquipo((prev) => prev ? { ...prev, partidos: data, loading: false } : null))
+            .catch(() => setModalEquipo((prev) => prev ? { ...prev, partidos: [], loading: false } : null));
+    };
+
+    const BtnEquipo = ({ nombre, imagen }) => (
+        <button
+            type="button"
+            onClick={() => abrirModalEquipo(nombre, imagen)}
+            className="text-gray-400 hover:text-azul transition-colors mt-0.5"
+            title={`Ver partidos de ${nombre}`}
+        >
+            <IconoEstadistica />
+        </button>
+    );
+
     return (
         <div>
+            <ModalEquipo equipo={modalEquipo} onClose={() => setModalEquipo(null)} />
+
             {Object.keys(props.listadoJuegos).length > 0 &&
                 <div>
                     {Object.entries(props.listadoJuegos).map(([fecha, juegos]) => (
@@ -81,6 +180,9 @@ export default function TablaPartidos(props) {
                                                         />
                                                     </div>
                                                     <div className='text-center text-xs leading-tight'>{juego.equipo1 ?? 'Pendiente'}</div>
+                                                    {juego.imagenEquipo1 && (
+                                                        <BtnEquipo nombre={juego.equipo1 ?? 'Pendiente'} imagen={juego.imagenEquipo1} />
+                                                    )}
                                                 </div>
 
                                                 {/* Centro */}
@@ -131,6 +233,9 @@ export default function TablaPartidos(props) {
                                                         />
                                                     </div>
                                                     <div className='text-center text-xs leading-tight'>{juego.equipo2 ?? 'Pendiente'}</div>
+                                                    {juego.imagenEquipo2 && (
+                                                        <BtnEquipo nombre={juego.equipo2 ?? 'Pendiente'} imagen={juego.imagenEquipo2} />
+                                                    )}
                                                 </div>
                                             </div>
                                         ) : (
@@ -153,6 +258,9 @@ export default function TablaPartidos(props) {
                                                             />
                                                         </div>
                                                         <div className='text-center text-xs mt-1 font-medium'>{juego.equipo1 ?? 'Pendiente'}</div>
+                                                        {juego.imagenEquipo1 && (
+                                                            <BtnEquipo nombre={juego.equipo1 ?? 'Pendiente'} imagen={juego.imagenEquipo1} />
+                                                        )}
                                                     </div>
 
                                                     {/* Score equipo 1 */}
@@ -206,6 +314,9 @@ export default function TablaPartidos(props) {
                                                             />
                                                         </div>
                                                         <div className='text-center text-xs mt-1 font-medium'>{juego.equipo2 ?? 'Pendiente'}</div>
+                                                        {juego.imagenEquipo2 && (
+                                                            <BtnEquipo nombre={juego.equipo2 ?? 'Pendiente'} imagen={juego.imagenEquipo2} />
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
