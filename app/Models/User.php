@@ -12,6 +12,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends \Illuminate\Database\Eloquent\Model implements
@@ -21,7 +22,7 @@ class User extends \Illuminate\Database\Eloquent\Model implements
     FilamentUser,
     MustVerifyEmail
 {
-    use Authenticatable, Authorizable, CanResetPassword, HasFactory, HasRoles, MustVerifyEmailTrait, Notifiable;
+    use Authenticatable, Authorizable, CanResetPassword, HasApiTokens, HasFactory, HasRoles, MustVerifyEmailTrait, Notifiable;
 
     protected $guard_name = 'web';
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\MobileController;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\UsuariosController;
 use Illuminate\Http\Request;
@@ -16,6 +17,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// ── Mobile API (Sanctum token auth) ──────────────────────────────────────────
+Route::post('/login',    [MobileController::class, 'login']);
+Route::post('/register', [MobileController::class, 'register']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user',    [MobileController::class, 'user']);
+    Route::post('/logout', [MobileController::class, 'logout']);
+
+    Route::get('/dashboard',          [MobileController::class, 'dashboard']);
+    Route::get('/quiniela',           [MobileController::class, 'quiniela']);
+    Route::patch('/quiniela/{juegoId}', [MobileController::class, 'patchPrediccion']);
+    Route::post('/quiniela',          [MobileController::class, 'crearQuiniela']);
+
+    Route::post('/quiniela/agregar-usuario',  [MobileController::class, 'agregarUsuario']);
+    Route::delete('/quiniela/eliminar-usuario', [MobileController::class, 'eliminarUsuario']);
+
+    Route::post('/partidos-equipo', [MobileController::class, 'partidosEquipo']);
+    Route::get('/tabla-liga',       [MobileController::class, 'tablaLiga']);
+});
+
+// ── Legacy web-facing API ─────────────────────────────────────────────────────
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
