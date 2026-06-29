@@ -105,9 +105,10 @@ class SimularPartido extends Command
     {
         return match($short) {
             'NS', 'TBD'            => 'TIMED',
-            '1H', '2H', 'ET', 'P',
+            '1H', '2H',
             'INT', 'LIVE'          => 'IN_PLAY',
-            'HT', 'BT'             => 'PAUSED',
+            'HT'                   => 'PAUSED',
+            'ET', 'P', 'BT',
             'FT', 'AET', 'PEN'     => 'FINISHED',
             default                => $short,
         };

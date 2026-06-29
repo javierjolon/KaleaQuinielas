@@ -184,9 +184,11 @@ class apiFotballService
     {
         return match($short) {
             'NS', 'TBD'              => 'TIMED',
-            '1H', '2H', 'ET', 'P',
+            '1H', '2H',
             'INT', 'LIVE'            => 'IN_PLAY',
-            'HT', 'BT'               => 'PAUSED',
+            'HT'                     => 'PAUSED',
+            // ET/P/BT/AET/PEN: quiniela usa marcador a 90 min, se trata como FINISHED
+            'ET', 'P', 'BT',
             'FT', 'AET', 'PEN'       => 'FINISHED',
             'SUSP'                   => 'SUSPENDED',
             'PST'                    => 'POSTPONED',
